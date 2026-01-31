@@ -350,7 +350,7 @@
 
             <div class="bar-container">
                 <div class="bar-label">
-                    <span>Propelente (RP-1/LOX)</span>
+                    <span>METHANE / LOX (BOOSTER)</span>
                     <span id="booster-fuel-pct">0%</span>
                 </div>
                 <div class="progress-track">
@@ -415,7 +415,7 @@
 
             <div class="bar-container">
                 <div class="bar-label">
-                    <span>Propelente (Vacuum)</span>
+                    <span>METHALOX (VACUUM)</span>
                     <span id="ship-fuel-pct">0%</span>
                 </div>
                 <div class="progress-track">
@@ -525,20 +525,54 @@
         function initBoosterEngines() {
             const container = document.getElementById('booster-engines');
             container.innerHTML = '';
-            const cx = 100, cy = 100; // Center of 200x200 container
+            const cx = 100, cy = 100; // Center of 200x200
 
-            // SpaceX Merlin Layout (8 ring + 1 center)
-            // Center
-            createNode(container, 'C1', cx, cy, 34);
+            // 1. Center Cluster (3 engines) - Triangle
+            // Tags: 1, 2, 3
+            // Radius small
+            createNode(container, '1', cx, cy - 15, 20);
+            createNode(container, '2', cx - 13, cy + 10, 20);
+            createNode(container, '3', cx + 13, cy + 10, 20);
 
-            // Ring
-            for (let i = 0; i < 8; i++) {
-                const angle = (i * 45 - 90) * (Math.PI / 180);
-                const r = 65;
-                const x = cx + r * Math.cos(angle);
-                const y = cy + r * Math.sin(angle);
-                createNode(container, `R${i + 1}`, x, y, 26);
+            // 2. Middle Ring (10 engines)
+            // Tags: 4..13
+            const rMid = 45;
+            for (let i = 0; i < 10; i++) {
+                const angle = (i * 36 - 90) * (Math.PI / 180);
+                const x = cx + rMid * Math.cos(angle);
+                const y = cy + rMid * Math.sin(angle);
+                createNode(container, (4 + i).toString(), x, y, 18);
             }
+
+            // 3. Outer Ring (20 engines)
+            // Tags: 14..33
+            const rOut = 85;
+            for (let i = 0; i < 20; i++) {
+                const angle = (i * 18 - 90) * (Math.PI / 180);
+                const x = cx + rOut * Math.cos(angle);
+                const y = cy + rOut * Math.sin(angle);
+                createNode(container, (14 + i).toString(), x, y, 18);
+            }
+        }
+
+        function initShipEngines() {
+            const container = document.getElementById('ship-engines');
+            container.innerHTML = ''; // Limpiar el motor unico anterior
+            // Layout: 4 Inner (S1-S4), 2 Outer (SEC1-SEC2)
+            // Container size adjusted in CSS? It was 120x120. Let's make it bigger if needed, or scale down.
+            // Using logic from S2 script: S1-S4 and SEC1-SEC2.
+            const cx = 60, cy = 60; // Center of 120x120
+
+            // S1-S4: Square 
+            const rInner = 20;
+            createNode(container, 'S1', cx - rInner, cy - rInner, 22);
+            createNode(container, 'S2', cx + rInner, cy - rInner, 22);
+            createNode(container, 'S3', cx + rInner, cy + rInner, 22);
+            createNode(container, 'S4', cx - rInner, cy + rInner, 22);
+
+            // SEC1-SEC2: Flanking Left/Right
+            createNode(container, 'SEC1', cx - 45, cy, 26);
+            createNode(container, 'SEC2', cx + 45, cy, 26);
         }
 
         function createNode(parent, tag, x, y, size) {
@@ -549,10 +583,20 @@
             div.style.height = size + 'px';
             div.style.left = (x - size / 2) + 'px';
             div.style.top = (y - size / 2) + 'px';
+            // Texto pequeño para debug si cabe
+            if (size > 20) {
+                div.innerText = tag.replace('SEC', 'V');
+                div.style.display = 'flex';
+                div.style.alignItems = 'center';
+                div.style.justifyContent = 'center';
+                div.style.fontSize = '8px';
+                div.style.color = '#000';
+            }
             parent.appendChild(div);
         }
 
         initBoosterEngines();
+        initShipEngines();
 
         // --- CORE UPDATE LOOP ---
         const telemetryRef = ref(db, '/');
@@ -588,6 +632,8 @@
                 document.getElementById('booster-thr-pct').innerText = Math.round(thr) + "%";
 
                 // Engines
+                // Si viene engStates, usarlo. Si no, simular con throttle para demo si se desea, 
+                // pero mejor respetar data real.
                 if (B1.engStates) {
                     for (let tag in B1.engStates) {
                         const state = B1.engStates[tag];
@@ -620,10 +666,24 @@
                 document.getElementById('ship-thr-bar').style.width = thr + "%";
                 document.getElementById('ship-thr-pct').innerText = Math.round(thr) + "%";
 
-                // S2 Engine (Single) - Simplificado: Si thr > 0, activo
-                const engDiv = document.getElementById('s2-engine-main');
-                if (thr > 0.1) engDiv.classList.add('active');
-                else engDiv.classList.remove('active');
+                // Ship Engines (Cluster de 6)
+                if (S2.engStates) {
+                    for (let tag in S2.engStates) {
+                        const state = S2.engStates[tag];
+                        const el = document.querySelector(`#ship-engines [data-tag="${tag}"]`);
+                        if (el) {
+                            if (state === 1) el.classList.add('active');
+                            else el.classList.remove('active');
+                        }
+                    }
+                } else {
+                    // Fallback visual si no hay data individual: encender todos si throttle > 0
+                    const allShipEngs = document.querySelectorAll('#ship-engines .engine-node');
+                    allShipEngs.forEach(el => {
+                        if (thr > 1) el.classList.add('active');
+                        else el.classList.remove('active');
+                    });
+                }
             }
 
             // MISSION TIME (Simulado o real si viene en raw)
