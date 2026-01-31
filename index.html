@@ -400,6 +400,12 @@
                     document.getElementById('ship-fuel-pct').innerText = fPct;
                     document.getElementById('ship-fuel-bar').style.width = fPct + '%';
                     updateEngines('ship-engines', data.ship.engStates || data.ship.ENGSTATES);
+                } else {
+                    document.getElementById('ship-status-box').innerText = 'OFFLINE';
+                    // Apagar motores visualmente si no hay telemetría
+                    const container = document.getElementById('ship-engines');
+                    Array.from(container.getElementsByClassName('engine')).forEach(el => el.classList.remove('active'));
+                    document.getElementById('ship-thr-bar').style.width = '0%';
                 }
 
                 // Update Booster
@@ -416,6 +422,12 @@
                     document.getElementById('booster-fuel-pct').innerText = fPct;
                     document.getElementById('booster-fuel-bar').style.width = fPct + '%';
                     updateEngines('booster-engines', data.booster.engStates || data.booster.ENGSTATES);
+                } else {
+                    document.getElementById('booster-status-box').innerText = 'OFFLINE';
+                    // Apagar motores visualmente si no hay telemetría
+                    const container = document.getElementById('booster-engines');
+                    Array.from(container.getElementsByClassName('engine')).forEach(el => el.classList.remove('active'));
+                    document.getElementById('booster-thr-bar').style.width = '0%';
                 }
 
             } catch (e) {
