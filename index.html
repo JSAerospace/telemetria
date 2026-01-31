@@ -479,23 +479,39 @@
             // Caso 1: Estructura { entries: [...], $type: "Lexicon" }
             if (data.entries && Array.isArray(data.entries)) {
                 const result = {};
-                for (let entry of data.entries) {
-                    try {
-                        // Las claves y valores pueden venir envueltos en { value: ..., $type: ... }
-                        // O pueden ser directos si kOS los exportó así.
-                        let k = (entry.key && entry.key.value !== undefined) ? entry.key.value : entry.key;
-                        let v = (entry.value && entry.value.value !== undefined) ? entry.value.value : entry.value;
+                const ent = data.entries;
 
-                        // Si el valor es a su vez un objeto complejo (otro Lexicon), recursión
-                        if (v && typeof v === 'object') {
-                            v = parseKosJson(v);
-                        }
+                if (ent.length === 0) return result;
 
-                        // Asignamos al resultado si la clave es válida
-                        if (k !== null && k !== undefined) {
-                            result[String(k)] = v;
-                        }
-                    } catch (e) { console.error("Error parsing entry", entry, e); }
+                // DETECCIÓN DE FORMATO: kOS a veces exporta pares {key, value} y otras veces lista plana alterna
+                // telemetry_stage2.json confirma formato PLANO: [Key, Value, Key, Value...]
+                const first = ent[0];
+                const isTypeA = (first && typeof first === 'object' && first.key !== undefined);
+
+                if (isTypeA) {
+                    // Estrategia A: Lista de Pares [{key:..., value:...}]
+                    for (let entry of ent) {
+                        try {
+                            let k = (entry.key && entry.key.value !== undefined) ? entry.key.value : entry.key;
+                            let v = (entry.value && entry.value.value !== undefined) ? entry.value.value : entry.value;
+                            if (v && typeof v === 'object') v = parseKosJson(v);
+                            if (k !== null && k !== undefined) result[String(k)] = v;
+                        } catch (e) { }
+                    }
+                } else {
+                    // Estrategia B: Lista Plana [KeyObj, ValueObj, KeyObj, ValueObj]
+                    // Usada actualmente por tus scripts kOS
+                    for (let i = 0; i < ent.length - 1; i += 2) {
+                        try {
+                            let kObj = ent[i];
+                            let vObj = ent[i + 1];
+                            let k = (kObj.value !== undefined) ? kObj.value : kObj;
+                            let v = (vObj.value !== undefined) ? vObj.value : vObj;
+
+                            if (v && typeof v === 'object') v = parseKosJson(v);
+                            if (k !== null && k !== undefined) result[String(k)] = v;
+                        } catch (e) { }
+                    }
                 }
                 return result;
             }
