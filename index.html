@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HALCON SPACE | MISSION CONTROL</title>
+    <title>J.S. AEROSPACE | MISSION CONTROL</title>
     <link
         href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;500;700&display=swap"
         rel="stylesheet">
@@ -47,7 +47,7 @@
             z-index: 10;
         }
 
-        .brand h1 {
+        .header-title {
             font-family: 'Orbitron', sans-serif;
             font-weight: 900;
             font-size: 2rem;
@@ -592,30 +592,30 @@
             const B1 = parseKosJson(raw.booster);
 
             // ACTUALIZAR BOOSTER
+            // ACTUALIZAR BOOSTER
             if (B1) {
-                document.getElementById('booster-status').innerText = B1.status;
+                document.getElementById('booster-status').innerText = B1.status || B1.STATUS || "UNDEFINED";
                 document.getElementById('booster-status').style.borderColor = "#ffae00";
 
-                document.getElementById('booster-alt').innerText = fmtNum(B1.alt);
-                document.getElementById('booster-vel').innerText = fmtNum(B1.vel);
-                document.getElementById('booster-vs').innerText = fmtDec(B1.vs, 1);
-                document.getElementById('booster-dist').innerText = fmtNum(B1.hdist); // Ojo: Asegurar nombre
+                document.getElementById('booster-alt').innerText = fmtNum(B1.alt || B1.ALT);
+                document.getElementById('booster-vel').innerText = fmtNum(B1.vel || B1.VEL);
+                document.getElementById('booster-vs').innerText = fmtDec(B1.vs || B1.VS, 1);
+                document.getElementById('booster-hdist').innerText = fmtNum(B1.hdist || B1.HDIST || B1.dist || B1.DIST); // Multiple fallbacks
 
                 // Fuel & Throttle
-                const fPct = B1.fuelPct || 0;
+                const fPct = B1.fuelPct || B1.FUELPCT || 0;
                 document.getElementById('booster-fuel-bar').style.width = fPct + "%";
                 document.getElementById('booster-fuel-pct').innerText = Math.round(fPct) + "%";
 
-                const thr = B1.thr || 0;
+                const thr = B1.thr || B1.THR || 0;
                 document.getElementById('booster-thr-bar').style.width = thr + "%";
                 document.getElementById('booster-thr-pct').innerText = Math.round(thr) + "%";
 
                 // Engines
-                // Si viene engStates, usarlo. Si no, simular con throttle para demo si se desea, 
-                // pero mejor respetar data real.
-                if (B1.engStates) {
-                    for (let tag in B1.engStates) {
-                        const state = B1.engStates[tag];
+                const engs = B1.engStates || B1.ENGSTATES;
+                if (engs) {
+                    for (let tag in engs) {
+                        const state = engs[tag];
                         const el = document.querySelector(`#booster-engines [data-tag="${tag}"]`);
                         if (el) {
                             if (state === 1) el.classList.add('active');
@@ -627,27 +627,28 @@
 
             // ACTUALIZAR SHIP
             if (S2) {
-                document.getElementById('ship-status').innerText = S2.status;
+                document.getElementById('ship-status').innerText = S2.status || S2.STATUS || "UNDEFINED";
                 document.getElementById('ship-status').style.borderColor = "#00f3ff";
 
-                document.getElementById('ship-alt').innerText = fmtNum(S2.alt);
-                document.getElementById('ship-vel').innerText = fmtNum(S2.vel);
-                document.getElementById('ship-apo').innerText = fmtDec((S2.apo || 0) / 1000, 1);
-                document.getElementById('ship-per').innerText = fmtDec((S2.per || 0) / 1000, 1);
-                document.getElementById('ship-dv').innerText = fmtNum(S2.dv);
+                document.getElementById('ship-alt').innerText = fmtNum(S2.alt || S2.ALT);
+                document.getElementById('ship-vel').innerText = fmtNum(S2.vel || S2.VEL);
+                document.getElementById('ship-apo').innerText = fmtDec((S2.apo || S2.APO || 0) / 1000, 1);
+                document.getElementById('ship-per').innerText = fmtDec((S2.per || S2.PER || 0) / 1000, 1);
+                document.getElementById('ship-dv').innerText = fmtNum(S2.dv || S2.DV);
 
                 // Fuel & Throttle
-                const fPct = S2.fuelPct || 0;
+                const fPct = S2.fuelPct || S2.FUELPCT || 0;
                 document.getElementById('ship-fuel-bar').style.width = fPct + "%";
                 document.getElementById('ship-fuel-pct').innerText = Math.round(fPct) + "%";
 
-                const thr = S2.thr || 0;
+                const thr = S2.thr || S2.THR || 0;
                 document.getElementById('ship-thr-bar').style.width = thr + "%";
                 document.getElementById('ship-thr-pct').innerText = Math.round(thr) + "%";
 
                 // Ship Engines (Cluster de 6)
-                if (S2.engStates) {
-                    for (let tag in S2.engStates) {
+                const engs = S2.engStates || S2.ENGSTATES;
+                if (engs) {
+                    for (let tag in engs) {
                         const state = S2.engStates[tag];
                         const el = document.querySelector(`#ship-engines [data-tag="${tag}"]`);
                         if (el) {
