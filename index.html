@@ -4,355 +4,455 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Astro-3 Mission Control | Global</title>
+    <title>HALCON SPACE | MISSION CONTROL</title>
     <link
-        href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Rajdhani:wght@300;500;700&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;500;700&display=swap"
         rel="stylesheet">
     <style>
         :root {
-            --bg-color: #050a0f;
-            --glass-bg: rgba(15, 25, 35, 0.7);
-            --accent-blue: #00d2ff;
-            --accent-green: #39ff14;
+            --bg-dark: #050a0f;
+            --panel-bg: rgba(10, 20, 30, 0.85);
+            --neon-blue: #00f3ff;
+            --neon-amber: #ffae00;
+            --neon-green: #00ff41;
+            --neon-red: #ff003c;
             --text-main: #e0e0e0;
-            --danger-red: #ff4b2b;
+            --grid-color: rgba(0, 243, 255, 0.05);
         }
 
         body {
             margin: 0;
             padding: 0;
-            background: var(--bg-color);
+            background-color: var(--bg-dark);
             background-image:
-                radial-gradient(circle at 50% 50%, rgba(0, 210, 255, 0.05) 0%, transparent 80%),
-                url('https://www.transparenttextures.com/patterns/stardust.png');
+                linear-gradient(var(--grid-color) 1px, transparent 1px),
+                linear-gradient(90deg, var(--grid-color) 1px, transparent 1px);
+            background-size: 40px 40px;
             color: var(--text-main);
             font-family: 'Rajdhani', sans-serif;
             overflow-x: hidden;
+            min-height: 100vh;
         }
 
-        .header {
-            padding: 20px;
-            text-align: center;
-            background: rgba(0, 0, 0, 0.5);
-            border-bottom: 1px solid var(--accent-blue);
-            box-shadow: 0 0 20px rgba(0, 210, 255, 0.2);
-        }
-
-        .header h1 {
-            margin: 0;
-            font-family: 'Orbitron', sans-serif;
-            letter-spacing: 5px;
-            color: var(--accent-blue);
-            text-transform: uppercase;
-            text-shadow: 0 0 10px var(--accent-blue);
-        }
-
-        /* Server Config Bar */
-        .server-config {
-            background: rgba(0, 0, 0, 0.8);
-            padding: 10px;
+        /* --- HEADER --- */
+        header {
             display: flex;
-            justify-content: center;
+            justify-content: space-between;
             align-items: center;
-            gap: 10px;
-            border-bottom: 1px solid rgba(0, 210, 255, 0.3);
-            font-size: 0.8rem;
-        }
-
-        .server-config input {
-            background: #111;
-            border: 1px solid var(--accent-blue);
-            color: white;
-            padding: 5px 10px;
-            border-radius: 5px;
-            width: 300px;
-            font-family: monospace;
-        }
-
-        .container {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-            gap: 20px;
-            padding: 20px;
-            max-width: 1400px;
-            margin: auto;
-        }
-
-        .card {
-            background: var(--glass-bg);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 15px;
-            padding: 20px;
+            padding: 15px 40px;
+            background: rgba(0, 0, 0, 0.8);
+            border-bottom: 2px solid var(--neon-blue);
+            box-shadow: 0 0 20px rgba(0, 243, 255, 0.2);
             position: relative;
-            transition: transform 0.3s ease;
+            z-index: 10;
         }
 
-        .card:hover {
-            transform: translateY(-5px);
-            border-color: var(--accent-blue);
-        }
-
-        .card h2 {
-            margin-top: 0;
+        .brand h1 {
             font-family: 'Orbitron', sans-serif;
-            font-size: 1.2rem;
-            color: var(--accent-blue);
+            font-weight: 900;
+            font-size: 2rem;
+            margin: 0;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            color: #fff;
+            text-shadow: 0 0 10px var(--neon-blue);
+        }
+
+        .mission-timer {
+            text-align: right;
+        }
+
+        .mission-timer .label {
+            font-size: 0.8rem;
+            opacity: 0.7;
+            letter-spacing: 2px;
+        }
+
+        .mission-timer .time {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2.5rem;
+            color: var(--neon-green);
+            text-shadow: 0 0 10px rgba(0, 255, 65, 0.5);
+        }
+
+        /* --- DASHBOARD GRID --- */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            padding: 40px;
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        @media (max-width: 1200px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* --- PANELS --- */
+        .panel {
+            background: var(--panel-bg);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 25px;
+            position: relative;
+            clip-path: polygon(0 0,
+                    100% 0,
+                    100% calc(100% - 20px),
+                    calc(100% - 20px) 100%,
+                    0 100%);
+        }
+
+        /* Decorative Corners */
+        .panel::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100px;
+            height: 2px;
+            background: var(--neon-blue);
+            box-shadow: 0 0 10px var(--neon-blue);
+        }
+
+        .panel.booster::before {
+            background: var(--neon-amber);
+            box-shadow: 0 0 10px var(--neon-amber);
+        }
+
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
             border-bottom: 1px solid rgba(255, 255, 255, 0.1);
             padding-bottom: 10px;
         }
 
-        .metric {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin: 15px 0;
-            font-size: 1.4rem;
+        .panel-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.5rem;
+            color: var(--neon-blue);
+            text-transform: uppercase;
+            letter-spacing: 2px;
         }
 
-        .metric label {
-            color: rgba(255, 255, 255, 0.5);
+        .panel.booster .panel-title {
+            color: var(--neon-amber);
+        }
+
+        .status-badge {
+            font-family: 'Orbitron', sans-serif;
+            padding: 5px 15px;
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid #fff;
+            color: #fff;
+            font-size: 0.9rem;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        /* --- METRICS --- */
+        .metrics-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .metric-box {
+            background: rgba(255, 255, 255, 0.03);
+            padding: 15px;
+            border-left: 2px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .metric-label {
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            color: rgba(255, 255, 255, 0.6);
+            margin-bottom: 5px;
+            display: block;
+        }
+
+        .metric-value {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2rem;
+            font-weight: 700;
+            color: #fff;
+        }
+
+        .metric-unit {
+            font-size: 1rem;
+            color: rgba(255, 255, 255, 0.4);
+            margin-left: 5px;
+        }
+
+        /* --- BARS --- */
+        .bar-container {
+            margin-top: 25px;
+        }
+
+        .bar-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
             font-size: 0.9rem;
             text-transform: uppercase;
         }
 
-        .value {
-            font-weight: 700;
-            font-family: 'Orbitron', sans-serif;
-        }
-
-        .unit {
-            font-size: 0.8rem;
-            margin-left: 5px;
-            color: var(--accent-blue);
-        }
-
-        /* Engine Clusters */
-        .engine-container {
+        .progress-track {
+            height: 12px;
+            background: rgba(255, 255, 255, 0.1);
             position: relative;
-            width: 220px;
-            height: 220px;
-            margin: auto;
-            background: #020408;
-            border: 1px solid #1a2634;
-            border-radius: 10px;
             overflow: hidden;
         }
 
-        .engine {
+        .progress-fill {
+            height: 100%;
+            background: var(--neon-blue);
+            width: 0%;
+            transition: width 0.3s ease-out;
+            box-shadow: 0 0 10px var(--neon-blue);
+            position: relative;
+        }
+
+        .panel.booster .progress-fill {
+            background: var(--neon-amber);
+            box-shadow: 0 0 10px var(--neon-amber);
+        }
+
+        /* Striped bar effect */
+        .progress-fill::after {
+            content: '';
             position: absolute;
-            border-radius: 50%;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: linear-gradient(45deg, rgba(0, 0, 0, 0.2) 25%, transparent 25%,
+                    transparent 50%, rgba(0, 0, 0, 0.2) 50%,
+                    rgba(0, 0, 0, 0.2) 75%, transparent 75%, transparent);
+            background-size: 20px 20px;
+        }
+
+        /* --- ENGINE CLUSTER --- */
+        .engine-display {
+            margin-top: 30px;
             display: flex;
-            align-items: center;
             justify-content: center;
-            font-size: 0.6rem;
-            font-weight: bold;
-            color: #333;
-            border: 1px solid #1a2634;
-            background: #0a1016;
-            transition: all 0.3s ease;
-        }
-
-        .engine.active {
-            background: #39ff14;
-            color: #000;
-            border-color: #39ff14;
-            box-shadow: 0 0 15px #39ff14;
-        }
-
-        .engine-label {
-            pointer-events: none;
-        }
-
-        /* Status Indicator */
-        .status-badge {
-            padding: 5px 15px;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            font-weight: bold;
-            text-transform: uppercase;
-            background: rgba(255, 255, 255, 0.1);
-        }
-
-        .status-flying {
-            color: var(--accent-green);
-            border: 1px solid var(--accent-green);
-        }
-
-        .status-landed {
-            color: var(--accent-blue);
-            border: 1px solid var(--accent-blue);
-        }
-
-        /* Animation */
-        @keyframes pulse {
-            0% {
-                opacity: 0.5;
-            }
-
-            50% {
-                opacity: 1;
-            }
-
-            100% {
-                opacity: 0.5;
-            }
-        }
-
-        .live-indicator {
-            width: 10px;
-            height: 10px;
-            background: #ff0000;
+            background: rgba(0, 0, 0, 0.3);
             border-radius: 50%;
-            display: inline-block;
-            margin-right: 10px;
-            animation: pulse 1s infinite;
+            width: 200px;
+            height: 200px;
+            margin-left: auto;
+            margin-right: auto;
+            position: relative;
+            border: 1px dashed rgba(255, 255, 255, 0.2);
         }
 
-        footer {
-            text-align: center;
-            padding: 40px;
-            opacity: 0.5;
+        .engine-node {
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            border: 2px solid #333;
+            background: #111;
+            box-shadow: inset 0 0 5px #000;
+            transition: all 0.3s;
+        }
+
+        .engine-node.active {
+            background: #fff;
+            border-color: #fff;
+            box-shadow: 0 0 15px currentColor;
+        }
+
+        .panel.ship .engine-node.active {
+            color: var(--neon-blue);
+        }
+
+        .panel.booster .engine-node.active {
+            color: var(--neon-amber);
+        }
+
+        /* --- FOOTER --- */
+        .status-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0, 0, 0, 0.9);
+            padding: 10px 40px;
+            font-family: monospace;
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+            display: flex;
+            justify-content: space-between;
             font-size: 0.8rem;
+            z-index: 100;
+        }
+
+        .blink {
+            animation: blinker 1.5s linear infinite;
+        }
+
+        @keyframes blinker {
+            50% {
+                opacity: 0;
+            }
         }
     </style>
 </head>
 
 <body>
 
-    <div class="header">
-        <h1>Astro-3 Mission Control</h1>
-        <div><span class="live-indicator"></span> LIVE TELEMETRY STREAM</div>
-    </div>
+    <header>
+        <div class="brand">
+            <h1>HALCON SPACEX</h1>
+        </div>
+        <div class="mission-timer">
+            <div class="label">MISSION ELAPSED TIME</div>
+            <div class="time" id="met-display">T+ 00:00:00</div>
+        </div>
+    </header>
 
-    <!-- CONFIGURACIÓN DE SERVIDOR (GitHub Only) -->
-    <div class="server-config">
-        <span>ESTADO: <span id="link-status" style="color:red">OFFLINE</span></span>
-        <label>URL DEL SERVIDOR (NGROK):</label>
-        <input type="text" id="api-url" placeholder="https://xxxx-xxx-xxx.ngrok-free.app" onchange="saveUrl()">
-    </div>
+    <div class="dashboard-grid">
 
-    <div class="container">
-        <!-- SEGUNDA ETAPA (SHIP) -->
-        <div class="card">
-            <h2>STAGE 2 (ASTRO-3)</h2>
-            <div id="ship-status-box" class="status-badge status-flying">N/A</div>
+        <!-- === BOOSTER PANEL (IZQUIERDA) === -->
+        <div class="panel booster">
+            <div class="panel-header">
+                <div class="panel-title">BOOSTER / S1</div>
+                <div class="status-badge" id="booster-status">STANDBY</div>
+            </div>
 
-            <div class="metric">
-                <label>Altitud</label>
-                <div class="value"><span id="ship-alt">0</span><span class="unit">m</span></div>
-            </div>
-            <div class="metric">
-                <label>Velocidad</label>
-                <div class="value"><span id="ship-vel">0</span><span class="unit">m/s</span></div>
-            </div>
-            <div class="metric"><label>V. Vertical</label>
-                <div class="value"><span id="ship-vs">0</span><span class="unit">m/s</span></div>
-            </div>
-            <div class="metric"><label>Apoapsis</label>
-                <div class="value"><span id="ship-apo">0</span><span class="unit">km</span></div>
-            </div>
-            <div class="metric"><label>Periapsis</label>
-                <div class="value"><span id="ship-per">0</span><span class="unit">km</span></div>
-            </div>
-            <div class="metric"><label>Delta-V</label>
-                <div class="value"><span id="ship-dv">0</span><span class="unit">m/s</span></div>
-            </div>
-            <div class="metric"><label>H-Dist</label>
-                <div class="value"><span id="ship-hdist">0</span><span class="unit">m</span></div>
-            </div>
-            <div class="metric"><label>Fuel</label>
-                <div class="value"><span id="ship-fuel">0</span><span class="unit">L</span></div>
-            </div>
-            <div style="margin-top: 10px;">
-                <label style="color:rgba(255,255,255,0.4);font-size:0.7rem;text-transform:uppercase;">Throttle %</label>
-                <div
-                    style="width:100%;height:6px;background:rgba(255,255,255,0.05);border-radius:3px;margin-top:2px;overflow:hidden;">
-                    <div id="ship-thr-bar"
-                        style="width:0%;height:100%;background:var(--accent-blue);transition:width 0.3s;"></div>
+            <div class="metrics-container">
+                <div class="metric-box">
+                    <span class="metric-label">Altitud</span>
+                    <span class="metric-value" id="booster-alt">0</span>
+                    <span class="metric-unit">m</span>
+                </div>
+                <div class="metric-box">
+                    <span class="metric-label">Velocidad</span>
+                    <span class="metric-value" id="booster-vel">0</span>
+                    <span class="metric-unit">m/s</span>
+                </div>
+                <div class="metric-box">
+                    <span class="metric-label">V. Vertical</span>
+                    <span class="metric-value" id="booster-vs">0.0</span>
+                    <span class="metric-unit">m/s</span>
+                </div>
+                <div class="metric-box">
+                    <span class="metric-label">Dist. Aterrizaje</span>
+                    <span class="metric-value" id="booster-dist">0</span>
+                    <span class="metric-unit">m</span>
                 </div>
             </div>
 
-            <div style="margin-top: 20px;">
-                <label style="color: rgba(255, 255, 255, 0.5); font-size: 0.8rem; text-transform: uppercase;">Fuel
-                    Percentage</label>
-                <div id="ship-fuel-bar-container"
-                    style="width: 100%; height: 25px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 5px; margin-top: 5px; overflow: hidden;">
-                    <div id="ship-fuel-bar"
-                        style="width: 0%; height: 100%; background: #ffd700; box-shadow: 0 0 10px rgba(255, 215, 0, 0.3); transition: width 0.5s ease;">
-                    </div>
+            <div class="bar-container">
+                <div class="bar-label">
+                    <span>Propelente (RP-1/LOX)</span>
+                    <span id="booster-fuel-pct">0%</span>
                 </div>
-                <div
-                    style="text-align: right; font-family: 'Orbitron', sans-serif; font-size: 1.2rem; margin-top: 5px;">
-                    <span id="ship-fuel-pct">0</span>%
+                <div class="progress-track">
+                    <div class="progress-fill" id="booster-fuel-bar"></div>
                 </div>
             </div>
 
-            <h2 style="margin-top: 30px;">ENGINE HEALTH</h2>
-            <div class="engine-container" id="ship-engines"></div>
+            <div class="bar-container">
+                <div class="bar-label">
+                    <span>Potencia Motor (Throttle)</span>
+                    <span id="booster-thr-pct">0%</span>
+                </div>
+                <div class="progress-track">
+                    <div class="progress-fill" id="booster-thr-bar" style="width: 0%"></div>
+                </div>
+            </div>
+
+            <div class="engine-display" id="booster-engines" data-type="booster">
+                <!-- Engines JS generated -->
+            </div>
         </div>
 
-        <!-- BOOSTER -->
-        <div class="card">
-            <h2>BOOSTER (HEAVENS-FALL)</h2>
-            <div id="booster-status-box" class="status-badge status-landed">OFFLINE</div>
+        <!-- === SHIP PANEL (DERECHA) === -->
+        <div class="panel ship">
+            <div class="panel-header">
+                <div class="panel-title">ORBITER / S2</div>
+                <div class="status-badge" id="ship-status">STANDBY</div>
+            </div>
 
-            <div class="metric">
-                <label>Altitud</label>
-                <div class="value"><span id="booster-alt">0</span><span class="unit">m</span></div>
-            </div>
-            <div class="metric">
-                <label>Velocidad</label>
-                <div class="value"><span id="booster-vel">0</span><span class="unit">m/s</span></div>
-            </div>
-            <div class="metric"><label>V. Vertical</label>
-                <div class="value"><span id="booster-vs">0</span><span class="unit">m/s</span></div>
-            </div>
-            <div class="metric"><label>H-Dist</label>
-                <div class="value"><span id="booster-hdist">0</span><span class="unit">m</span></div>
-            </div>
-            <div class="metric"><label>Fuel</label>
-                <div class="value"><span id="booster-fuel">0</span><span class="unit">L</span></div>
-            </div>
-            <div style="margin-top: 10px;">
-                <label style="color:rgba(255,255,255,0.4);font-size:0.7rem;text-transform:uppercase;">Throttle %</label>
-                <div
-                    style="width:100%;height:6px;background:rgba(255,255,255,0.05);border-radius:3px;margin-top:2px;overflow:hidden;">
-                    <div id="booster-thr-bar"
-                        style="width:0%;height:100%;background:var(--accent-blue);transition:width 0.3s;"></div>
+            <div class="metrics-container">
+                <div class="metric-box">
+                    <span class="metric-label">Apoapsis</span>
+                    <span class="metric-value" id="ship-apo">0.0</span>
+                    <span class="metric-unit">km</span>
+                </div>
+                <div class="metric-box">
+                    <span class="metric-label">Periapsis</span>
+                    <span class="metric-value" id="ship-per">0.0</span>
+                    <span class="metric-unit">km</span>
+                </div>
+                <div class="metric-box">
+                    <span class="metric-label">Delta-V</span>
+                    <span class="metric-value" id="ship-dv">0</span>
+                    <span class="metric-unit">m/s</span>
+                </div>
+                <div class="metric-box">
+                    <span class="metric-label">Velocidad Orbital</span>
+                    <span class="metric-value" id="ship-vel">0</span>
+                    <span class="metric-unit">m/s</span>
+                </div>
+                <div class="metric-box">
+                    <span class="metric-label">Altitud</span>
+                    <span class="metric-value" id="ship-alt">0</span>
+                    <span class="metric-unit">m</span>
+                </div>
+                <div class="metric-box">
+                    <span class="metric-label">Inclincación</span>
+                    <span class="metric-value" id="ship-inc">0.0</span>
+                    <span class="metric-unit">°</span>
                 </div>
             </div>
 
-            <div style="margin-top: 20px;">
-                <label style="color: rgba(255, 255, 255, 0.5); font-size: 0.8rem; text-transform: uppercase;">Fuel
-                    Percentage</label>
-                <div id="booster-fuel-bar-container"
-                    style="width: 100%; height: 25px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 5px; margin-top: 5px; overflow: hidden;">
-                    <div id="booster-fuel-bar"
-                        style="width: 0%; height: 100%; background: #ffd700; box-shadow: 0 0 10px rgba(255, 215, 0, 0.3); transition: width 0.5s ease;">
-                    </div>
+            <div class="bar-container">
+                <div class="bar-label">
+                    <span>Propelente (Vacuum)</span>
+                    <span id="ship-fuel-pct">0%</span>
                 </div>
-                <div
-                    style="text-align: right; font-family: 'Orbitron', sans-serif; font-size: 1.2rem; margin-top: 5px;">
-                    <span id="booster-fuel-pct">0</span>%
+                <div class="progress-track">
+                    <div class="progress-fill" id="ship-fuel-bar"></div>
                 </div>
             </div>
 
-            <h2 style="margin-top: 30px;">BOOSTER ENGINES</h2>
-            <div class="engine-container" id="booster-engines"></div>
+            <div class="bar-container">
+                <div class="bar-label">
+                    <span>Potencia Motor</span>
+                    <span id="ship-thr-pct">0%</span>
+                </div>
+                <div class="progress-track">
+                    <div class="progress-fill" id="ship-thr-bar" style="width: 0%"></div>
+                </div>
+            </div>
+
+            <!-- Single Engine for S2 -->
+            <div class="engine-display" id="ship-engines" data-type="ship" style="width: 120px; height: 120px;">
+                <div id="s2-engine-main" class="engine-node"
+                    style="width: 60px; height: 60px; top: 30px; left: 30px; border-width: 4px;"></div>
+            </div>
         </div>
+
     </div>
 
-    <footer>
-        &copy; 2026 ASOS AEROSPACE SYSTEMS - RSS SCALE MISSION CONTROL
-    </footer>
+    <div class="status-bar">
+        <span>CONEXIÓN: <span id="conn-status" style="color:red">OFFLINE</span></span>
+        <span>ID DE DATOS: <span id="data-id" style="color:#aaa">-</span></span>
+        <span>SISTEMA VISUAL: v2.0 READY</span>
+    </div>
 
-    <!-- Firebase SDK (Version 10) -->
+    <!-- FIREBASE SDK -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
-        // Configuración proporcionada por el usuario
         const firebaseConfig = {
             apiKey: "AIzaSyCiZs5Edhj2M0GIroo7thpD-fz6UOWpoZQ",
             authDomain: "control-de-mision-js.firebaseapp.com",
@@ -367,152 +467,141 @@
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
-        // --- PARSEADOR ROBUSTO DE LEXICONS KOS ---
+        // --- FUNCIONES UTILITARIAS ---
+        const fmtNum = (n) => Math.round(n).toLocaleString();
+        const fmtDec = (n, d = 1) => (n || 0).toFixed(d);
+
         function parseKosJson(data) {
             if (!data || typeof data !== 'object') return data;
+            // Manejo de Lexicons anidados de kOS
             if (data.entries) {
                 const result = {};
-                const entries = data.entries;
-                if (entries.length > 0 && entries[0].key) {
-                    entries.forEach(item => {
-                        let k = item.key.value !== undefined ? item.key.value : item.key;
-                        let v = item.value.value !== undefined ? item.value.value : item.value;
-                        if (v && v.entries) v = parseKosJson(v);
-                        if (k !== null) result[String(k)] = v;
-                    });
-                } else {
-                    for (let i = 0; i < entries.length; i += 2) {
-                        if (i + 1 < entries.length) {
-                            let k = entries[i].value !== undefined ? entries[i].value : entries[i];
-                            let v = (entries[i + 1] && entries[i + 1].entries) ? parseKosJson(entries[i + 1]) : (entries[i + 1].value !== undefined ? entries[i + 1].value : entries[i + 1]);
-                            if (k !== null) result[String(k)] = v;
-                        }
-                    }
+                for (let entry of data.entries) {
+                    let k = entry.key?.value ?? entry.key;
+                    let v = entry.value?.value ?? entry.value;
+                    if (v && (v.entries || typeof v === 'object')) v = parseKosJson(v);
+                    if (k !== null) result[String(k)] = v;
                 }
                 return result;
             }
+            // Recursión estándar para objetos normales
             const processed = {};
             for (let k in data) processed[k] = parseKosJson(data[k]);
             return processed;
         }
 
-        function updateUI(raw_data) {
-            if (!raw_data) return;
-            const data = {
-                ship: parseKosJson(raw_data.ship),
-                booster: parseKosJson(raw_data.booster)
-            };
+        // --- GENERADOR DE MOTORES ---
+        function initBoosterEngines() {
+            const container = document.getElementById('booster-engines');
+            container.innerHTML = '';
+            const cx = 100, cy = 100; // Center of 200x200 container
 
-            const linkStatus = document.getElementById('link-status');
-            linkStatus.innerText = 'EN LÍNEA (CLOUD)';
-            linkStatus.style.color = '#39ff14';
+            // SpaceX Merlin Layout (8 ring + 1 center)
+            // Center
+            createNode(container, 'C1', cx, cy, 34);
 
-            // Update Ship (S2)
-            if (data.ship) {
-                window.lastShipStatus = data.ship.status;
-                document.getElementById('ship-alt').innerText = Math.round(data.ship.alt).toLocaleString();
-                document.getElementById('ship-vel').innerText = Math.round(data.ship.vel).toLocaleString();
-                document.getElementById('ship-vs').innerText = (data.ship.vs || 0).toFixed(1);
-                document.getElementById('ship-apo').innerText = ((data.ship.apo || 0) / 1000).toFixed(1);
-                document.getElementById('ship-per').innerText = ((data.ship.per || 0) / 1000).toFixed(1);
-                document.getElementById('ship-dv').innerText = Math.round(data.ship.dv || 0).toLocaleString();
-                document.getElementById('ship-hdist').innerText = Math.round(data.ship.hdist || 0).toLocaleString();
-                document.getElementById('ship-fuel').innerText = Math.round(data.ship.fuel || 0).toLocaleString();
-                document.getElementById('ship-thr-bar').style.width = (data.ship.thr || 0) + '%';
-                document.getElementById('ship-status-box').innerText = data.ship.status;
-
-                const fPct = data.ship.fuelPct || 0;
-                document.getElementById('ship-fuel-pct').innerText = fPct;
-                document.getElementById('ship-fuel-bar').style.width = fPct + '%';
-                updateEngines('ship-engines', data.ship.engStates || data.ship.ENGSTATES);
-            } else {
-                const finalStates = ['LANDED', 'COMPLETE', 'ORBIT', 'STABLE'];
-                if (!finalStates.includes(window.lastShipStatus)) {
-                    document.getElementById('ship-status-box').innerText = 'OFFLINE';
-                }
-                const container = document.getElementById('ship-engines');
-                Array.from(container.getElementsByClassName('engine')).forEach(el => el.classList.remove('active'));
-                document.getElementById('ship-thr-bar').style.width = '0%';
-            }
-
-            // Update Booster
-            if (data.booster) {
-                window.lastBoosterStatus = data.booster.status;
-                document.getElementById('booster-alt').innerText = Math.round(data.booster.alt).toLocaleString();
-                document.getElementById('booster-vel').innerText = Math.round(data.booster.vel).toLocaleString();
-                document.getElementById('booster-vs').innerText = (data.booster.vs || 0).toFixed(1);
-                document.getElementById('booster-hdist').innerText = Math.round(data.booster.hdist || 0).toLocaleString();
-                document.getElementById('booster-fuel').innerText = Math.round(data.booster.fuel || 0).toLocaleString();
-                document.getElementById('booster-thr-bar').style.width = (data.booster.thr || 0) + '%';
-                document.getElementById('booster-status-box').innerText = data.booster.status;
-
-                const fPct = data.booster.fuelPct || 0;
-                document.getElementById('booster-fuel-pct').innerText = fPct;
-                document.getElementById('booster-fuel-bar').style.width = fPct + '%';
-                updateEngines('booster-engines', data.booster.engStates || data.booster.ENGSTATES);
-            } else {
-                const finalStates = ['LANDED', 'COMPLETE', 'SPLASHED'];
-                if (!finalStates.includes(window.lastBoosterStatus)) {
-                    document.getElementById('booster-status-box').innerText = 'OFFLINE';
-                }
-                const container = document.getElementById('booster-engines');
-                Array.from(container.getElementsByClassName('engine')).forEach(el => el.classList.remove('active'));
-                document.getElementById('booster-thr-bar').style.width = '0%';
+            // Ring
+            for (let i = 0; i < 8; i++) {
+                const angle = (i * 45 - 90) * (Math.PI / 180);
+                const r = 65;
+                const x = cx + r * Math.cos(angle);
+                const y = cy + r * Math.sin(angle);
+                createNode(container, `R${i + 1}`, x, y, 26);
             }
         }
 
-        function updateEngines(containerId, engDict) {
-            const container = document.getElementById(containerId);
-            if (!engDict) return;
-            if (container.children.length === 0 || container.dataset.tags !== Object.keys(engDict).sort().join(',')) {
-                container.innerHTML = '';
-                container.dataset.tags = Object.keys(engDict).sort().join(',');
-                const cx = 110, cy = 110;
-                const tags = Object.keys(engDict).sort();
-                if (tags.length <= 1) {
-                    createEngineDiv(container, tags[0] || 'S1', cx, cy, 80);
-                } else {
-                    for (let i = 0; i < 8; i++) {
-                        const angle = (i * 45 - 90) * (Math.PI / 180);
-                        const px = cx + 80 * Math.cos(angle);
-                        const py = cy + 80 * Math.sin(angle);
-                        createEngineDiv(container, `R${i + 1}`, px, py, 30);
-                    }
-                    for (let i = 0; i < 3; i++) {
-                        const angle = (i * 120 - 90) * (Math.PI / 180);
-                        const px = cx + 30 * Math.cos(angle);
-                        const py = cy + 30 * Math.sin(angle);
-                        createEngineDiv(container, `C${i + 1}`, px, py, 40);
-                    }
-                }
-            }
-            Object.keys(engDict).forEach(tag => {
-                const el = container.querySelector(`[data-tag="${tag}"]`);
-                if (el) {
-                    if (engDict[tag] === 1) el.classList.add('active');
-                    else el.classList.remove('active');
-                }
-            });
-        }
-
-        function createEngineDiv(container, tag, x, y, size) {
+        function createNode(parent, tag, x, y, size) {
             const div = document.createElement('div');
-            div.className = 'engine';
+            div.className = 'engine-node';
             div.dataset.tag = tag;
             div.style.width = size + 'px';
             div.style.height = size + 'px';
             div.style.left = (x - size / 2) + 'px';
             div.style.top = (y - size / 2) + 'px';
-            div.innerHTML = `<span class="engine-label">${tag}</span>`;
-            container.appendChild(div);
+            parent.appendChild(div);
         }
 
-        // --- ESCUCHAR FIREBASE ---
+        initBoosterEngines();
+
+        // --- CORE UPDATE LOOP ---
         const telemetryRef = ref(db, '/');
         onValue(telemetryRef, (snapshot) => {
-            const data = snapshot.val();
-            updateUI(data);
+            const raw = snapshot.val();
+            if (!raw) return;
+
+            // Update Connection Status
+            document.getElementById('conn-status').innerText = "ONLINE (LIVE)";
+            document.getElementById('conn-status').style.color = "#00ff41";
+            document.getElementById('conn-status').classList.add('blink');
+
+            const S2 = parseKosJson(raw.ship);
+            const B1 = parseKosJson(raw.booster);
+
+            // ACTUALIZAR BOOSTER
+            if (B1) {
+                document.getElementById('booster-status').innerText = B1.status;
+                document.getElementById('booster-status').style.borderColor = "#ffae00";
+
+                document.getElementById('booster-alt').innerText = fmtNum(B1.alt);
+                document.getElementById('booster-vel').innerText = fmtNum(B1.vel);
+                document.getElementById('booster-vs').innerText = fmtDec(B1.vs, 1);
+                document.getElementById('booster-dist').innerText = fmtNum(B1.hdist); // Ojo: Asegurar nombre
+
+                // Fuel & Throttle
+                const fPct = B1.fuelPct || 0;
+                document.getElementById('booster-fuel-bar').style.width = fPct + "%";
+                document.getElementById('booster-fuel-pct').innerText = Math.round(fPct) + "%";
+
+                const thr = B1.thr || 0;
+                document.getElementById('booster-thr-bar').style.width = thr + "%";
+                document.getElementById('booster-thr-pct').innerText = Math.round(thr) + "%";
+
+                // Engines
+                if (B1.engStates) {
+                    for (let tag in B1.engStates) {
+                        const state = B1.engStates[tag];
+                        const el = document.querySelector(`#booster-engines [data-tag="${tag}"]`);
+                        if (el) {
+                            if (state === 1) el.classList.add('active');
+                            else el.classList.remove('active');
+                        }
+                    }
+                }
+            }
+
+            // ACTUALIZAR SHIP
+            if (S2) {
+                document.getElementById('ship-status').innerText = S2.status;
+                document.getElementById('ship-status').style.borderColor = "#00f3ff";
+
+                document.getElementById('ship-alt').innerText = fmtNum(S2.alt);
+                document.getElementById('ship-vel').innerText = fmtNum(S2.vel);
+                document.getElementById('ship-apo').innerText = fmtDec((S2.apo || 0) / 1000, 1);
+                document.getElementById('ship-per').innerText = fmtDec((S2.per || 0) / 1000, 1);
+                document.getElementById('ship-dv').innerText = fmtNum(S2.dv);
+
+                // Fuel & Throttle
+                const fPct = S2.fuelPct || 0;
+                document.getElementById('ship-fuel-bar').style.width = fPct + "%";
+                document.getElementById('ship-fuel-pct').innerText = Math.round(fPct) + "%";
+
+                const thr = S2.thr || 0;
+                document.getElementById('ship-thr-bar').style.width = thr + "%";
+                document.getElementById('ship-thr-pct').innerText = Math.round(thr) + "%";
+
+                // S2 Engine (Single) - Simplificado: Si thr > 0, activo
+                const engDiv = document.getElementById('s2-engine-main');
+                if (thr > 0.1) engDiv.classList.add('active');
+                else engDiv.classList.remove('active');
+            }
+
+            // MISSION TIME (Simulado o real si viene en raw)
+            // Si no viene MET real, podemos hacer un contador fake o usar time del servidor
+            // Asumimos que viene un METString o lo calculamos
+            // Por simplicidad, ponemos ONLINE
+            document.getElementById('met-display').innerText = "T+ LIVE";
         });
+
     </script>
 </body>
 
