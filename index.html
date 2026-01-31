@@ -522,76 +522,55 @@
         }
 
         // --- GENERADOR DE MOTORES ---
+        // --- GENERADOR DE MOTORES CONFIGURACION 11 (Booster) y 1 (Ship) ---
         function initBoosterEngines() {
             const container = document.getElementById('booster-engines');
             container.innerHTML = '';
             const cx = 100, cy = 100; // Center of 200x200
 
-            // 1. Center Cluster (3 engines) - Triangle
-            // Tags: 1, 2, 3
-            // Radius small
-            createNode(container, '1', cx, cy - 15, 20);
-            createNode(container, '2', cx - 13, cy + 10, 20);
-            createNode(container, '3', cx + 13, cy + 10, 20);
-
-            // 2. Middle Ring (10 engines)
-            // Tags: 4..13
-            const rMid = 45;
-            for (let i = 0; i < 10; i++) {
-                const angle = (i * 36 - 90) * (Math.PI / 180);
-                const x = cx + rMid * Math.cos(angle);
-                const y = cy + rMid * Math.sin(angle);
-                createNode(container, (4 + i).toString(), x, y, 18);
+            // 1. Center Cluster (3 engines - C1, C2, C3)
+            for (let i = 0; i < 3; i++) {
+                const angle = (i * 120 - 90) * (Math.PI / 180);
+                const r = 30; // 30px radius
+                const x = cx + r * Math.cos(angle);
+                const y = cy + r * Math.sin(angle);
+                createNode(container, `C${i + 1}`, x, y, 32);
             }
 
-            // 3. Outer Ring (20 engines)
-            // Tags: 14..33
-            const rOut = 85;
-            for (let i = 0; i < 20; i++) {
-                const angle = (i * 18 - 90) * (Math.PI / 180);
-                const x = cx + rOut * Math.cos(angle);
-                const y = cy + rOut * Math.sin(angle);
-                createNode(container, (14 + i).toString(), x, y, 18);
+            // 2. Ring (8 engines - R1..R8)
+            for (let i = 0; i < 8; i++) {
+                const angle = (i * 45 - 90) * (Math.PI / 180);
+                const r = 80; // 80px radius
+                const x = cx + r * Math.cos(angle);
+                const y = cy + r * Math.sin(angle);
+                createNode(container, `R${i + 1}`, x, y, 24);
             }
         }
 
         function initShipEngines() {
             const container = document.getElementById('ship-engines');
-            container.innerHTML = ''; // Limpiar el motor unico anterior
-            // Layout: 4 Inner (S1-S4), 2 Outer (SEC1-SEC2)
-            // Container size adjusted in CSS? It was 120x120. Let's make it bigger if needed, or scale down.
-            // Using logic from S2 script: S1-S4 and SEC1-SEC2.
+            container.innerHTML = '';
             const cx = 60, cy = 60; // Center of 120x120
 
-            // S1-S4: Square 
-            const rInner = 20;
-            createNode(container, 'S1', cx - rInner, cy - rInner, 22);
-            createNode(container, 'S2', cx + rInner, cy - rInner, 22);
-            createNode(container, 'S3', cx + rInner, cy + rInner, 22);
-            createNode(container, 'S4', cx - rInner, cy + rInner, 22);
-
-            // SEC1-SEC2: Flanking Left/Right
-            createNode(container, 'SEC1', cx - 45, cy, 26);
-            createNode(container, 'SEC2', cx + 45, cy, 26);
+            // Single Engine S1
+            createNode(container, 'S1', cx, cy, 60);
         }
 
         function createNode(parent, tag, x, y, size) {
             const div = document.createElement('div');
             div.className = 'engine-node';
             div.dataset.tag = tag;
+            div.innerText = tag;
             div.style.width = size + 'px';
             div.style.height = size + 'px';
             div.style.left = (x - size / 2) + 'px';
             div.style.top = (y - size / 2) + 'px';
-            // Texto pequeño para debug si cabe
-            if (size > 20) {
-                div.innerText = tag.replace('SEC', 'V');
-                div.style.display = 'flex';
-                div.style.alignItems = 'center';
-                div.style.justifyContent = 'center';
-                div.style.fontSize = '8px';
-                div.style.color = '#000';
-            }
+            div.style.fontSize = Math.max(8, size / 3) + 'px';
+            div.style.display = 'flex';
+            div.style.alignItems = 'center';
+            div.style.justifyContent = 'center';
+            div.style.color = '#000';
+            div.style.fontWeight = 'bold';
             parent.appendChild(div);
         }
 
