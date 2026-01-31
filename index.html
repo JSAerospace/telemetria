@@ -471,23 +471,54 @@
         const fmtNum = (n) => Math.round(n).toLocaleString();
         const fmtDec = (n, d = 1) => (n || 0).toFixed(d);
 
+        // --- PARSEADOR ROBUSTO DE LEXICONS KOS ---
         function parseKosJson(data) {
+            // Caso base: si es null o no es objeto, devolver tal cual
             if (!data || typeof data !== 'object') return data;
-            // Manejo de Lexicons anidados de kOS
-            if (data.entries) {
+
+            // Caso 1: Estructura { entries: [...], $type: "Lexicon" }
+            if (data.entries && Array.isArray(data.entries)) {
                 const result = {};
                 for (let entry of data.entries) {
-                    let k = entry.key?.value ?? entry.key;
-                    let v = entry.value?.value ?? entry.value;
-                    if (v && (v.entries || typeof v === 'object')) v = parseKosJson(v);
-                    if (k !== null) result[String(k)] = v;
+                    try {
+                        // Las claves y valores pueden venir envueltos en { value: ..., $type: ... }
+                        // O pueden ser directos si kOS los exportó así.
+                        let k = (entry.key && entry.key.value !== undefined) ? entry.key.value : entry.key;
+                        let v = (entry.value && entry.value.value !== undefined) ? entry.value.value : entry.value;
+
+                        // Si el valor es a su vez un objeto complejo (otro Lexicon), recursión
+                        if (v && typeof v === 'object') {
+                            v = parseKosJson(v);
+                        }
+
+                        // Asignamos al resultado si la clave es válida
+                        if (k !== null && k !== undefined) {
+                            result[String(k)] = v;
+                        }
+                    } catch (e) { console.error("Error parsing entry", entry, e); }
                 }
                 return result;
             }
-            // Recursión estándar para objetos normales
+
+            // Caso 2: Estructura { values: [...], $type: "List" }
+            if (data.values && Array.isArray(data.values)) {
+                return data.values.map(item => {
+                    let v = (item.value !== undefined) ? item.value : item;
+                    return parseKosJson(v);
+                });
+            }
+
+            // Caso 3: Objeto estándar, recursión en sus propieades
+            // (Para cuando ya tenemos un dict limpio o una estructura mixta)
             const processed = {};
-            for (let k in data) processed[k] = parseKosJson(data[k]);
-            return processed;
+            let hasProps = false;
+            for (let k in data) {
+                if (k === '$type') continue; // Ignorar metadatos de tipo kOS
+                processed[k] = parseKosJson(data[k]);
+                hasProps = true;
+            }
+            // Si tenía propiedades, devolvemos el objeto procesado. Si no, devolvemos data tal cual (ej. "R1")
+            return hasProps ? processed : data;
         }
 
         // --- GENERADOR DE MOTORES ---
