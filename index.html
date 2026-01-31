@@ -372,7 +372,11 @@
             if (baseUrl.endsWith('/')) baseUrl = baseUrl.slice(0, -1);
 
             try {
-                const response = await fetch(baseUrl + '/api/telemetry');
+                const response = await fetch(baseUrl + '/api/telemetry', {
+                    headers: {
+                        'ngrok-skip-browser-warning': 'true'
+                    }
+                });
                 if (!response.ok) throw new Error();
                 const data = await response.json();
 
