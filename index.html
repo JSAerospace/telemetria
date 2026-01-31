@@ -445,7 +445,7 @@
     <div class="status-bar">
         <span>CONEXIÓN: <span id="conn-status" style="color:red">OFFLINE</span></span>
         <span>ID DE DATOS: <span id="data-id" style="color:#aaa">-</span></span>
-        <span>SISTEMA VISUAL: v2.0 READY</span>
+        <span>SISTEMA VISUAL: v2.1 BULLSEYE</span>
     </div>
 
     <!-- FIREBASE SDK -->
@@ -453,6 +453,7 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
+        // CONFIGURACION IDÉNTICA A LA GLOBAL
         const firebaseConfig = {
             apiKey: "AIzaSyCiZs5Edhj2M0GIroo7thpD-fz6UOWpoZQ",
             authDomain: "control-de-mision-js.firebaseapp.com",
@@ -468,76 +469,77 @@
         const db = getDatabase(app);
 
         // --- FUNCIONES UTILITARIAS ---
-        const fmtNum = (n) => Math.round(n).toLocaleString();
-        const fmtDec = (n, d = 1) => (n || 0).toFixed(d);
+        const fmtNum = (n) => (n !== undefined && n !== null) ? Math.round(Number(n)).toLocaleString() : "0";
+        const fmtDec = (n, d = 1) => (n !== undefined && n !== null) ? Number(n).toFixed(d) : "0.0";
 
-        // --- PARSEADOR ROBUSTO DE LEXICONS KOS ---
+        // --- HELPER SEGURO DE EXTRACCIÓN DE DATOS ---
+        // Busca key, KEY, Key, o key con espacios. Prioriza exacto, luego upper, luego lower.
+        function getVal(obj, ...keys) {
+            if (!obj) return undefined;
+            for (let k of keys) {
+                if (obj[k] !== undefined) return obj[k];
+                if (obj[k.toUpperCase()] !== undefined) return obj[k.toUpperCase()];
+                if (obj[k.toLowerCase()] !== undefined) return obj[k.toLowerCase()];
+            }
+            return undefined;
+        }
+
+        // --- PARSEADOR ROBUSTO DE LEXICONS KOS (VERSIÓN FINAL) ---
         function parseKosJson(data) {
-            // Caso base: si es null o no es objeto, devolver tal cual
             if (!data || typeof data !== 'object') return data;
 
             // Caso 1: Estructura { entries: [...], $type: "Lexicon" }
             if (data.entries && Array.isArray(data.entries)) {
                 const result = {};
                 const ent = data.entries;
-
                 if (ent.length === 0) return result;
 
-                // DETECCIÓN DE FORMATO: kOS a veces exporta pares {key, value} y otras veces lista plana alterna
-                // telemetry_stage2.json confirma formato PLANO: [Key, Value, Key, Value...]
+                // DETECCIÓN: kOS exporta pares (Type A) o lista plana (Type B)
+                // Chequeo muy laxo para evitar fallos.
                 const first = ent[0];
                 const isTypeA = (first && typeof first === 'object' && first.key !== undefined);
 
-                if (isTypeA) {
-                    // Estrategia A: Lista de Pares [{key:..., value:...}]
-                    for (let entry of ent) {
-                        try {
-                            let k = (entry.key && entry.key.value !== undefined) ? entry.key.value : entry.key;
-                            let v = (entry.value && entry.value.value !== undefined) ? entry.value.value : entry.value;
-                            if (v && typeof v === 'object') v = parseKosJson(v);
-                            if (k !== null && k !== undefined) result[String(k)] = v;
-                        } catch (e) { }
+                try {
+                    if (isTypeA) {
+                        for (let entry of ent) {
+                            try {
+                                let k = entry.key?.value ?? entry.key;
+                                let v = entry.value?.value ?? entry.value;
+                                if (v && typeof v === 'object') v = parseKosJson(v);
+                                if (k != null) result[String(k).trim()] = v;
+                            } catch (e) { }
+                        }
+                    } else {
+                        // Type B (Flat List)
+                        for (let i = 0; i < ent.length - 1; i += 2) {
+                            try {
+                                let kObj = ent[i];
+                                let vObj = ent[i + 1];
+                                let k = kObj?.value ?? kObj;
+                                let v = vObj?.value ?? vObj;
+                                if (v && typeof v === 'object') v = parseKosJson(v);
+                                if (k != null) result[String(k).trim()] = v;
+                            } catch (e) { }
+                        }
                     }
-                } else {
-                    // Estrategia B: Lista Plana [KeyObj, ValueObj, KeyObj, ValueObj]
-                    // Usada actualmente por tus scripts kOS
-                    for (let i = 0; i < ent.length - 1; i += 2) {
-                        try {
-                            let kObj = ent[i];
-                            let vObj = ent[i + 1];
-                            let k = (kObj.value !== undefined) ? kObj.value : kObj;
-                            let v = (vObj.value !== undefined) ? vObj.value : vObj;
-
-                            if (v && typeof v === 'object') v = parseKosJson(v);
-                            if (k !== null && k !== undefined) result[String(k)] = v;
-                        } catch (e) { }
-                    }
-                }
+                } catch (e) { console.error("Parse Error Loop", e); }
                 return result;
             }
 
             // Caso 2: Estructura { values: [...], $type: "List" }
             if (data.values && Array.isArray(data.values)) {
-                return data.values.map(item => {
-                    let v = (item.value !== undefined) ? item.value : item;
-                    return parseKosJson(v);
-                });
+                return data.values.map(item => parseKosJson(item?.value ?? item));
             }
 
-            // Caso 3: Objeto estándar, recursión en sus propieades
-            // (Para cuando ya tenemos un dict limpio o una estructura mixta)
+            // Caso 3: Objeto estándar
             const processed = {};
-            let hasProps = false;
             for (let k in data) {
-                if (k === '$type') continue; // Ignorar metadatos de tipo kOS
+                if (k === '$type') continue;
                 processed[k] = parseKosJson(data[k]);
-                hasProps = true;
             }
-            // Si tenía propiedades, devolvemos el objeto procesado. Si no, devolvemos data tal cual (ej. "R1")
-            return hasProps ? processed : data;
+            return processed;
         }
 
-        // --- GENERADOR DE MOTORES ---
         // --- GENERADOR DE MOTORES CONFIGURACION 11 (Booster) y 1 (Ship) ---
         function initBoosterEngines() {
             const container = document.getElementById('booster-engines');
@@ -547,18 +549,16 @@
             // 1. Center Cluster (3 engines - C1, C2, C3)
             for (let i = 0; i < 3; i++) {
                 const angle = (i * 120 - 90) * (Math.PI / 180);
-                const r = 30; // 30px radius
-                const x = cx + r * Math.cos(angle);
-                const y = cy + r * Math.sin(angle);
+                const x = cx + 30 * Math.cos(angle);
+                const y = cy + 30 * Math.sin(angle);
                 createNode(container, `C${i + 1}`, x, y, 32);
             }
 
             // 2. Ring (8 engines - R1..R8)
             for (let i = 0; i < 8; i++) {
                 const angle = (i * 45 - 90) * (Math.PI / 180);
-                const r = 80; // 80px radius
-                const x = cx + r * Math.cos(angle);
-                const y = cy + r * Math.sin(angle);
+                const x = cx + 80 * Math.cos(angle);
+                const y = cy + 80 * Math.sin(angle);
                 createNode(container, `R${i + 1}`, x, y, 24);
             }
         }
@@ -567,8 +567,6 @@
             const container = document.getElementById('ship-engines');
             container.innerHTML = '';
             const cx = 60, cy = 60; // Center of 120x120
-
-            // Single Engine S1
             createNode(container, 'S1', cx, cy, 60);
         }
 
@@ -604,130 +602,98 @@
             document.getElementById('conn-status').style.color = "#00ff41";
             document.getElementById('conn-status').classList.add('blink');
 
-            const S2 = parseKosJson(raw.ship || raw.SHIP);
-            const B1 = parseKosJson(raw.booster || raw.BOOSTER);
+            // INTENTO DE RECUPERACIÓN DE CLAVES RAÍZ
+            const S2 = parseKosJson(getVal(raw, "ship", "SHIP", "Stage2"));
+            const B1 = parseKosJson(getVal(raw, "booster", "BOOSTER", "Stage1"));
 
-            // ACTUALIZAR BOOSTER
-            // ACTUALIZAR BOOSTER
+            // --- ACTUALIZAR BOOSTER (BLOCK PROTEGIDO) ---
             if (B1) {
-                document.getElementById('booster-status').innerText = B1.status || B1.STATUS || "UNDEFINED";
-                document.getElementById('booster-status').style.borderColor = "#ffae00";
+                try {
+                    document.getElementById('booster-status').innerText = getVal(B1, "status", "STATUS") || "UNDEFINED";
+                    document.getElementById('booster-status').style.borderColor = "#ffae00";
 
-                document.getElementById('booster-alt').innerText = fmtNum(B1.alt || B1.ALT);
-                document.getElementById('booster-vel').innerText = fmtNum(B1.vel || B1.VEL);
-                document.getElementById('booster-vs').innerText = fmtDec(B1.vs || B1.VS, 1);
-                document.getElementById('booster-hdist').innerText = fmtNum(B1.hdist || B1.HDIST || B1.dist || B1.DIST); // Multiple fallbacks
+                    document.getElementById('booster-alt').innerText = fmtNum(getVal(B1, "alt", "ALT"));
+                    document.getElementById('booster-vel').innerText = fmtNum(getVal(B1, "vel", "VEL"));
+                    document.getElementById('booster-vs').innerText = fmtDec(getVal(B1, "vs", "VS"), 1);
+                    document.getElementById('booster-dist').innerText = fmtNum(getVal(B1, "hdist", "HDIST", "dist", "DIST") || 0);
 
-                // Fuel & Throttle
-                const fPct = B1.fuelPct || B1.FUELPCT || 0;
-                document.getElementById('booster-fuel-bar').style.width = fPct + "%";
-                document.getElementById('booster-fuel-pct').innerText = Math.round(fPct) + "%";
+                    // Fuel & Throttle
+                    const fPct = getVal(B1, "fuelPct", "FUELPCT", "fuel_pct") || 0;
+                    document.getElementById('booster-fuel-bar').style.width = Math.min(100, Math.max(0, fPct)) + "%";
+                    document.getElementById('booster-fuel-pct').innerText = Math.round(Number(fPct)) + "%";
 
-                const thr = B1.thr || B1.THR || 0;
-                document.getElementById('booster-thr-bar').style.width = thr + "%";
-                document.getElementById('booster-thr-pct').innerText = Math.round(thr) + "%";
+                    const thr = getVal(B1, "thr", "THR", "throttle") || 0;
+                    document.getElementById('booster-thr-bar').style.width = Math.min(100, Math.max(0, thr)) + "%";
+                    document.getElementById('booster-thr-pct').innerText = Math.round(Number(thr)) + "%";
 
-                // Engines
-                const engs = B1.engStates || B1.ENGSTATES;
-                if (engs) {
-                    for (let tag in engs) {
-                        const state = engs[tag];
-                        const el = document.querySelector(`#booster-engines [data-tag="${tag}"]`);
-                        if (el) {
-                            if (state === 1) el.classList.add('active');
-                            else el.classList.remove('active');
+                    // Engines
+                    const engs = getVal(B1, "engStates", "ENGSTATES", "engines");
+                    if (engs) {
+                        for (let tag in engs) {
+                            const state = engs[tag];
+                            const el = document.querySelector(`#booster-engines [data-tag="${tag}"]`);
+                            if (el) {
+                                if (Number(state) === 1) el.classList.add('active');
+                                else el.classList.remove('active');
+                            }
                         }
                     }
-                }
+                } catch (e) { console.error("Booster UI Error", e); }
             }
 
-            // ACTUALIZAR SHIP
+            // --- ACTUALIZAR SHIP (BLOCK PROTEGIDO) ---
             if (S2) {
-                document.getElementById('ship-status').innerText = S2.status || S2.STATUS || "UNDEFINED";
-                document.getElementById('ship-status').style.borderColor = "#00f3ff";
+                try {
+                    document.getElementById('ship-status').innerText = getVal(S2, "status", "STATUS") || "UNDEFINED";
+                    document.getElementById('ship-status').style.borderColor = "#00f3ff";
 
-                document.getElementById('ship-alt').innerText = fmtNum(S2.alt || S2.ALT);
-                document.getElementById('ship-vel').innerText = fmtNum(S2.vel || S2.VEL);
-                document.getElementById('ship-apo').innerText = fmtDec((S2.apo || S2.APO || 0) / 1000, 1);
-                document.getElementById('ship-per').innerText = fmtDec((S2.per || S2.PER || 0) / 1000, 1);
-                document.getElementById('ship-dv').innerText = fmtNum(S2.dv || S2.DV);
+                    document.getElementById('ship-alt').innerText = fmtNum(getVal(S2, "alt", "ALT"));
+                    document.getElementById('ship-vel').innerText = fmtNum(getVal(S2, "vel", "VEL"));
+                    document.getElementById('ship-apo').innerText = fmtDec((getVal(S2, "apo", "APO") || 0) / 1000, 1);
+                    document.getElementById('ship-per').innerText = fmtDec((getVal(S2, "per", "PER") || 0) / 1000, 1);
+                    document.getElementById('ship-dv').innerText = fmtNum(getVal(S2, "dv", "DV"));
 
-                // Fuel & Throttle
-                const fPct = S2.fuelPct || S2.FUELPCT || 0;
-                document.getElementById('ship-fuel-bar').style.width = fPct + "%";
-                document.getElementById('ship-fuel-pct').innerText = Math.round(fPct) + "%";
+                    // Fuel & Throttle
+                    const fPct = getVal(S2, "fuelPct", "FUELPCT") || 0;
+                    document.getElementById('ship-fuel-bar').style.width = Math.min(100, Math.max(0, fPct)) + "%";
+                    document.getElementById('ship-fuel-pct').innerText = Math.round(Number(fPct)) + "%";
 
-                const thr = S2.thr || S2.THR || 0;
-                document.getElementById('ship-thr-bar').style.width = thr + "%";
-                document.getElementById('ship-thr-pct').innerText = Math.round(thr) + "%";
+                    const thr = getVal(S2, "thr", "THR") || 0;
+                    document.getElementById('ship-thr-bar').style.width = Math.min(100, Math.max(0, thr)) + "%";
+                    document.getElementById('ship-thr-pct').innerText = Math.round(Number(thr)) + "%";
 
-                // Ship Engines (Cluster de 6)
-                const engs = S2.engStates || S2.ENGSTATES;
-                if (engs) {
-                    for (let tag in engs) {
-                        const state = S2.engStates[tag];
-                        const el = document.querySelector(`#ship-engines [data-tag="${tag}"]`);
-                        if (el) {
-                            if (state === 1) el.classList.add('active');
-                            else el.classList.remove('active');
+                    // Inclination added
+                    document.getElementById('ship-inc').innerText = fmtDec(getVal(S2, "inc", "INC", "inclination"), 1);
+
+                    // Ship Engines (Cluster de 6)
+                    const engs = getVal(S2, "engStates", "ENGSTATES");
+                    if (engs) {
+                        for (let tag in engs) {
+                            const state = engs[tag];
+                            const el = document.querySelector(`#ship-engines [data-tag="${tag}"]`);
+                            if (el) {
+                                if (Number(state) === 1) el.classList.add('active');
+                                else el.classList.remove('active');
+                            }
+                        }
+                    } else {
+                        // Fallback: Si no hay data de motores, encender S1 si hay throttle > 1%
+                        const mainEng = document.getElementById('s2-engine-main');
+                        if (mainEng) {
+                            if (Number(thr) > 1) mainEng.classList.add('active');
+                            else mainEng.classList.remove('active');
                         }
                     }
-                } else {
-                    // Fallback visual si no hay data individual: encender todos si throttle > 0
-                    const allShipEngs = document.querySelectorAll('#ship-engines .engine-node');
-                    allShipEngs.forEach(el => {
-                        if (thr > 1) el.classList.add('active');
-                        else el.classList.remove('active');
-                    });
-                }
+                } catch (e) { console.error("Ship UI Error", e); }
             }
 
-            // MISSION TIME (Simulado o real si viene en raw)
-            // Si no viene MET real, podemos hacer un contador fake o usar time del servidor
-            // Asumimos que viene un METString o lo calculamos
-            // Por simplicidad, ponemos ONLINE
-            document.getElementById('met-display').innerText = "T+ LIVE";
+            document.getElementById('met-display').innerText = "T+ LINKED";
 
             // --- DEBUG OVERLAY (AUTO-INJECT) ---
             if (Object.keys(B1 || {}).length > 0 || Object.keys(S2 || {}).length > 0) {
-                const bKeys = Object.keys(B1 || {}).sort().join(", ");
-                const sKeys = Object.keys(S2 || {}).sort().join(", ");
-
-                const debugInfo = [
-                    "--- DEBUG DASHBOARD v2.1 ---",
-                    "BOOSTER (B1) KEYS FOUND: " + bKeys,
-                    "",
-                    "B1.fuelPct: " + JSON.stringify(B1.fuelPct),
-                    "B1.FUELPCT: " + JSON.stringify(B1.FUELPCT),
-                    "B1.thr: " + JSON.stringify(B1.thr),
-                    "B1.THR: " + JSON.stringify(B1.THR),
-                    "B1.engStates: " + (B1.engStates ? JSON.stringify(B1.engStates).substring(0, 50) + "..." : "UNDEFINED"),
-                    "",
-                    "TIMESTAMP: " + new Date().toISOString()
-                ].join("\n");
-
-                let dbg = document.getElementById('debug-overlay');
-                if (!dbg) {
-                    dbg = document.createElement('div');
-                    dbg.id = 'debug-overlay';
-                    dbg.style.position = 'fixed';
-                    dbg.style.bottom = '10px';
-                    dbg.style.left = '10px';
-                    dbg.style.background = 'rgba(0,0,0,0.85)';
-                    dbg.style.color = '#0f0';
-                    dbg.style.fontFamily = 'monospace';
-                    dbg.style.fontSize = '12px';
-                    dbg.style.padding = '15px';
-                    dbg.style.border = '1px solid #0f0';
-                    dbg.style.zIndex = '9999';
-                    dbg.style.whiteSpace = 'pre-wrap';
-                    dbg.style.maxWidth = '600px';
-                    document.body.appendChild(dbg);
-                }
-                dbg.innerText = debugInfo;
+                // Solo activamos si hay algo que ver
             }
         });
-
     </script>
 </body>
 
