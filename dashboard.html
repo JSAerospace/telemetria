@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Astro-3 Mission Control</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Rajdhani:wght@300;500;700&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #050a0f;
+            --glass-bg: rgba(15, 25, 35, 0.7);
+            --accent-blue: #00d2ff;
+            --accent-green: #39ff14;
+            --text-main: #e0e0e0;
+            --danger-red: #ff4b2b;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background: var(--bg-color);
+            background-image:
+                radial-gradient(circle at 50% 50%, rgba(0, 210, 255, 0.05) 0%, transparent 80%),
+                url('https://www.transparenttextures.com/patterns/stardust.png');
+            color: var(--text-main);
+            font-family: 'Rajdhani', sans-serif;
+            overflow-x: hidden;
+        }
+
+        .header {
+            padding: 20px;
+            text-align: center;
+            background: rgba(0, 0, 0, 0.5);
+            border-bottom: 1px solid var(--accent-blue);
+            box-shadow: 0 0 20px rgba(0, 210, 255, 0.2);
+        }
+
+        .header h1 {
+            margin: 0;
+            font-family: 'Orbitron', sans-serif;
+            letter-spacing: 5px;
+            color: var(--accent-blue);
+            text-transform: uppercase;
+            text-shadow: 0 0 10px var(--accent-blue);
+        }
+
+        .container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 20px;
+            padding: 20px;
+            max-width: 1400px;
+            margin: auto;
+        }
+
+        .card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 20px;
+            position: relative;
+            transition: transform 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            border-color: var(--accent-blue);
+        }
+
+        .card h2 {
+            margin-top: 0;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.2rem;
+            color: var(--accent-blue);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding-bottom: 10px;
+        }
+
+        .metric {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 15px 0;
+            font-size: 1.4rem;
+        }
+
+        .metric label {
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 0.9rem;
+            text-transform: uppercase;
+        }
+
+        .value {
+            font-weight: 700;
+            font-family: 'Orbitron', sans-serif;
+        }
+
+        .unit {
+            font-size: 0.8rem;
+            margin-left: 5px;
+            color: var(--accent-blue);
+        }
+
+        /* Engine Clusters */
+        /* Engine Styling Mirroring mission_control.py */
+        .engine-container {
+            position: relative;
+            width: 220px;
+            height: 220px;
+            margin: auto;
+            background: #020408;
+            border: 1px solid #1a2634;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .engine {
+            position: absolute;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.6rem;
+            font-weight: bold;
+            color: #333;
+            border: 1px solid #1a2634;
+            background: #0a1016;
+            transition: all 0.3s ease;
+        }
+
+        .engine.active {
+            background: #39ff14;
+            color: #000;
+            border-color: #39ff14;
+            box-shadow: 0 0 15px #39ff14;
+        }
+
+        .engine-label {
+            pointer-events: none;
+        }
+
+        /* Status Indicator */
+        .status-badge {
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .status-flying {
+            color: var(--accent-green);
+            border: 1px solid var(--accent-green);
+        }
+
+        .status-landed {
+            color: var(--accent-blue);
+            border: 1px solid var(--accent-blue);
+        }
+
+        /* Animation */
+        @keyframes pulse {
+            0% {
+                opacity: 0.5;
+            }
+
+            50% {
+                opacity: 1;
+            }
+
+            100% {
+                opacity: 0.5;
+            }
+        }
+
+        .live-indicator {
+            width: 10px;
+            height: 10px;
+            background: #ff0000;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 10px;
+            animation: pulse 1s infinite;
+        }
+
+        footer {
+            text-align: center;
+            padding: 40px;
+            opacity: 0.5;
+            font-size: 0.8rem;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="header">
+        <h1>Astro-3 Mission Control</h1>
+        <div><span class="live-indicator"></span> LIVE TELEMETRY STREAM</div>
+    </div>
+
+    <div class="container">
+        <!-- SEGUNDA ETAPA (SHIP) -->
+        <div class="card">
+            <h2>STAGE 2 (ASTRO-3)</h2>
+            <div id="ship-status-box" class="status-badge status-flying">N/A</div>
+
+            <div class="metric">
+                <label>Altitud</label>
+                <div class="value"><span id="ship-alt">0</span><span class="unit">m</span></div>
+            </div>
+            <div class="metric">
+                <label>Velocidad</label>
+                <div class="value"><span id="ship-vel">0</span><span class="unit">m/s</span></div>
+            </div>
+            <div class="metric"><label>V. Vertical</label>
+                <div class="value"><span id="ship-vs">0</span><span class="unit">m/s</span></div>
+            </div>
+            <div class="metric"><label>Apoapsis</label>
+                <div class="value"><span id="ship-apo">0</span><span class="unit">km</span></div>
+            </div>
+            <div class="metric"><label>Periapsis</label>
+                <div class="value"><span id="ship-per">0</span><span class="unit">km</span></div>
+            </div>
+            <div class="metric"><label>Delta-V</label>
+                <div class="value"><span id="ship-dv">0</span><span class="unit">m/s</span></div>
+            </div>
+            <div class="metric"><label>H-Dist</label>
+                <div class="value"><span id="ship-hdist">0</span><span class="unit">m</span></div>
+            </div>
+            <div class="metric"><label>Fuel</label>
+                <div class="value"><span id="ship-fuel">0</span><span class="unit">L</span></div>
+            </div>
+            <div style="margin-top: 10px;">
+                <label style="color:rgba(255,255,255,0.4);font-size:0.7rem;text-transform:uppercase;">Throttle %</label>
+                <div
+                    style="width:100%;height:6px;background:rgba(255,255,255,0.05);border-radius:3px;margin-top:2px;overflow:hidden;">
+                    <div id="ship-thr-bar"
+                        style="width:0%;height:100%;background:var(--accent-blue);transition:width 0.3s;"></div>
+                </div>
+            </div>
+
+            <div style="margin-top: 20px;">
+                <label style="color: rgba(255, 255, 255, 0.5); font-size: 0.8rem; text-transform: uppercase;">Fuel
+                    Percentage</label>
+                <div id="ship-fuel-bar-container"
+                    style="width: 100%; height: 25px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 5px; margin-top: 5px; overflow: hidden;">
+                    <div id="ship-fuel-bar"
+                        style="width: 0%; height: 100%; background: #ffd700; box-shadow: 0 0 10px rgba(255, 215, 0, 0.3); transition: width 0.5s ease;">
+                    </div>
+                </div>
+                <div
+                    style="text-align: right; font-family: 'Orbitron', sans-serif; font-size: 1.2rem; margin-top: 5px;">
+                    <span id="ship-fuel-pct">0</span>%
+                </div>
+            </div>
+
+            <h2 style="margin-top: 30px;">ENGINE HEALTH</h2>
+            <div class="engine-container" id="ship-engines">
+                <!-- Engines will be added here -->
+            </div>
+        </div>
+
+        <!-- BOOSTER -->
+        <div class="card">
+            <h2>BOOSTER (HEAVENS-FALL)</h2>
+            <div id="booster-status-box" class="status-badge status-landed">OFFLINE</div>
+
+            <div class="metric">
+                <label>Altitud</label>
+                <div class="value"><span id="booster-alt">0</span><span class="unit">m</span></div>
+            </div>
+            <div class="metric">
+                <label>Velocidad</label>
+                <div class="value"><span id="booster-vel">0</span><span class="unit">m/s</span></div>
+            </div>
+            <div class="metric"><label>V. Vertical</label>
+                <div class="value"><span id="booster-vs">0</span><span class="unit">m/s</span></div>
+            </div>
+            <div class="metric"><label>H-Dist</label>
+                <div class="value"><span id="booster-hdist">0</span><span class="unit">m</span></div>
+            </div>
+            <div class="metric"><label>Fuel</label>
+                <div class="value"><span id="booster-fuel">0</span><span class="unit">L</span></div>
+            </div>
+            <div style="margin-top: 10px;">
+                <label style="color:rgba(255,255,255,0.4);font-size:0.7rem;text-transform:uppercase;">Throttle %</label>
+                <div
+                    style="width:100%;height:6px;background:rgba(255,255,255,0.05);border-radius:3px;margin-top:2px;overflow:hidden;">
+                    <div id="booster-thr-bar"
+                        style="width:0%;height:100%;background:var(--accent-blue);transition:width 0.3s;"></div>
+                </div>
+            </div>
+
+            <div style="margin-top: 20px;">
+                <label style="color: rgba(255, 255, 255, 0.5); font-size: 0.8rem; text-transform: uppercase;">Fuel
+                    Percentage</label>
+                <div id="booster-fuel-bar-container"
+                    style="width: 100%; height: 25px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 5px; margin-top: 5px; overflow: hidden;">
+                    <div id="booster-fuel-bar"
+                        style="width: 0%; height: 100%; background: #ffd700; box-shadow: 0 0 10px rgba(255, 215, 0, 0.3); transition: width 0.5s ease;">
+                    </div>
+                </div>
+                <div
+                    style="text-align: right; font-family: 'Orbitron', sans-serif; font-size: 1.2rem; margin-top: 5px;">
+                    <span id="booster-fuel-pct">0</span>%
+                </div>
+            </div>
+
+            <h2 style="margin-top: 30px;">BOOSTER ENGINES</h2>
+            <div class="engine-container" id="booster-engines">
+                <!-- Booster engines -->
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        &copy; 2026 ASOS AEROSPACE SYSTEMS - RSS SCALE MISSION CONTROL
+    </footer>
+
+    <script>
+        async function updateData() {
+            try {
+                const response = await fetch('/api/telemetry');
+                const data = await response.json();
+
+                // Update Ship (S2)
+                if (data.ship) {
+                    document.getElementById('ship-alt').innerText = Math.round(data.ship.alt).toLocaleString();
+                    document.getElementById('ship-vel').innerText = Math.round(data.ship.vel).toLocaleString();
+                    document.getElementById('ship-vs').innerText = (data.ship.vs || 0).toFixed(1);
+                    document.getElementById('ship-apo').innerText = ((data.ship.apo || 0) / 1000).toFixed(1);
+                    document.getElementById('ship-per').innerText = ((data.ship.per || 0) / 1000).toFixed(1);
+                    document.getElementById('ship-dv').innerText = Math.round(data.ship.dv || 0).toLocaleString();
+                    document.getElementById('ship-hdist').innerText = Math.round(data.ship.hdist || 0).toLocaleString();
+                    document.getElementById('ship-fuel').innerText = Math.round(data.ship.fuel || 0).toLocaleString();
+                    document.getElementById('ship-thr-bar').style.width = (data.ship.thr || 0) + '%';
+                    document.getElementById('ship-status-box').innerText = data.ship.status;
+
+                    const fPct = data.ship.fuelPct || 0;
+                    document.getElementById('ship-fuel-pct').innerText = fPct;
+                    document.getElementById('ship-fuel-bar').style.width = fPct + '%';
+
+                    updateEngines('ship-engines', data.ship.engStates || data.ship.ENGSTATES);
+                }
+
+                // Update Booster
+                if (data.booster) {
+                    document.getElementById('booster-alt').innerText = Math.round(data.booster.alt).toLocaleString();
+                    document.getElementById('booster-vel').innerText = Math.round(data.booster.vel).toLocaleString();
+                    document.getElementById('booster-vs').innerText = (data.booster.vs || 0).toFixed(1);
+                    document.getElementById('booster-hdist').innerText = Math.round(data.booster.hdist || 0).toLocaleString();
+                    document.getElementById('booster-fuel').innerText = Math.round(data.booster.fuel || 0).toLocaleString();
+                    document.getElementById('booster-thr-bar').style.width = (data.booster.thr || 0) + '%';
+                    document.getElementById('booster-status-box').innerText = data.booster.status;
+
+                    const fPct = data.booster.fuelPct || 0;
+                    document.getElementById('booster-fuel-pct').innerText = fPct;
+                    document.getElementById('booster-fuel-bar').style.width = fPct + '%';
+
+                    updateEngines('booster-engines', data.booster.engStates || data.booster.ENGSTATES);
+                }
+
+            } catch (e) {
+                console.error("Telemetry link lost...", e);
+            }
+        }
+
+        function updateEngines(containerId, engDict) {
+            const container = document.getElementById(containerId);
+            if (!engDict) return;
+
+            // Si el contenedor está vacío (primera vez), crear los motores
+            if (container.children.length === 0 || container.dataset.tags !== Object.keys(engDict).sort().join(',')) {
+                container.innerHTML = '';
+                container.dataset.tags = Object.keys(engDict).sort().join(',');
+
+                const cx = 110, cy = 110;
+                const tags = Object.keys(engDict).sort();
+
+                if (tags.length <= 1) {
+                    // SHIP: Single Engine (Centered)
+                    createEngineDiv(container, tags[0] || 'S1', cx, cy, 80);
+                } else {
+                    // BOOSTER: Radial layout
+                    // R-Engines (Outer Ring)
+                    for (let i = 0; i < 8; i++) {
+                        const angle = (i * 45 - 90) * (Math.PI / 180);
+                        const px = cx + 80 * Math.cos(angle);
+                        const py = cy + 80 * Math.sin(angle);
+                        createEngineDiv(container, `R${i + 1}`, px, py, 30);
+                    }
+                    // C-Engines (Inner Cluster)
+                    for (let i = 0; i < 3; i++) {
+                        const angle = (i * 120 - 90) * (Math.PI / 180);
+                        const px = cx + 30 * Math.cos(angle);
+                        const py = cy + 30 * Math.sin(angle);
+                        createEngineDiv(container, `C${i + 1}`, px, py, 40);
+                    }
+                    // S1 (If exists but not R/C)
+                    if (engDict['S1'] !== undefined && !tags.some(t => t.startsWith('R') || t.startsWith('C'))) {
+                        createEngineDiv(container, 'S1', cx, cy, 80);
+                    }
+                }
+            }
+
+            // Actualizar estados
+            Object.keys(engDict).forEach(tag => {
+                const el = container.querySelector(`[data-tag="${tag}"]`);
+                if (el) {
+                    const isOn = engDict[tag] === 1;
+                    if (isOn) el.classList.add('active');
+                    else el.classList.remove('active');
+                }
+            });
+        }
+
+        function createEngineDiv(container, tag, x, y, size) {
+            const div = document.createElement('div');
+            div.className = 'engine';
+            div.dataset.tag = tag;
+            div.style.width = size + 'px';
+            div.style.height = size + 'px';
+            div.style.left = (x - size / 2) + 'px';
+            div.style.top = (y - size / 2) + 'px';
+            div.innerHTML = `<span class="engine-label">${tag}</span>`;
+            container.appendChild(div);
+        }
+
+        setInterval(updateData, 500);
+    </script>
+</body>
+
+</html>
