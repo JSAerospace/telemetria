@@ -347,103 +347,117 @@
         &copy; 2026 ASOS AEROSPACE SYSTEMS - RSS SCALE MISSION CONTROL
     </footer>
 
-    <script>
-        // Cargar URL guardada
-        document.getElementById('api-url').value = localStorage.getItem('ksp_api_url') || '';
+    <!-- Firebase SDK (Version 10) -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
-        function saveUrl() {
-            const url = document.getElementById('api-url').value;
-            localStorage.setItem('ksp_api_url', url);
+        // Configuración proporcionada por el usuario
+        const firebaseConfig = {
+            apiKey: "AIzaSyCiZs5Edhj2M0GIroo7thpD-fz6UOWpoZQ",
+            authDomain: "control-de-mision-js.firebaseapp.com",
+            projectId: "control-de-mision-js",
+            storageBucket: "control-de-mision-js.firebasestorage.app",
+            messagingSenderId: "771859762827",
+            appId: "1:771859762827:web:00caa47bca9e3aad5b4e8e",
+            measurementId: "G-WY3SGSG5YM",
+            databaseURL: "https://control-de-mision-js-default-rtdb.firebaseio.com/"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
+        // --- PARSEADOR ROBUSTO DE LEXICONS KOS ---
+        function parseKosJson(data) {
+            if (!data || typeof data !== 'object') return data;
+            if (data.entries) {
+                const result = {};
+                const entries = data.entries;
+                if (entries.length > 0 && entries[0].key) {
+                    entries.forEach(item => {
+                        let k = item.key.value !== undefined ? item.key.value : item.key;
+                        let v = item.value.value !== undefined ? item.value.value : item.value;
+                        if (v && v.entries) v = parseKosJson(v);
+                        if (k !== null) result[String(k)] = v;
+                    });
+                } else {
+                    for (let i = 0; i < entries.length; i += 2) {
+                        if (i + 1 < entries.length) {
+                            let k = entries[i].value !== undefined ? entries[i].value : entries[i];
+                            let v = (entries[i + 1] && entries[i + 1].entries) ? parseKosJson(entries[i + 1]) : (entries[i + 1].value !== undefined ? entries[i + 1].value : entries[i + 1]);
+                            if (k !== null) result[String(k)] = v;
+                        }
+                    }
+                }
+                return result;
+            }
+            const processed = {};
+            for (let k in data) processed[k] = parseKosJson(data[k]);
+            return processed;
         }
 
-        async function updateData() {
-            let baseUrl = document.getElementById('api-url').value;
-            if (!baseUrl) {
-                // Fallback a localhost si está vacío
-                if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-                    baseUrl = '';
-                } else {
-                    document.getElementById('link-status').innerText = 'URL REQUERIDA';
-                    return;
+        function updateUI(raw_data) {
+            if (!raw_data) return;
+            const data = {
+                ship: parseKosJson(raw_data.ship),
+                booster: parseKosJson(raw_data.booster)
+            };
+
+            const linkStatus = document.getElementById('link-status');
+            linkStatus.innerText = 'EN LÍNEA (CLOUD)';
+            linkStatus.style.color = '#39ff14';
+
+            // Update Ship (S2)
+            if (data.ship) {
+                window.lastShipStatus = data.ship.status;
+                document.getElementById('ship-alt').innerText = Math.round(data.ship.alt).toLocaleString();
+                document.getElementById('ship-vel').innerText = Math.round(data.ship.vel).toLocaleString();
+                document.getElementById('ship-vs').innerText = (data.ship.vs || 0).toFixed(1);
+                document.getElementById('ship-apo').innerText = ((data.ship.apo || 0) / 1000).toFixed(1);
+                document.getElementById('ship-per').innerText = ((data.ship.per || 0) / 1000).toFixed(1);
+                document.getElementById('ship-dv').innerText = Math.round(data.ship.dv || 0).toLocaleString();
+                document.getElementById('ship-hdist').innerText = Math.round(data.ship.hdist || 0).toLocaleString();
+                document.getElementById('ship-fuel').innerText = Math.round(data.ship.fuel || 0).toLocaleString();
+                document.getElementById('ship-thr-bar').style.width = (data.ship.thr || 0) + '%';
+                document.getElementById('ship-status-box').innerText = data.ship.status;
+
+                const fPct = data.ship.fuelPct || 0;
+                document.getElementById('ship-fuel-pct').innerText = fPct;
+                document.getElementById('ship-fuel-bar').style.width = fPct + '%';
+                updateEngines('ship-engines', data.ship.engStates || data.ship.ENGSTATES);
+            } else {
+                const finalStates = ['LANDED', 'COMPLETE', 'ORBIT', 'STABLE'];
+                if (!finalStates.includes(window.lastShipStatus)) {
+                    document.getElementById('ship-status-box').innerText = 'OFFLINE';
                 }
+                const container = document.getElementById('ship-engines');
+                Array.from(container.getElementsByClassName('engine')).forEach(el => el.classList.remove('active'));
+                document.getElementById('ship-thr-bar').style.width = '0%';
             }
 
-            // Limpiar barra final
-            if (baseUrl.endsWith('/')) baseUrl = baseUrl.slice(0, -1);
+            // Update Booster
+            if (data.booster) {
+                window.lastBoosterStatus = data.booster.status;
+                document.getElementById('booster-alt').innerText = Math.round(data.booster.alt).toLocaleString();
+                document.getElementById('booster-vel').innerText = Math.round(data.booster.vel).toLocaleString();
+                document.getElementById('booster-vs').innerText = (data.booster.vs || 0).toFixed(1);
+                document.getElementById('booster-hdist').innerText = Math.round(data.booster.hdist || 0).toLocaleString();
+                document.getElementById('booster-fuel').innerText = Math.round(data.booster.fuel || 0).toLocaleString();
+                document.getElementById('booster-thr-bar').style.width = (data.booster.thr || 0) + '%';
+                document.getElementById('booster-status-box').innerText = data.booster.status;
 
-            try {
-                const response = await fetch(baseUrl + '/api/telemetry', {
-                    headers: {
-                        'ngrok-skip-browser-warning': 'true'
-                    }
-                });
-                if (!response.ok) throw new Error();
-                const data = await response.json();
-
-                document.getElementById('link-status').innerText = 'EN LÍNEA';
-                document.getElementById('link-status').style.color = '#39ff14';
-
-                // Update Ship (S2)
-                if (data.ship) {
-                    window.lastShipStatus = data.ship.status;
-                    document.getElementById('ship-alt').innerText = Math.round(data.ship.alt).toLocaleString();
-                    document.getElementById('ship-vel').innerText = Math.round(data.ship.vel).toLocaleString();
-                    document.getElementById('ship-vs').innerText = (data.ship.vs || 0).toFixed(1);
-                    document.getElementById('ship-apo').innerText = ((data.ship.apo || 0) / 1000).toFixed(1);
-                    document.getElementById('ship-per').innerText = ((data.ship.per || 0) / 1000).toFixed(1);
-                    document.getElementById('ship-dv').innerText = Math.round(data.ship.dv || 0).toLocaleString();
-                    document.getElementById('ship-hdist').innerText = Math.round(data.ship.hdist || 0).toLocaleString();
-                    document.getElementById('ship-fuel').innerText = Math.round(data.ship.fuel || 0).toLocaleString();
-                    document.getElementById('ship-thr-bar').style.width = (data.ship.thr || 0) + '%';
-                    document.getElementById('ship-status-box').innerText = data.ship.status;
-
-                    const fPct = data.ship.fuelPct || 0;
-                    document.getElementById('ship-fuel-pct').innerText = fPct;
-                    document.getElementById('ship-fuel-bar').style.width = fPct + '%';
-                    updateEngines('ship-engines', data.ship.engStates || data.ship.ENGSTATES);
-                } else {
-                    // Solo poner OFFLINE si no estábamos ya en un estado final
-                    const finalStates = ['LANDED', 'COMPLETE', 'ORBIT', 'STABLE'];
-                    if (!finalStates.includes(window.lastShipStatus)) {
-                        document.getElementById('ship-status-box').innerText = 'OFFLINE';
-                    }
-                    // Apagar motores visualmente si no hay telemetría
-                    const container = document.getElementById('ship-engines');
-                    Array.from(container.getElementsByClassName('engine')).forEach(el => el.classList.remove('active'));
-                    document.getElementById('ship-thr-bar').style.width = '0%';
+                const fPct = data.booster.fuelPct || 0;
+                document.getElementById('booster-fuel-pct').innerText = fPct;
+                document.getElementById('booster-fuel-bar').style.width = fPct + '%';
+                updateEngines('booster-engines', data.booster.engStates || data.booster.ENGSTATES);
+            } else {
+                const finalStates = ['LANDED', 'COMPLETE', 'SPLASHED'];
+                if (!finalStates.includes(window.lastBoosterStatus)) {
+                    document.getElementById('booster-status-box').innerText = 'OFFLINE';
                 }
-
-                // Update Booster
-                if (data.booster) {
-                    window.lastBoosterStatus = data.booster.status;
-                    document.getElementById('booster-alt').innerText = Math.round(data.booster.alt).toLocaleString();
-                    document.getElementById('booster-vel').innerText = Math.round(data.booster.vel).toLocaleString();
-                    document.getElementById('booster-vs').innerText = (data.booster.vs || 0).toFixed(1);
-                    document.getElementById('booster-hdist').innerText = Math.round(data.booster.hdist || 0).toLocaleString();
-                    document.getElementById('booster-fuel').innerText = Math.round(data.booster.fuel || 0).toLocaleString();
-                    document.getElementById('booster-thr-bar').style.width = (data.booster.thr || 0) + '%';
-                    document.getElementById('booster-status-box').innerText = data.booster.status;
-
-                    const fPct = data.booster.fuelPct || 0;
-                    document.getElementById('booster-fuel-pct').innerText = fPct;
-                    document.getElementById('booster-fuel-bar').style.width = fPct + '%';
-                    updateEngines('booster-engines', data.booster.engStates || data.booster.ENGSTATES);
-                } else {
-                    // Solo poner OFFLINE si no estábamos ya en un estado final
-                    const finalStates = ['LANDED', 'COMPLETE', 'SPLASHED'];
-                    if (!finalStates.includes(window.lastBoosterStatus)) {
-                        document.getElementById('booster-status-box').innerText = 'OFFLINE';
-                    }
-                    // Apagar motores visualmente si no hay telemetría
-                    const container = document.getElementById('booster-engines');
-                    Array.from(container.getElementsByClassName('engine')).forEach(el => el.classList.remove('active'));
-                    document.getElementById('booster-thr-bar').style.width = '0%';
-                }
-
-            } catch (e) {
-                document.getElementById('link-status').innerText = 'OFFLINE';
-                document.getElementById('link-status').style.color = 'red';
-                console.error("Telemetry link lost...", e);
+                const container = document.getElementById('booster-engines');
+                Array.from(container.getElementsByClassName('engine')).forEach(el => el.classList.remove('active'));
+                document.getElementById('booster-thr-bar').style.width = '0%';
             }
         }
 
@@ -493,7 +507,12 @@
             container.appendChild(div);
         }
 
-        setInterval(updateData, 500);
+        // --- ESCUCHAR FIREBASE ---
+        const telemetryRef = ref(db, '/');
+        onValue(telemetryRef, (snapshot) => {
+            const data = snapshot.val();
+            updateUI(data);
+        });
     </script>
 </body>
 
