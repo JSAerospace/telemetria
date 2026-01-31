@@ -687,6 +687,45 @@
             // Asumimos que viene un METString o lo calculamos
             // Por simplicidad, ponemos ONLINE
             document.getElementById('met-display').innerText = "T+ LIVE";
+
+            // --- DEBUG OVERLAY (AUTO-INJECT) ---
+            if (Object.keys(B1 || {}).length > 0 || Object.keys(S2 || {}).length > 0) {
+                const bKeys = Object.keys(B1 || {}).sort().join(", ");
+                const sKeys = Object.keys(S2 || {}).sort().join(", ");
+
+                const debugInfo = [
+                    "--- DEBUG DASHBOARD v2.1 ---",
+                    "BOOSTER (B1) KEYS FOUND: " + bKeys,
+                    "",
+                    "B1.fuelPct: " + JSON.stringify(B1.fuelPct),
+                    "B1.FUELPCT: " + JSON.stringify(B1.FUELPCT),
+                    "B1.thr: " + JSON.stringify(B1.thr),
+                    "B1.THR: " + JSON.stringify(B1.THR),
+                    "B1.engStates: " + (B1.engStates ? JSON.stringify(B1.engStates).substring(0, 50) + "..." : "UNDEFINED"),
+                    "",
+                    "TIMESTAMP: " + new Date().toISOString()
+                ].join("\n");
+
+                let dbg = document.getElementById('debug-overlay');
+                if (!dbg) {
+                    dbg = document.createElement('div');
+                    dbg.id = 'debug-overlay';
+                    dbg.style.position = 'fixed';
+                    dbg.style.bottom = '10px';
+                    dbg.style.left = '10px';
+                    dbg.style.background = 'rgba(0,0,0,0.85)';
+                    dbg.style.color = '#0f0';
+                    dbg.style.fontFamily = 'monospace';
+                    dbg.style.fontSize = '12px';
+                    dbg.style.padding = '15px';
+                    dbg.style.border = '1px solid #0f0';
+                    dbg.style.zIndex = '9999';
+                    dbg.style.whiteSpace = 'pre-wrap';
+                    dbg.style.maxWidth = '600px';
+                    document.body.appendChild(dbg);
+                }
+                dbg.innerText = debugInfo;
+            }
         });
 
     </script>
