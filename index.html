@@ -385,6 +385,7 @@
 
                 // Update Ship (S2)
                 if (data.ship) {
+                    window.lastShipStatus = data.ship.status;
                     document.getElementById('ship-alt').innerText = Math.round(data.ship.alt).toLocaleString();
                     document.getElementById('ship-vel').innerText = Math.round(data.ship.vel).toLocaleString();
                     document.getElementById('ship-vs').innerText = (data.ship.vs || 0).toFixed(1);
@@ -401,7 +402,11 @@
                     document.getElementById('ship-fuel-bar').style.width = fPct + '%';
                     updateEngines('ship-engines', data.ship.engStates || data.ship.ENGSTATES);
                 } else {
-                    document.getElementById('ship-status-box').innerText = 'OFFLINE';
+                    // Solo poner OFFLINE si no estábamos ya en un estado final
+                    const finalStates = ['LANDED', 'COMPLETE', 'ORBIT', 'STABLE'];
+                    if (!finalStates.includes(window.lastShipStatus)) {
+                        document.getElementById('ship-status-box').innerText = 'OFFLINE';
+                    }
                     // Apagar motores visualmente si no hay telemetría
                     const container = document.getElementById('ship-engines');
                     Array.from(container.getElementsByClassName('engine')).forEach(el => el.classList.remove('active'));
@@ -410,6 +415,7 @@
 
                 // Update Booster
                 if (data.booster) {
+                    window.lastBoosterStatus = data.booster.status;
                     document.getElementById('booster-alt').innerText = Math.round(data.booster.alt).toLocaleString();
                     document.getElementById('booster-vel').innerText = Math.round(data.booster.vel).toLocaleString();
                     document.getElementById('booster-vs').innerText = (data.booster.vs || 0).toFixed(1);
@@ -423,7 +429,11 @@
                     document.getElementById('booster-fuel-bar').style.width = fPct + '%';
                     updateEngines('booster-engines', data.booster.engStates || data.booster.ENGSTATES);
                 } else {
-                    document.getElementById('booster-status-box').innerText = 'OFFLINE';
+                    // Solo poner OFFLINE si no estábamos ya en un estado final
+                    const finalStates = ['LANDED', 'COMPLETE', 'SPLASHED'];
+                    if (!finalStates.includes(window.lastBoosterStatus)) {
+                        document.getElementById('booster-status-box').innerText = 'OFFLINE';
+                    }
                     // Apagar motores visualmente si no hay telemetría
                     const container = document.getElementById('booster-engines');
                     Array.from(container.getElementsByClassName('engine')).forEach(el => el.classList.remove('active'));
