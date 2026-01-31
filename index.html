@@ -307,8 +307,8 @@
 <body>
 
     <header>
-        <div class="brand">
-            <h1>HALCON SPACEX</h1>
+        <div class="header-container">
+            <div class="header-title">J.S. AEROSPACE</div>
         </div>
         <div class="mission-timer">
             <div class="label">MISSION ELAPSED TIME</div>
@@ -588,8 +588,8 @@
             document.getElementById('conn-status').style.color = "#00ff41";
             document.getElementById('conn-status').classList.add('blink');
 
-            const S2 = parseKosJson(raw.ship);
-            const B1 = parseKosJson(raw.booster);
+            const S2 = parseKosJson(raw.ship || raw.SHIP);
+            const B1 = parseKosJson(raw.booster || raw.BOOSTER);
 
             // ACTUALIZAR BOOSTER
             // ACTUALIZAR BOOSTER
