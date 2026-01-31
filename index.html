@@ -687,7 +687,27 @@
                 } catch (e) { console.error("Ship UI Error", e); }
             }
 
-            document.getElementById('met-display').innerText = "T+ LINKED";
+            // MISSION TIME
+            // Prioridad: Ship MET > Booster MET > T+ LINKED
+            const rawMet = getVal(S2, "met", "MET") ?? getVal(B1, "met", "MET");
+
+            if (rawMet !== undefined) {
+                const totalSeconds = Number(rawMet);
+                const hrs = Math.floor(totalSeconds / 3600);
+                const mins = Math.floor((totalSeconds % 3600) / 60);
+                const secs = Math.floor(totalSeconds % 60);
+
+                const timeStr =
+                    (hrs > 0 ? hrs.toString().padStart(2, '0') + ":" : "") +
+                    mins.toString().padStart(2, '0') + ":" +
+                    secs.toString().padStart(2, '0');
+
+                document.getElementById('met-display').innerText = "T+ " + timeStr;
+                document.getElementById('met-display').style.color = "#00ff41"; // VERDE
+            } else {
+                document.getElementById('met-display').innerText = "T+ LINKED";
+                document.getElementById('met-display').style.color = "#00ff41";
+            }
 
             // --- DEBUG OVERLAY (AUTO-INJECT) ---
             if (Object.keys(B1 || {}).length > 0 || Object.keys(S2 || {}).length > 0) {
