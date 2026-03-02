@@ -711,7 +711,17 @@
 
             // --- DEBUG OVERLAY (AUTO-INJECT) ---
             if (Object.keys(B1 || {}).length > 0 || Object.keys(S2 || {}).length > 0) {
-                // Solo activamos si hay algo que ver
+                // Suscribirse al nombre de misión
+                const nameRef = ref(db, 'global/mission_name');
+                onValue(nameRef, (snapshot) => {
+                    const val = snapshot.val();
+                    const titleEl = document.querySelector('.header-title');
+                    if (val && titleEl) {
+                        titleEl.innerHTML = val + " <span style='font-size: 0.8rem; opacity: 0.5;'>CONTROL SYSTEM</span>";
+                    }
+                });
+
+                // Loop principal de actualización de telemetría (Original)
             }
         });
     </script>

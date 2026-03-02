@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Mission Control</title>
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #00ff41;
+            --bg: #0a0a0b;
+            --surface: #151517;
+            --danger: #ff3e3e;
+            --border: #333;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--primary);
+            font-family: 'Share Tech Mono', monospace;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            text-transform: uppercase;
+        }
+
+        .container {
+            background: var(--surface);
+            padding: 2rem;
+            border: 1px solid var(--border);
+            box-shadow: 0 0 20px rgba(0, 255, 65, 0.1);
+            width: 400px;
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 1.5rem;
+            margin-bottom: 2rem;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 1rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-size: 0.8rem;
+            opacity: 0.8;
+        }
+
+        input {
+            width: 100%;
+            background: #000;
+            border: 1px solid var(--border);
+            color: var(--primary);
+            padding: 0.8rem;
+            font-family: inherit;
+            box-sizing: border-box;
+            outline: none;
+        }
+
+        input:focus {
+            border-color: var(--primary);
+        }
+
+        button {
+            width: 100%;
+            background: transparent;
+            border: 1px solid var(--primary);
+            color: var(--primary);
+            padding: 1rem;
+            cursor: pointer;
+            font-family: inherit;
+            transition: all 0.3s ease;
+        }
+
+        button:hover {
+            background: var(--primary);
+            color: #000;
+        }
+
+        button.danger {
+            border-color: var(--danger);
+            color: var(--danger);
+            margin-top: 2rem;
+        }
+
+        button.danger:hover {
+            background: var(--danger);
+            color: #000;
+        }
+
+        #login-screen { display: block; }
+        #admin-panel { display: none; }
+
+        .status-msg {
+            text-align: center;
+            margin-top: 1rem;
+            font-size: 0.8rem;
+            height: 1rem;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- LOGIN SCREEN -->
+    <div id="login-screen" class="container">
+        <h1>ACCESS CONTROL</h1>
+        <div class="form-group">
+            <label>ENTER ADMIN PASSWORD</label>
+            <input type="password" id="pass-input">
+        </div>
+        <button onclick="checkPass()">ACCESS CMD</button>
+        <div id="login-msg" class="status-msg"></div>
+    </div>
+
+    <!-- ADMIN PANEL -->
+    <div id="admin-panel" class="container">
+        <h1>MISSION COMMAND</h1>
+        
+        <div class="form-group">
+            <label>MISSION NAME</label>
+            <input type="text" id="mission-name-input" placeholder="ZHUQUE-3 FLIGHT X">
+        </div>
+        <button onclick="updateMissionName()">UPDATE MISSION NAME</button>
+
+        <button class="danger" onclick="resetAllData()">RESET ALL TELEMETRY DATA</button>
+        
+        <div id="admin-msg" class="status-msg"></div>
+        <div style="margin-top: 2rem; text-align: center;">
+            <a href="index.html" style="color: var(--primary); text-decoration: none; font-size: 0.7rem;">← BACK TO DASHBOARD</a>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getDatabase, ref, set, remove } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
+        // CONFIGURACIÓN (La misma de index.html)
+        const firebaseConfig = {
+            databaseURL: "https://ksp-telemetry-default-rtdb.firebaseio.com/"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
+        const ADMIN_PASS = "Kion2011";
+
+        window.checkPass = function() {
+            const val = document.getElementById('pass-input').value;
+            if (val === ADMIN_PASS) {
+                document.getElementById('login-screen').style.display = 'none';
+                document.getElementById('admin-panel').style.display = 'block';
+            } else {
+                document.getElementById('login-msg').innerText = "INVALID ACCESS KEY";
+                setTimeout(() => { document.getElementById('login-msg').innerText = ""; }, 2000);
+            }
+        };
+
+        window.updateMissionName = function() {
+            const name = document.getElementById('mission-name-input').value;
+            if (!name) return;
+            
+            set(ref(db, 'global/mission_name'), name)
+                .then(() => {
+                    showMsg("MISSION NAME UPDATED", "admin-msg");
+                });
+        };
+
+        window.resetAllData = function() {
+            if (confirm("CRITICAL: THIS WILL DELETE ALL MISSION TELEMETRY AND RESET THE CLOCK. PROCEED?")) {
+                // Borrar todo
+                remove(ref(db, '/'))
+                    .then(() => {
+                        showMsg("ALL DATA PURGED", "admin-msg");
+                        // Restaurar nombre por defecto si se borró todo
+                        set(ref(db, 'global/mission_name'), "ZHUQUE-3 TEST FLIGHT");
+                    });
+            }
+        };
+
+        function showMsg(txt, id) {
+            const el = document.getElementById(id);
+            el.innerText = txt;
+            setTimeout(() => { el.innerText = ""; }, 3000);
+        }
+    </script>
+</body>
+</html>
