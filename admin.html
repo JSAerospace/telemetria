@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -95,8 +96,13 @@
             color: #000;
         }
 
-        #login-screen { display: block; }
-        #admin-panel { display: none; }
+        #login-screen {
+            display: block;
+        }
+
+        #admin-panel {
+            display: none;
+        }
 
         .status-msg {
             text-align: center;
@@ -106,6 +112,7 @@
         }
     </style>
 </head>
+
 <body>
 
     <!-- LOGIN SCREEN -->
@@ -122,7 +129,7 @@
     <!-- ADMIN PANEL -->
     <div id="admin-panel" class="container">
         <h1>MISSION COMMAND</h1>
-        
+
         <div class="form-group">
             <label>MISSION NAME</label>
             <input type="text" id="mission-name-input" placeholder="ZHUQUE-3 FLIGHT X">
@@ -130,10 +137,11 @@
         <button onclick="updateMissionName()">UPDATE MISSION NAME</button>
 
         <button class="danger" onclick="resetAllData()">RESET ALL TELEMETRY DATA</button>
-        
+
         <div id="admin-msg" class="status-msg"></div>
         <div style="margin-top: 2rem; text-align: center;">
-            <a href="index.html" style="color: var(--primary); text-decoration: none; font-size: 0.7rem;">← BACK TO DASHBOARD</a>
+            <a href="index.html" style="color: var(--primary); text-decoration: none; font-size: 0.7rem;">← BACK TO
+                DASHBOARD</a>
         </div>
     </div>
 
@@ -143,7 +151,7 @@
 
         // CONFIGURACIÓN (La misma de index.html)
         const firebaseConfig = {
-            databaseURL: "https://ksp-telemetry-default-rtdb.firebaseio.com/"
+            databaseURL: "https://control-de-mision-js-default-rtdb.firebaseio.com/"
         };
 
         const app = initializeApp(firebaseConfig);
@@ -151,7 +159,7 @@
 
         const ADMIN_PASS = "Kion2011";
 
-        window.checkPass = function() {
+        window.checkPass = function () {
             const val = document.getElementById('pass-input').value;
             if (val === ADMIN_PASS) {
                 document.getElementById('login-screen').style.display = 'none';
@@ -162,17 +170,17 @@
             }
         };
 
-        window.updateMissionName = function() {
+        window.updateMissionName = function () {
             const name = document.getElementById('mission-name-input').value;
             if (!name) return;
-            
+
             set(ref(db, 'global/mission_name'), name)
                 .then(() => {
                     showMsg("MISSION NAME UPDATED", "admin-msg");
                 });
         };
 
-        window.resetAllData = function() {
+        window.resetAllData = function () {
             if (confirm("CRITICAL: THIS WILL DELETE ALL MISSION TELEMETRY AND RESET THE CLOCK. PROCEED?")) {
                 // Borrar todo
                 remove(ref(db, '/'))
@@ -191,4 +199,5 @@
         }
     </script>
 </body>
+
 </html>

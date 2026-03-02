@@ -468,6 +468,61 @@
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
+        // --- GESTIÓN DE MISIÓN Y RELOJ EXTERNO ---
+        let missionStartTimestamp = null;
+        const metEl = document.getElementById('met-display');
+        const titleEl = document.querySelector('.header-title');
+
+        // 1. Escuchar el nombre de la misión
+        const nameRef = ref(db, 'global/mission_name');
+        onValue(nameRef, (snapshot) => {
+            const val = snapshot.val();
+            if (val && titleEl) {
+                titleEl.innerHTML = val + " <span style='font-size: 0.8rem; opacity: 0.5;'>CONTROL SYSTEM</span>";
+            } else if (titleEl) {
+                titleEl.innerHTML = "J.S. AEROSPACE <span style='font-size: 0.8rem; opacity: 0.5;'>CONTROL SYSTEM</span>";
+            }
+        });
+
+        // 2. Escuchar el inicio de la misión para el reloj externo
+        const globalRef = ref(db, 'global/mission_start');
+        onValue(globalRef, (snapshot) => {
+            const val = snapshot.val();
+            if (val) {
+                missionStartTimestamp = Number(val);
+                console.log("External Mission Start Synced:", new Date(missionStartTimestamp * 1000));
+            } else {
+                missionStartTimestamp = null;
+                metEl.innerText = "T- 00:00:00";
+            }
+        });
+
+        // 3. Loop de reloj independiente (1Hz)
+        function updateExternalClock() {
+            if (!missionStartTimestamp) return;
+
+            const now = Date.now() / 1000;
+            const diff = now - missionStartTimestamp;
+
+            if (diff < 0) {
+                metEl.innerText = "T- 00:00:00";
+                return;
+            }
+
+            const hrs = Math.floor(diff / 3600);
+            const mins = Math.floor((diff % 3600) / 60);
+            const secs = Math.floor(diff % 60);
+
+            const timeStr =
+                (hrs > 0 ? hrs.toString().padStart(2, '0') + ":" : "") +
+                mins.toString().padStart(2, '0') + ":" +
+                secs.toString().padStart(2, '0');
+
+            metEl.innerText = "T+ " + timeStr;
+            metEl.style.color = "#00ff41";
+        }
+        setInterval(updateExternalClock, 1000);
+
         // --- FUNCIONES UTILITARIAS ---
         const fmtNum = (n) => (n !== undefined && n !== null) ? Math.round(Number(n)).toLocaleString() : "0";
         const fmtDec = (n, d = 1) => (n !== undefined && n !== null) ? Number(n).toFixed(d) : "0.0";
@@ -687,41 +742,12 @@
                 } catch (e) { console.error("Ship UI Error", e); }
             }
 
-            // MISSION TIME
-            // Prioridad: Ship MET > Booster MET > T+ LINKED
-            const rawMet = getVal(S2, "met", "MET") ?? getVal(B1, "met", "MET");
-
-            if (rawMet !== undefined) {
-                const totalSeconds = Number(rawMet);
-                const hrs = Math.floor(totalSeconds / 3600);
-                const mins = Math.floor((totalSeconds % 3600) / 60);
-                const secs = Math.floor(totalSeconds % 60);
-
-                const timeStr =
-                    (hrs > 0 ? hrs.toString().padStart(2, '0') + ":" : "") +
-                    mins.toString().padStart(2, '0') + ":" +
-                    secs.toString().padStart(2, '0');
-
-                document.getElementById('met-display').innerText = "T+ " + timeStr;
-                document.getElementById('met-display').style.color = "#00ff41"; // VERDE
-            } else {
-                document.getElementById('met-display').innerText = "T+ LINKED";
-                document.getElementById('met-display').style.color = "#00ff41";
-            }
+            // MISSION TIME (EXTERNO - MANEJADO POR setInterval)
+            // No hacemos nada aquí para no interferir con el loop del reloj externo
 
             // --- DEBUG OVERLAY (AUTO-INJECT) ---
             if (Object.keys(B1 || {}).length > 0 || Object.keys(S2 || {}).length > 0) {
-                // Suscribirse al nombre de misión
-                const nameRef = ref(db, 'global/mission_name');
-                onValue(nameRef, (snapshot) => {
-                    const val = snapshot.val();
-                    const titleEl = document.querySelector('.header-title');
-                    if (val && titleEl) {
-                        titleEl.innerHTML = val + " <span style='font-size: 0.8rem; opacity: 0.5;'>CONTROL SYSTEM</span>";
-                    }
-                });
-
-                // Loop principal de actualización de telemetría (Original)
+                // Aquí podrías añadir un overlay si fuera necesario
             }
         });
     </script>
