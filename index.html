@@ -670,7 +670,15 @@
                     document.getElementById('booster-alt').innerText = fmtNum(getVal(B1, "alt", "ALT"));
                     document.getElementById('booster-vel').innerText = fmtNum(getVal(B1, "vel", "VEL"));
                     document.getElementById('booster-vs').innerText = fmtDec(getVal(B1, "vs", "VS"), 1);
-                    document.getElementById('booster-dist').innerText = fmtNum(getVal(B1, "hdist", "HDIST", "dist", "DIST") || 0);
+                    const currentQ = getVal(B1, "q", "Q") || 0;
+                    const qEl = document.getElementById('booster-dist'); // Reusing a box for Q if needed or just updating the existing one
+                    // Nota: El dashboard actual no tiene un 'booster-q' asignado explícitamente en el HTML mostrado arriba, 
+                    // pero podemos usar el badge de status o un campo para alertar.
+
+                    if (currentQ > 18000) {
+                        document.getElementById('booster-status').style.color = "var(--neon-red)";
+                        document.getElementById('booster-status').innerText = "MAX Q LIMITING";
+                    }
 
                     // Fuel & Throttle
                     const fPct = getVal(B1, "fuelPct", "FUELPCT", "fuel_pct") || 0;
