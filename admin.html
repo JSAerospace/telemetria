@@ -154,66 +154,69 @@
 
     <!-- LOGIN SCREEN -->
     <div id="login-screen" class="container">
-        <h1>ACCESS CONTROL</h1>
+        <h1>CONTROL DE ACCESO</h1>
         <div class="form-group">
-            <label>ENTER ADMIN PASSWORD</label>
+            <label>INGRESAR CONTRASEÑA ADMIN</label>
             <input type="password" id="pass-input">
         </div>
-        <button onclick="checkPass()">ACCESS CMD</button>
+        <button onclick="checkPass()">ACCEDER A COMANDOS</button>
         <div id="login-msg" class="status-msg"></div>
     </div>
 
     <!-- ADMIN PANEL -->
     <div id="admin-panel" class="container">
-        <h1>MISSION COMMAND</h1>
+        <h1>COMANDO DE MISIÓN</h1>
 
         <div class="info-box">
-            MANAGING MISSION: <span id="current-id-display" style="color:#fff">NONE</span>
+            GESTIONANDO MISIÓN: <span id="current-id-display" style="color:#fff">NINGUNA</span>
+            <br>
+            <span style="font-size: 0.7rem; color: var(--text-dim);">CLIENTE: </span>
+            <span id="tel-client" style="color:var(--primary); font-size: 0.7rem;">-</span>
         </div>
 
         <div class="form-group">
-            <label>TARGET MISSION ID</label>
+            <label>ID DE MISIÓN OBJETIVO</label>
             <input type="text" id="mission-id-input" placeholder="HS-001">
-            <button onclick="switchMission()">SWITCH MISSION</button>
+            <button onclick="switchMission()">CAMBIAR CANAL</button>
         </div>
 
         <div style="border: 1px solid #333; padding: 15px; margin-bottom: 20px;">
-            <div class="form-group">
-                <label>MISSION NAME / CLIENT</label>
-                <input type="text" id="mission-name-input" placeholder="ZHUQUE-3 FLIGHT X">
+            <div class="form-group" style="margin-bottom: 5px;">
+                <label>NOMBRE DE LA MISIÓN (DASHBOARD)</label>
+                <input type="text" id="mission-name-input" placeholder="ZHUQUE-3 VUELO X">
             </div>
-            <button onclick="updateMissionName()">UPDATE IDENTITY</button>
+            <button onclick="updateMissionName()">ACTUALIZAR IDENTIDAD</button>
         </div>
 
         <div id="telemetry-monitor">
-            <div style="text-align: center; font-size: 0.7rem; color: var(--text-dim); margin-bottom: 5px;">LIVE
-                TELEMETRY MONITOR</div>
+            <div style="text-align: center; font-size: 0.7rem; color: var(--text-dim); margin-bottom: 5px;">MONITOR DE
+                TELEMETRÍA EN VIVO</div>
             <div class="telemetry-grid">
                 <div class="tel-item">
-                    <span class="tel-label">CLOCK</span>
+                    <span class="tel-label">RELOJ</span>
                     <span id="tel-met">T- 00:00:00</span>
                 </div>
                 <div class="tel-item">
-                    <span class="tel-label">STATUS</span>
+                    <span class="tel-label">ESTADO</span>
                     <span id="tel-status">OFFLINE</span>
                 </div>
                 <div class="tel-item">
-                    <span class="tel-label">ALTITUDE</span>
+                    <span class="tel-label">ALTITUD</span>
                     <span id="tel-alt">0</span> M
                 </div>
                 <div class="tel-item">
-                    <span class="tel-label">VELOCITY</span>
+                    <span class="tel-label">VELOCIDAD</span>
                     <span id="tel-vel">0</span> M/S
                 </div>
             </div>
         </div>
 
-        <button class="danger" onclick="resetAllData()">PURGE THIS MISSION DATA</button>
+        <button class="danger" onclick="resetAllData()">PURGAR DATOS DE ESTA MISIÓN</button>
 
         <div id="admin-msg" class="status-msg"></div>
         <div style="margin-top: 2rem; text-align: center;">
             <a href="index.html" id="dash-link"
-                style="color: var(--primary); text-decoration: none; font-size: 0.7rem;">← BACK TO DASHBOARD</a>
+                style="color: var(--primary); text-decoration: none; font-size: 0.7rem;">← VOLVER AL DASHBOARD</a>
         </div>
     </div>
 
@@ -245,9 +248,9 @@
             if (val === ADMIN_PASS) {
                 document.getElementById('login-screen').style.display = 'none';
                 document.getElementById('admin-panel').style.display = 'block';
-                switchMission(); // Load default
+                switchMission(); // Cargar por defecto
             } else {
-                showMsg("INVALID ACCESS KEY", "login-msg");
+                showMsg("CLAVE DE ACCESO INVÁLIDA", "login-msg");
             }
         };
 
@@ -258,24 +261,26 @@
             document.getElementById('current-id-display').innerText = currentMissionID;
             document.getElementById('dash-link').href = `index.html?id=${currentMissionID}`;
 
-            // Clean old listeners
+            // Limpiar listeners viejos
             if (telemetryUnsub) telemetryUnsub();
             if (globalUnsub) globalUnsub();
 
             setupListeners();
-            showMsg("SWITCHED TO " + currentMissionID, "admin-msg");
+            showMsg("CAMBIADO A " + currentMissionID, "admin-msg");
         };
 
         function setupListeners() {
-            // MET & Global Info
+            // MET, Nombre e Info del Cliente
             const globalRef = ref(db, `missions/${currentMissionID}/global`);
             globalUnsub = onValue(globalRef, (snap) => {
                 const data = snap.val();
                 if (data) {
                     document.getElementById('mission-name-input').value = data.mission_name || "";
+                    document.getElementById('tel-client').innerText = data.client_name || "SIN IDENTIFICAR";
                     updateClock(data.mission_start);
                 } else {
                     document.getElementById('tel-met').innerText = "T- 00:00:00";
+                    document.getElementById('tel-client').innerText = "-";
                 }
             });
 
@@ -332,13 +337,13 @@
             const name = document.getElementById('mission-name-input').value;
             if (!name) return;
             set(ref(db, `missions/${currentMissionID}/global/mission_name`), name)
-                .then(() => showMsg("IDENTITY UPDATED", "admin-msg"));
+                .then(() => showMsg("IDENTIDAD ACTUALIZADA", "admin-msg"));
         };
 
         window.resetAllData = function () {
-            if (confirm(`CRITICAL: PURGE ALL DATA FOR MISSION ${currentMissionID}?`)) {
+            if (confirm(`CRÍTICO: ¿PURGAR TODOS LOS DATOS DE LA MISIÓN ${currentMissionID}?`)) {
                 remove(ref(db, `missions/${currentMissionID}`))
-                    .then(() => showMsg("MISSION DATA PURGED", "admin-msg"));
+                    .then(() => showMsg("DATOS DE MISIÓN PURGADOS", "admin-msg"));
             }
         };
 
