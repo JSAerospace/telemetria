@@ -589,7 +589,7 @@
     <!-- FIREBASE SDK -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getDatabase, ref, onValue, set } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+        import { getDatabase, ref, onValue, set, get } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
         // CONFIGURACION GLOBAL
         const firebaseConfig = {
@@ -626,11 +626,9 @@
             try {
                 // Verificar si existe la misión en Firebase (Chequeamos si tiene nombre o inicio)
                 const checkRef = ref(db, `missions/${idInput}/global/mission_name`);
-                
-                // Usamos una promesa para el check inicial
-                import { get } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
                 const snapshot = await get(checkRef);
-                
+
                 if (!snapshot.exists()) {
                     alert("ERROR: La ID de misión '" + idInput + "' no existe o no ha sido activada por el administrador.");
                     btn.innerText = "ESTABLECER CONEXIÓN";
