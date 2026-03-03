@@ -189,34 +189,61 @@
         </div>
 
         <div id="telemetry-monitor">
-            <div style="text-align: center; font-size: 0.7rem; color: var(--text-dim); margin-bottom: 5px;">MONITOR DE
-                TELEMETRÍA EN VIVO</div>
-            <div class="telemetry-grid">
-                <div class="tel-item">
-                    <span class="tel-label">RELOJ</span>
-                    <span id="tel-met">T- 00:00:00</span>
-                </div>
+            <div style="text-align: center; font-size: 0.7rem; color: var(--text-dim); margin-bottom: 15px;">MONITOR DE TELEMETRÍA EN VIVO</div>
+            
+            <!-- BOOSTER SECTION -->
+            <div style="font-size: 0.7rem; color: var(--primary); margin-bottom: 5px; border-left: 2px solid var(--primary); padding-left: 5px;">BOOSTER / S1</div>
+            <div class="telemetry-grid" style="margin-bottom: 20px;">
                 <div class="tel-item">
                     <span class="tel-label">ESTADO</span>
-                    <span id="tel-status">OFFLINE</span>
+                    <span id="b1-status" class="tel-val">OFFLINE</span>
                 </div>
                 <div class="tel-item">
                     <span class="tel-label">ALTITUD</span>
-                    <span id="tel-alt">0</span> M
+                    <span id="b1-alt" class="tel-val">0</span> M
                 </div>
                 <div class="tel-item">
                     <span class="tel-label">VELOCIDAD</span>
-                    <span id="tel-vel">0</span> M/S
+                    <span id="b1-vel" class="tel-val">0</span> M/S
                 </div>
+                <div class="tel-item">
+                    <span class="tel-label">COMBUSTIBLE</span>
+                    <span id="b1-fuel" class="tel-val">0</span>%
+                </div>
+            </div>
+
+            <!-- SHIP SECTION -->
+            <div style="font-size: 0.7rem; color: #00f3ff; margin-bottom: 5px; border-left: 2px solid #00f3ff; padding-left: 5px;">ORBITADOR / S2</div>
+            <div class="telemetry-grid">
+                <div class="tel-item">
+                    <span class="tel-label">ESTADO</span>
+                    <span id="s2-status" class="tel-val">OFFLINE</span>
+                </div>
+                <div class="tel-item">
+                    <span class="tel-label">ALTITUD</span>
+                    <span id="s2-alt" class="tel-val">0</span> M
+                </div>
+                <div class="tel-item">
+                    <span class="tel-label">VELOCIDAD</span>
+                    <span id="s2-vel" class="tel-val">0</span> M/S
+                </div>
+                <div class="tel-item">
+                    <span class="tel-label">COMBUSTIBLE</span>
+                    <span id="s2-fuel" class="tel-val">0</span>%
+                </div>
+            </div>
+
+            <div class="tel-item" style="grid-column: span 2; margin-top: 15px; text-align: center;">
+                <span class="tel-label">RELOJ DE MISIÓN (MET)</span>
+                <span id="tel-met" style="font-size: 1.2rem; color: #fff;">T- 00:00:00</span>
             </div>
         </div>
 
-        <button class="danger" onclick="resetAllData()">PURGAR DATOS DE ESTA MISIÓN</button>
+        <button class="danger" style="margin-top: 10px;" onclick="resetAllData()">PURGAR DATOS DE ESTA MISIÓN</button>
 
         <div id="admin-msg" class="status-msg"></div>
-        <div style="margin-top: 2rem; text-align: center;">
-            <a href="index.html" id="dash-link"
-                style="color: var(--primary); text-decoration: none; font-size: 0.7rem;">← VOLVER AL DASHBOARD</a>
+        <div style="margin-top: 1rem; text-align: center;">
+            <a href="index.html" id="dash-link" style="color: var(--primary); text-decoration: none; font-size: 0.7rem;">← VOLVER AL DASHBOARD</a>
         </div>
     </div>
 
@@ -240,8 +267,9 @@
 
         const ADMIN_PASS = "Kion2011";
         let currentMissionID = "HS-DEFAULT";
-        let telemetryUnsub = null;
+        let missionUnsub = null;
         let globalUnsub = null;
+        let missionStartVal = null;
 
         window.checkPass = function () {
             const val = document.getElementById('pass-input').value;
@@ -254,15 +282,15 @@
             }
         };
 
-        window.switchMission = function () {
-            const newID = document.getElementById('mission-id-input').value.trim().toUpperCase();
-            if (newID) currentMissionID = newID;
-
+        window.switchMission = function() {
+            const idInput = document.getElementById('mission-id-input').value.trim().toUpperCase();
+            if (idInput) currentMissionID = idInput;
+            
             document.getElementById('current-id-display').innerText = currentMissionID;
             document.getElementById('dash-link').href = `index.html?id=${currentMissionID}`;
-
+            
             // Limpiar listeners viejos
-            if (telemetryUnsub) telemetryUnsub();
+            if (missionUnsub) missionUnsub();
             if (globalUnsub) globalUnsub();
 
             setupListeners();
@@ -271,47 +299,71 @@
 
         function setupListeners() {
             // MET, Nombre e Info del Cliente
-            const globalRef = ref(db, `missions/${currentMissionID}/global`);
-            globalUnsub = onValue(globalRef, (snap) => {
+            globalUnsub = onValue(ref(db, `missions/${currentMissionID}/global`), (snap) => {
                 const data = snap.val();
                 if (data) {
                     document.getElementById('mission-name-input').value = data.mission_name || "";
                     document.getElementById('tel-client').innerText = data.client_name || "SIN IDENTIFICAR";
-                    updateClock(data.mission_start);
+                    missionStartVal = data.mission_start;
                 } else {
+                    missionStartVal = null;
                     document.getElementById('tel-met').innerText = "T- 00:00:00";
                     document.getElementById('tel-client').innerText = "-";
                 }
             });
 
-            // Active Telemetry (Prefer Ship, then Booster)
-            const shipRef = ref(db, `missions/${currentMissionID}/ship`);
-            telemetryUnsub = onValue(shipRef, (snap) => {
+            // Dual Telemetry (S1 & S2)
+            missionUnsub = onValue(ref(db, `missions/${currentMissionID}`), (snap) => {
                 const data = snap.val();
-                if (data) updateMonitor(data);
-                else {
-                    // Try Booster fallback
-                    const boosterRef = ref(db, `missions/${currentMissionID}/booster`);
-                    onValue(boosterRef, (bSnap) => {
-                        const bData = bSnap.val();
-                        if (bData) updateMonitor(bData);
-                    }, { onlyOnce: true });
+                if (!data) return;
+
+                const B1 = parseKosJson(data.booster);
+                const S2 = parseKosJson(data.ship);
+
+                if (B1) {
+                    updateEl('b1-status', (B1.status || "OFFLINE"));
+                    updateEl('b1-alt', Math.round(B1.alt || 0).toLocaleString());
+                    updateEl('b1-vel', Math.round(B1.vel || 0).toLocaleString());
+                    updateEl('b1-fuel', Math.round(B1.fuel || 0));
+                }
+                if (S2) {
+                    updateEl('s2-status', (S2.status || "OFFLINE"));
+                    updateEl('s2-alt', Math.round(S2.alt || 0).toLocaleString());
+                    updateEl('s2-vel', Math.round(S2.vel || 0).toLocaleString());
+                    updateEl('s2-fuel', Math.round(S2.fuel || 0));
                 }
             });
         }
 
-        function updateMonitor(data) {
-            // kOS Lexicon parsing simple fallback
-            let clean = data;
-            if (data.entries) {
-                clean = {};
-                for (let i = 0; i < data.entries.length - 1; i += 2) {
-                    clean[data.entries[i].value] = data.entries[i + 1].value;
+        function updateEl(id, val) {
+            const el = document.getElementById(id);
+            if (el) el.innerText = val;
+        }
+
+        function parseKosJson(data) {
+            if (!data || typeof data !== 'object') return data;
+            if (data.entries && Array.isArray(data.entries)) {
+                const result = {};
+                const ent = data.entries;
+                const isTypeA = (ent[0] && typeof ent[0] === 'object' && ent[0].key !== undefined);
+                if (isTypeA) {
+                    for (let entry of ent) {
+                        let k = entry.key?.value ?? entry.key;
+                        let v = entry.value?.value ?? entry.value;
+                        if (v && typeof v === 'object') v = parseKosJson(v);
+                        if (k != null) result[String(k).trim()] = v;
+                    }
+                } else {
+                    for (let i = 0; i < ent.length - 1; i += 2) {
+                        let k = ent[i]?.value ?? ent[i];
+                        let v = ent[i+1]?.value ?? ent[i+1];
+                        if (v && typeof v === 'object') v = parseKosJson(v);
+                        if (k != null) result[String(k).trim()] = v;
+                    }
                 }
+                return result;
             }
-            document.getElementById('tel-status').innerText = clean.status || clean.STATUS || "OFFLINE";
-            document.getElementById('tel-alt').innerText = Math.round(clean.alt || clean.ALT || 0).toLocaleString();
-            document.getElementById('tel-vel').innerText = Math.round(clean.vel || clean.VEL || 0).toLocaleString();
+            return data;
         }
 
         function updateClock(start) {
@@ -333,6 +385,10 @@
                 String(secs).padStart(2, '0');
         }
 
+        setInterval(() => {
+            if (missionStartVal) updateClock(missionStartVal);
+        }, 1000);
+
         window.updateMissionName = function () {
             const name = document.getElementById('mission-name-input').value;
             if (!name) return;
@@ -352,19 +408,6 @@
             el.innerText = txt;
             setTimeout(() => { el.innerText = ""; }, 3000);
         }
-
-        // Live clock update for monitor
-        setInterval(() => {
-            const val = document.getElementById('current-id-display').innerText;
-            if (val !== "NONE") {
-                // The global listener handles the logic, but we need the tick if the listener only fires on data change
-                // (We could fetch start once and tick locally for better performance)
-            }
-        }, 1000);
     </script>
 </body>
-
-</html>
-</body>
-
-</html>
+</html>
