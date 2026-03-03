@@ -341,15 +341,107 @@
             color: #fff;
             box-shadow: 0 0 10px var(--neon-red);
         }
+
+        /* (Previous styles preserved, adding overlay styles) */
+        .overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(5, 10, 15, 0.98);
+            backdrop-filter: blur(15px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.5s ease;
+        }
+
+        .overlay.visible {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .login-card {
+            background: var(--panel-bg);
+            border: 1px solid var(--neon-blue);
+            padding: 40px;
+            width: 90%;
+            max-width: 450px;
+            text-align: center;
+            box-shadow: 0 0 30px rgba(0, 243, 255, 0.2);
+            clip-path: polygon(0 0, 100% 0, 100% calc(100% - 20px), calc(100% - 20px) 100%, 0 100%);
+        }
+
+        .login-card h2 {
+            font-family: 'Orbitron', sans-serif;
+            color: var(--neon-blue);
+            margin-bottom: 20px;
+            letter-spacing: 2px;
+        }
+
+        .login-input {
+            width: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid #333;
+            color: #fff;
+            padding: 15px;
+            margin-bottom: 20px;
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 1.1rem;
+            outline: none;
+        }
+
+        .login-input:focus {
+            border-color: var(--neon-blue);
+        }
+
+        .login-btn {
+            width: 100%;
+            background: var(--neon-blue);
+            color: #000;
+            border: none;
+            padding: 15px;
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .login-btn:hover {
+            box-shadow: 0 0 20px var(--neon-blue);
+            transform: scale(1.02);
+        }
+
+        #client-info {
+            font-size: 0.8rem;
+            opacity: 0.6;
+            margin-top: 10px;
+            color: var(--neon-blue);
+        }
     </style>
 </head>
 
 <body>
 
+    <div id="login-overlay" class="overlay">
+        <div class="login-card">
+            <h2>MISSION AUTHENTICATION</h2>
+            <p style="font-size: 0.9rem; opacity: 0.7; margin-bottom: 25px;">Enter mission identification for telemetry
+                sync.</p>
+            <input type="text" id="client-name-input" class="login-input" placeholder="CLIENT NAME (e.g. HALCON SPACE)">
+            <input type="text" id="mission-id-input" class="login-input" placeholder="MISSION ID (e.g. HS-001)">
+            <button class="login-btn" onclick="startMetricSync()">ESTABLISH CONNECTION</button>
+        </div>
+    </div>
+
     <header>
         <div class="header-container" style="display: flex; align-items: center;">
-            <button class="reset-btn" id="btn-reset">Reset Mission</button>
-            <div class="header-title">J.S. AEROSPACE</div>
+            <button class="reset-btn" id="btn-reset">Reset</button>
+            <div>
+                <div class="header-title">J.S. AEROSPACE</div>
+                <div id="client-info">ESTABLISHING CONNECTION...</div>
+            </div>
         </div>
         <div class="mission-timer">
             <div class="label">MISSION ELAPSED TIME</div>
@@ -494,9 +586,9 @@
     <!-- FIREBASE SDK -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+        import { getDatabase, ref, onValue, set } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
-        // CONFIGURACION IDÉNTICA A LA GLOBAL
+        // CONFIGURACION GLOBAL
         const firebaseConfig = {
             apiKey: "AIzaSyCiZs5Edhj2M0GIroo7thpD-fz6UOWpoZQ",
             authDomain: "control-de-mision-js.firebaseapp.com",
@@ -511,53 +603,100 @@
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
-        // --- GESTIÓN DE MISIÓN Y RELOJ EXTERNO ---
+        let currentMissionID = "";
+        let clientName = "";
         let missionStartTimestamp = null;
-        const metEl = document.getElementById('met-display');
-        const titleEl = document.querySelector('.header-title');
 
-        // 1. Escuchar el nombre de la misión
-        const nameRef = ref(db, 'global/mission_name');
-        onValue(nameRef, (snapshot) => {
-            const val = snapshot.val();
-            if (val && titleEl) {
-                titleEl.innerHTML = val + " <span style='font-size: 0.8rem; opacity: 0.5;'>CONTROL SYSTEM</span>";
-            } else if (titleEl) {
-                titleEl.innerHTML = "J.S. AEROSPACE <span style='font-size: 0.8rem; opacity: 0.5;'>CONTROL SYSTEM</span>";
-            }
-        });
+        // --- GESTIÓN DE MISIÓN ---
+        window.startMetricSync = function () {
+            const idInput = document.getElementById('mission-id-input').value.trim().toUpperCase();
+            const nameInput = document.getElementById('client-name-input').value.trim();
 
-        // 2. Escuchar el inicio de la misión para el reloj externo
-        const globalRef = ref(db, 'global/mission_start');
-        onValue(globalRef, (snapshot) => {
-            const val = snapshot.val();
+            if (!idInput) { alert("Mission ID required."); return; }
+
+            currentMissionID = idInput;
+            clientName = nameInput || "PRIVATE CLIENT";
+
+            document.getElementById('login-overlay').classList.remove('visible');
+            document.getElementById('client-info').innerText = `CLIENT: ${clientName} | CHANNEL: ${currentMissionID}`;
+
+            // Persistir en URL
+            history.pushState(null, '', `?id=${currentMissionID}&name=${encodeURIComponent(clientName)}`);
+
+            initListeners();
+        };
+
+        // Auto-login si hay parametros en URL
+        const params = new URLSearchParams(window.location.search);
+        if (params.get('id')) {
+            document.getElementById('mission-id-input').value = params.get('id');
+            document.getElementById('client-name-input').value = params.get('name') || "";
+            setTimeout(window.startMetricSync, 100);
+        } else {
+            document.getElementById('login-overlay').classList.add('visible');
+        }
+
+        function initListeners() {
+            const metEl = document.getElementById('met-display');
+            const titleEl = document.querySelector('.header-title');
             const alertEl = document.getElementById('liftoff-alert');
 
-            if (val) {
-                const newStart = Number(val);
-                // Si es un nuevo despegue (no estaba sincronizado antes y el tiempo es reciente)
-                if (missionStartTimestamp === null && (Date.now() / 1000 - newStart) < 10) {
-                    if (alertEl) {
-                        alertEl.style.display = 'block';
-                        setTimeout(() => { alertEl.style.display = 'none'; }, 4000);
-                    }
+            // 1. Escuchar el nombre de la misión (Path particionado)
+            onValue(ref(db, `missions/${currentMissionID}/global/mission_name`), (snapshot) => {
+                const val = snapshot.val();
+                if (val && titleEl) {
+                    titleEl.innerHTML = val + " <span style='font-size: 0.8rem; opacity: 0.5;'>CONTROL SYSTEM</span>";
+                } else if (titleEl) {
+                    titleEl.innerHTML = "J.S. AEROSPACE <span style='font-size: 0.8rem; opacity: 0.5;'>CONTROL SYSTEM</span>";
                 }
-                missionStartTimestamp = newStart;
-                console.log("External Mission Start Synced:", new Date(missionStartTimestamp * 1000));
-            } else {
-                missionStartTimestamp = null;
-                metEl.innerText = "T- 00:00:00";
-                metEl.style.color = "var(--text-main)";
-            }
-        });
+            });
 
-        // 2.5 Lógica de Reset Manual
-        import { set } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
-        document.getElementById('btn-reset').onclick = () => {
-            if (confirm("¿Estás seguro de que quieres resetear la misión? El reloj volverá a T-0 y se borrará el inicio detectado.")) {
-                set(ref(db, 'global/mission_start'), null);
-            }
-        };
+            // 2. Escuchar el inicio de la misión (Path particionado)
+            onValue(ref(db, `missions/${currentMissionID}/global/mission_start`), (snapshot) => {
+                const val = snapshot.val();
+                if (val) {
+                    const newStart = Number(val);
+                    // Si es un nuevo despegue (no estaba sincronizado antes y el tiempo es reciente)
+                    if (missionStartTimestamp === null && (Date.now() / 1000 - newStart) < 10) {
+                        if (alertEl) {
+                            alertEl.style.display = 'block';
+                            setTimeout(() => { alertEl.style.display = 'none'; }, 4000);
+                        }
+                    }
+                    missionStartTimestamp = newStart;
+                    console.log("External Mission Start Synced:", new Date(missionStartTimestamp * 1000));
+                } else {
+                    missionStartTimestamp = null;
+                    metEl.innerText = "T- 00:00:00";
+                    metEl.style.color = "var(--text-main)";
+                }
+            });
+
+            // 3. Reset Manual (Path particionado)
+            document.getElementById('btn-reset').onclick = () => {
+                if (confirm("¿Estás seguro de que quieres resetear la misión? El reloj volverá a T-0 y se borrará el inicio detectado.")) {
+                    set(ref(db, `missions/${currentMissionID}/global/mission_start`), null);
+                }
+            };
+
+            // --- TELEMETRÍA CORE (Paths particionados) ---
+            const telemetryRef = ref(db, `missions/${currentMissionID}`);
+            onValue(telemetryRef, (snapshot) => {
+                const raw = snapshot.val();
+                if (!raw) return;
+
+                document.getElementById('conn-status').innerText = "ONLINE (" + currentMissionID + ")";
+                document.getElementById('conn-status').style.color = "#00ff41";
+                document.getElementById('conn-status').classList.add('blink');
+                document.getElementById('data-id').innerText = currentMissionID;
+
+                const S2 = parseKosJson(raw.ship);
+                const B1 = parseKosJson(raw.booster);
+
+                if (B1) updateBoosterUI(B1);
+                if (S2) updateShipUI(S2);
+            });
+        }
 
         // 3. Loop de reloj independiente (1Hz)
         function updateExternalClock() {
@@ -567,7 +706,7 @@
             const diff = now - missionStartTimestamp;
 
             if (diff < 0) {
-                metEl.innerText = "T- 00:00:00";
+                document.getElementById('met-display').innerText = "T- 00:00:00";
                 return;
             }
 
@@ -580,8 +719,8 @@
                 mins.toString().padStart(2, '0') + ":" +
                 secs.toString().padStart(2, '0');
 
-            metEl.innerText = "T+ " + timeStr;
-            metEl.style.color = "#00ff41";
+            document.getElementById('met-display').innerText = "T+ " + timeStr;
+            document.getElementById('met-display').style.color = "#00ff41";
         }
         setInterval(updateExternalClock, 1000);
 
