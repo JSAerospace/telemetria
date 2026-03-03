@@ -401,20 +401,19 @@
                 }
             });
 
-            // Dual Telemetry (S1 & S2)
-            missionUnsub = onValue(ref(db, `missions/${currentMissionID}`), (snap) => {
-                const data = snap.val();
-                if (!data) return;
-
-                const B1 = parseKosJson(data.booster);
-                const S2 = parseKosJson(data.ship);
-
+            // Dual Telemetry (S1 & S2) - Escuchas directas
+            onValue(ref(db, `missions/${currentMissionID}/booster`), (snap) => {
+                const B1 = parseKosJson(snap.val());
                 if (B1) {
                     updateEl('b1-status', (B1.status || "OFFLINE"));
                     updateEl('b1-alt', Math.round(B1.alt || 0).toLocaleString());
                     updateEl('b1-vel', Math.round(B1.vel || 0).toLocaleString());
                     updateEl('b1-fuel', Math.round(B1.fuelPct || B1.fuel_pct || 0));
                 }
+            });
+
+            onValue(ref(db, `missions/${currentMissionID}/ship`), (snap) => {
+                const S2 = parseKosJson(snap.val());
                 if (S2) {
                     updateEl('s2-status', (S2.status || "OFFLINE"));
                     updateEl('s2-alt', Math.round(S2.alt || 0).toLocaleString());

@@ -670,10 +670,6 @@
 
     </div>
 
-    <div class="status-bar">
-        <span>CONEXIÓN: <span id="conn-status" style="color:red">OFFLINE</span></span>
-        <span>ID DE DATOS: <span id="data-id" style="color:#aaa">-</span></span>
-        <span>SISTEMA VISUAL: v2.2 BULLSEYE SPANISH</span>
     </div>
 
     <!-- FIREBASE SDK -->
@@ -768,86 +764,80 @@
             const titleEl = document.querySelector('.header-title');
             const alertEl = document.getElementById('liftoff-alert');
 
-            // 1. Escuchar el nombre de la misión (Path particionado)
-            onValue(ref(db, `missions/${currentMissionID}/global/mission_name`), (snapshot) => {
-                const val = snapshot.val();
-                if (val && titleEl) {
-                    titleEl.innerHTML = val + " <span style='font-size: 0.8rem; opacity: 0.5;'>SISTEMA DE CONTROL</span>";
-                } else if (titleEl) {
-                    titleEl.innerHTML = "J.S. AEROSPACE <span style='font-size: 0.8rem; opacity: 0.5;'>SISTEMA DE CONTROL</span>";
-                }
-            });
+            // 1. Escuchar el nombre de la misión y estado global (Identidad)
+            onValue(ref(db, `missions/${currentMissionID}/global`), (snapshot) => {
+                const data = snapshot.val();
+                if (data) {
+                    if (data.mission_name && titleEl) {
+                         titleEl.innerHTML = data.mission_name + " <span style='font-size: 0.8rem; opacity: 0.5;'>SISTEMA DE CONTROL</span>";
+                    }
+                    
+                    // Actualizar estado de conexión (Usamos el nodo global como latido)
+                    const connStatus = document.getElementById('conn-status');
+                    const dataId = document.getElementById('data-id');
+                    if (connStatus) {
+                        connStatus.innerText = "EN LÍNEA (" + currentMissionID + ")";
+                        connStatus.style.color = "#00ff41";
+                        connStatus.classList.add('blink');
+                    }
+                    if (dataId) dataId.innerText = currentMissionID;
 
-            // 2. Escuchar el inicio de la misión (Path particionado)
-            onValue(ref(db, `missions/${currentMissionID}/global/mission_start`), (snapshot) => {
-                const val = snapshot.val();
-                if (val) {
-                    const newStart = Number(val);
-                    // Si es un nuevo despegue (no estaba sincronizado antes y el tiempo es reciente)
-                    if (missionStartTimestamp === null && (Date.now() / 1000 - newStart) < 10) {
-                        if (alertEl) {
-                            alertEl.style.display = 'block';
-                            setTimeout(() => { alertEl.style.display = 'none'; }, 4000);
+                    // Mission Start
+                    if (data.mission_start) {
+                        const newStart = Number(data.mission_start);
+                        if (missionStartTimestamp === null && (Date.now() / 1000 - newStart) < 10) {
+                            if (alertEl) {
+                                alertEl.style.display = 'block';
+                                setTimeout(() => { alertEl.style.display = 'none'; }, 4000);
+                            }
+                        }
+                        missionStartTimestamp = newStart;
+                    } else {
+                        missionStartTimestamp = null;
+                        metEl.innerText = "T- 00:00:00";
+                        metEl.style.color = "var(--text-main)";
+                    }
+
+                    // Client Go
+                    clientGo = !!data.client_go;
+                    const cIndicator = document.getElementById('client-go-indicator');
+                    const cBtn = document.getElementById('client-go-btn');
+                    if (cIndicator && cBtn) {
+                        if (clientGo) {
+                            cIndicator.innerText = "GO";
+                            cIndicator.classList.add('go');
+                            cBtn.innerText = "MARCAR NO-GO";
+                        } else {
+                            cIndicator.innerText = "NO-GO";
+                            cIndicator.classList.remove('go');
+                            cBtn.innerText = "MARCAR GO";
                         }
                     }
-                    missionStartTimestamp = newStart;
-                    console.log("External Mission Start Synced:", new Date(missionStartTimestamp * 1000));
-                } else {
-                    missionStartTimestamp = null;
-                    metEl.innerText = "T- 00:00:00";
-                    metEl.style.color = "var(--text-main)";
-                }
-            });
 
-            // 3. Escuchar Go/No-Go del Cliente (Propio)
-            onValue(ref(db, `missions/${currentMissionID}/global/client_go`), (snapshot) => {
-                clientGo = !!snapshot.val();
-                const indicator = document.getElementById('client-go-indicator');
-                const btn = document.getElementById('client-go-btn');
-                if (indicator && btn) {
-                    if (clientGo) {
-                        indicator.innerText = "GO";
-                        indicator.classList.add('go');
-                        btn.innerText = "MARCAR NO-GO";
-                    } else {
-                        indicator.innerText = "NO-GO";
-                        indicator.classList.remove('go');
-                        btn.innerText = "MARCAR GO";
+                    // Mission Go
+                    const mGo = !!data.mission_go;
+                    const mIndicator = document.getElementById('mission-go-indicator');
+                    if (mIndicator) {
+                        if (mGo) {
+                            mIndicator.innerText = "MISSION GO";
+                            mIndicator.classList.add('go');
+                        } else {
+                            mIndicator.innerText = "MISSION NO-GO";
+                            mIndicator.classList.remove('go');
+                        }
                     }
                 }
             });
 
-            // 4. Escuchar Go/No-Go Maestro (Admin)
-            onValue(ref(db, `missions/${currentMissionID}/global/mission_go`), (snapshot) => {
-                const missionGo = !!snapshot.val();
-                const indicator = document.getElementById('mission-go-indicator');
-                if (indicator) {
-                    if (missionGo) {
-                        indicator.innerText = "MISSION GO";
-                        indicator.classList.add('go');
-                    } else {
-                        indicator.innerText = "MISSION NO-GO";
-                        indicator.classList.remove('go');
-                    }
-                }
+            // --- TELEMETRÍA CORE (Escuchas directas para evitar fallos de permisos) ---
+            onValue(ref(db, `missions/${currentMissionID}/booster`), (snapshot) => {
+                const data = parseKosJson(snapshot.val());
+                if (data) updateBoosterUI(data);
             });
 
-            // --- TELEMETRÍA CORE (Paths particionados) ---
-            const telemetryRef = ref(db, `missions/${currentMissionID}`);
-            onValue(telemetryRef, (snapshot) => {
-                const raw = snapshot.val();
-                if (!raw) return;
-
-                document.getElementById('conn-status').innerText = "EN LÍNEA (" + currentMissionID + ")";
-                document.getElementById('conn-status').style.color = "#00ff41";
-                document.getElementById('conn-status').classList.add('blink');
-                document.getElementById('data-id').innerText = currentMissionID;
-
-                const S2 = parseKosJson(raw.ship);
-                const B1 = parseKosJson(raw.booster);
-
-                if (B1) updateBoosterUI(B1);
-                if (S2) updateShipUI(S2);
+            onValue(ref(db, `missions/${currentMissionID}/ship`), (snapshot) => {
+                const data = parseKosJson(snapshot.val());
+                if (data) updateShipUI(data);
             });
         }
 
