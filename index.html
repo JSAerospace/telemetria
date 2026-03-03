@@ -611,25 +611,52 @@
         let missionStartTimestamp = null;
 
         // --- GESTIÓN DE MISIÓN ---
-        window.startMetricSync = function () {
+        window.startMetricSync = async function () {
             const idInput = document.getElementById('mission-id-input').value.trim().toUpperCase();
             const nameInput = document.getElementById('client-name-input').value.trim();
+            const btn = document.querySelector('.login-btn');
+            const overlay = document.getElementById('login-overlay');
 
             if (!idInput) { alert("Se requiere ID de misión."); return; }
 
-            currentMissionID = idInput;
-            clientName = nameInput || "CLIENTE PRIVADO";
+            // Estado de carga
+            btn.innerText = "VERIFICANDO...";
+            btn.disabled = true;
 
-            document.getElementById('login-overlay').classList.remove('visible');
-            document.getElementById('client-info').innerText = `CLIENTE: ${clientName} | CANAL: ${currentMissionID}`;
+            try {
+                // Verificar si existe la misión en Firebase (Chequeamos si tiene nombre o inicio)
+                const checkRef = ref(db, `missions/${idInput}/global/mission_name`);
+                
+                // Usamos una promesa para el check inicial
+                import { get } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+                const snapshot = await get(checkRef);
+                
+                if (!snapshot.exists()) {
+                    alert("ERROR: La ID de misión '" + idInput + "' no existe o no ha sido activada por el administrador.");
+                    btn.innerText = "ESTABLECER CONEXIÓN";
+                    btn.disabled = false;
+                    return;
+                }
 
-            // Sincronizar nombre del cliente con Admin
-            set(ref(db, `missions/${currentMissionID}/global/client_name`), clientName);
+                currentMissionID = idInput;
+                clientName = nameInput || "CLIENTE PRIVADO";
 
-            // Persistir en URL
-            history.pushState(null, '', `?id=${currentMissionID}&name=${encodeURIComponent(clientName)}`);
+                overlay.classList.remove('visible');
+                document.getElementById('client-info').innerText = `CLIENTE: ${clientName} | CANAL: ${currentMissionID}`;
 
-            initListeners();
+                // Sincronizar nombre del cliente con Admin
+                set(ref(db, `missions/${currentMissionID}/global/client_name`), clientName);
+
+                // Persistir en URL
+                history.pushState(null, '', `?id=${currentMissionID}&name=${encodeURIComponent(clientName)}`);
+
+                initListeners();
+            } catch (e) {
+                console.error(e);
+                alert("Error de conexión con el servidor de telemetría.");
+                btn.innerText = "ESTABLECER CONEXIÓN";
+                btn.disabled = false;
+            }
         };
 
         // Botón para cambiar de misión
