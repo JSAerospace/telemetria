@@ -682,7 +682,7 @@
     <!-- FIREBASE SDK -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getDatabase, ref, onValue, set, get } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+        import { getDatabase, ref, onValue, set, get, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
         // CONFIGURACION GLOBAL
         const firebaseConfig = {
@@ -839,13 +839,38 @@
             // --- TELEMETRÍA CORE (Escuchas directas para mayor estabilidad) ---
             onValue(ref(db, `missions/${currentMissionID}/booster`), (snapshot) => {
                 const data = parseKosJson(snapshot.val());
-                if (data) updateBoosterUI(data);
+                if (data) {
+                    updateBoosterUI(data);
+                    checkLiftoff(data);
+                }
             });
 
             onValue(ref(db, `missions/${currentMissionID}/ship`), (snapshot) => {
                 const data = parseKosJson(snapshot.val());
-                if (data) updateShipUI(data);
+                if (data) {
+                    updateShipUI(data);
+                    checkLiftoff(data);
+                }
             });
+        }
+
+        // --- DETECCIÓN DE DESPEGUE WEB-MANAGED ---
+        function checkLiftoff(telemetry) {
+            if (!currentMissionID || missionStartTimestamp !== null) return;
+
+            const vs = getVal(telemetry, "vs", "VS") || 0;
+            const alt = getVal(telemetry, "alt", "ALT") || 0;
+            const status = (getVal(telemetry, "status", "STATUS") || "").toUpperCase();
+
+            // Condición: VS > 2 m/s o Altitud > 50m (para evitar disparos en falso)
+            const launching = vs > 2.0 || alt > 50;
+            const hasStatus = ["IGNITION", "LIFTOFF", "LAUNCH", "ASCENT"].includes(status);
+
+            if (launching || hasStatus) {
+                console.log("¡DESPEGUE DETECTADO POR LA WEB!");
+                // Usamos el tiempo local del navegador para el inicio
+                set(ref(db, `missions/${currentMissionID}/global/mission_start`), Math.floor(Date.now() / 1000));
+            }
         }
 
         // 3. Loop de reloj independiente (1Hz)
