@@ -604,17 +604,17 @@
             // 1. Center Cluster (3 engines - C1, C2, C3)
             for (let i = 0; i < 3; i++) {
                 const angle = (i * 120 - 90) * (Math.PI / 180);
-                const x = cx + 45 * Math.cos(angle);
-                const y = cy + 45 * Math.sin(angle);
-                createNode(container, `C${i + 1}`, x, y, 40);
+                const x = cx + 40 * Math.cos(angle);
+                const y = cy + 40 * Math.sin(angle);
+                createNode(container, `C${i + 1}`, x, y, 35);
             }
 
             // 2. Ring (8 engines - R1..R8)
             for (let i = 0; i < 8; i++) {
                 const angle = (i * 45 - 90) * (Math.PI / 180);
-                const x = cx + 100 * Math.cos(angle);
-                const y = cy + 100 * Math.sin(angle);
-                createNode(container, `R${i + 1}`, x, y, 40);
+                const x = cx + 105 * Math.cos(angle);
+                const y = cy + 105 * Math.sin(angle);
+                createNode(container, `R${i + 1}`, x, y, 35);
             }
         }
 
