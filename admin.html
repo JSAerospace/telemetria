@@ -147,6 +147,46 @@
             font-size: 0.8rem;
             text-align: center;
         }
+
+        .go-no-go-admin {
+            margin-top: 1.5rem;
+            padding: 15px;
+            border: 1px solid #333;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .go-no-go-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .go-status {
+            padding: 4px 12px;
+            font-size: 0.75rem;
+            font-weight: bold;
+            border: 1px solid #444;
+            min-width: 80px;
+            text-align: center;
+            letter-spacing: 1px;
+        }
+
+        .go-status.go {
+            color: var(--primary);
+            border-color: var(--primary);
+            background: rgba(0, 255, 65, 0.1);
+            box-shadow: 0 0 10px rgba(0, 255, 65, 0.1);
+        }
+
+        .go-status.no-go {
+            color: var(--danger);
+            border-color: var(--danger);
+            background: rgba(255, 62, 62, 0.1);
+        }
     </style>
 </head>
 
@@ -188,11 +228,31 @@
             <button onclick="updateMissionName()">ACTUALIZAR IDENTIDAD</button>
         </div>
 
+        <!-- GO/NO-GO ADMIN SECTION -->
+        <div class="go-no-go-admin">
+            <div
+                style="text-align: center; font-size: 0.7rem; color: var(--text-dim); margin-bottom: 5px; border-bottom: 1px solid #222; padding-bottom: 5px;">
+                VERIFICACIÓN DE LANZAMIENTO</div>
+            <div class="go-no-go-row">
+                <span style="font-size: 0.8rem; opacity: 0.8;">ESTADO DEL CLIENTE:</span>
+                <span id="client-go-status" class="go-status no-go">NO-GO</span>
+            </div>
+            <div class="go-no-go-row">
+                <span style="font-size: 0.8rem; opacity: 0.8;">AUTORIZACIÓN MAESTRA:</span>
+                <button id="mission-go-btn" onclick="toggleMissionGo()"
+                    style="width: auto; padding: 5px 15px; margin: 0; font-size: 0.8rem; font-weight: bold;">ACTIVAR
+                    MISSION GO</button>
+            </div>
+        </div>
+
         <div id="telemetry-monitor">
-            <div style="text-align: center; font-size: 0.7rem; color: var(--text-dim); margin-bottom: 15px;">MONITOR DE TELEMETRÍA EN VIVO</div>
-            
+            <div style="text-align: center; font-size: 0.7rem; color: var(--text-dim); margin-bottom: 15px;">MONITOR DE
+                TELEMETRÍA EN VIVO</div>
+
             <!-- BOOSTER SECTION -->
-            <div style="font-size: 0.7rem; color: var(--primary); margin-bottom: 5px; border-left: 2px solid var(--primary); padding-left: 5px;">BOOSTER / S1</div>
+            <div
+                style="font-size: 0.7rem; color: var(--primary); margin-bottom: 5px; border-left: 2px solid var(--primary); padding-left: 5px;">
+                BOOSTER / S1</div>
             <div class="telemetry-grid" style="margin-bottom: 20px;">
                 <div class="tel-item">
                     <span class="tel-label">ESTADO</span>
@@ -213,7 +273,9 @@
             </div>
 
             <!-- SHIP SECTION -->
-            <div style="font-size: 0.7rem; color: #00f3ff; margin-bottom: 5px; border-left: 2px solid #00f3ff; padding-left: 5px;">ORBITADOR / S2</div>
+            <div
+                style="font-size: 0.7rem; color: #00f3ff; margin-bottom: 5px; border-left: 2px solid #00f3ff; padding-left: 5px;">
+                ORBITADOR / S2</div>
             <div class="telemetry-grid">
                 <div class="tel-item">
                     <span class="tel-label">ESTADO</span>
@@ -243,7 +305,8 @@
 
         <div id="admin-msg" class="status-msg"></div>
         <div style="margin-top: 1rem; text-align: center;">
-            <a href="index.html" id="dash-link" style="color: var(--primary); text-decoration: none; font-size: 0.7rem;">← VOLVER AL DASHBOARD</a>
+            <a href="index.html" id="dash-link"
+                style="color: var(--primary); text-decoration: none; font-size: 0.7rem;">← VOLVER AL DASHBOARD</a>
         </div>
     </div>
 
@@ -270,6 +333,7 @@
         let missionUnsub = null;
         let globalUnsub = null;
         let missionStartVal = null;
+        let missionGoState = false;
 
         window.checkPass = function () {
             const val = document.getElementById('pass-input').value;
@@ -282,13 +346,13 @@
             }
         };
 
-        window.switchMission = function() {
+        window.switchMission = function () {
             const idInput = document.getElementById('mission-id-input').value.trim().toUpperCase();
             if (idInput) currentMissionID = idInput;
-            
+
             document.getElementById('current-id-display').innerText = currentMissionID;
             document.getElementById('dash-link').href = `index.html?id=${currentMissionID}`;
-            
+
             // Limpiar listeners viejos
             if (missionUnsub) missionUnsub();
             if (globalUnsub) globalUnsub();
@@ -305,6 +369,31 @@
                     document.getElementById('mission-name-input').value = data.mission_name || "";
                     document.getElementById('tel-client').innerText = data.client_name || "SIN IDENTIFICAR";
                     missionStartVal = data.mission_start;
+
+                    // Sync Go/No-Go Statuses
+                    const clientGo = !!data.client_go;
+                    const cIndicator = document.getElementById('client-go-status');
+                    if (clientGo) {
+                        cIndicator.innerText = "GO";
+                        cIndicator.classList.add('go');
+                        cIndicator.classList.remove('no-go');
+                    } else {
+                        cIndicator.innerText = "NO-GO";
+                        cIndicator.classList.remove('go');
+                        cIndicator.classList.add('no-go');
+                    }
+
+                    missionGoState = !!data.mission_go;
+                    const mBtn = document.getElementById('mission-go-btn');
+                    if (missionGoState) {
+                        mBtn.innerText = "DESACTIVAR MISSION GO";
+                        mBtn.style.background = "var(--primary)";
+                        mBtn.style.color = "#000";
+                    } else {
+                        mBtn.innerText = "ACTIVAR MISSION GO";
+                        mBtn.style.background = "transparent";
+                        mBtn.style.color = "var(--primary)";
+                    }
                 } else {
                     missionStartVal = null;
                     document.getElementById('tel-met').innerText = "T- 00:00:00";
@@ -356,7 +445,7 @@
                 } else {
                     for (let i = 0; i < ent.length - 1; i += 2) {
                         let k = ent[i]?.value ?? ent[i];
-                        let v = ent[i+1]?.value ?? ent[i+1];
+                        let v = ent[i + 1]?.value ?? ent[i + 1];
                         if (v && typeof v === 'object') v = parseKosJson(v);
                         if (k != null) result[String(k).trim()] = v;
                     }
@@ -396,6 +485,13 @@
                 .then(() => showMsg("IDENTIDAD ACTUALIZADA", "admin-msg"));
         };
 
+        window.toggleMissionGo = function () {
+            if (!currentMissionID) return;
+            const newState = !missionGoState;
+            set(ref(db, `missions/${currentMissionID}/global/mission_go`), newState)
+                .then(() => showMsg(newState ? "MISIÓN AUTORIZADA" : "AUTORIZACIÓN REVOCADA", "admin-msg"));
+        };
+
         window.resetAllData = function () {
             if (confirm(`CRÍTICO: ¿PURGAR TODOS LOS DATOS DE LA MISIÓN ${currentMissionID}?`)) {
                 remove(ref(db, `missions/${currentMissionID}`))
@@ -410,4 +506,5 @@
         }
     </script>
 </body>
-</html>
+
+</html>
