@@ -523,7 +523,8 @@
         </div>
     </header>
 
-    <div style="background: rgba(0,0,0,0.4); padding: 5px 40px; border-bottom: 1px solid rgba(0,243,255,0.1); font-size: 0.7rem; display: flex; justify-content: space-between; font-family: 'Orbitron', sans-serif;">
+    <div
+        style="background: rgba(0,0,0,0.4); padding: 5px 40px; border-bottom: 1px solid rgba(0,243,255,0.1); font-size: 0.7rem; display: flex; justify-content: space-between; font-family: 'Orbitron', sans-serif;">
         <div id="conn-status" style="color: #666;">DESCONECTADO</div>
         <div>ID DE MISIÓN: <span id="data-id" style="color: var(--neon-blue);">-</span></div>
     </div>
@@ -1018,7 +1019,7 @@
                 document.getElementById('booster-alt').innerText = fmtNum(getVal(B1, "alt", "ALT"));
                 document.getElementById('booster-vel').innerText = fmtNum(getVal(B1, "vel", "VEL"));
                 document.getElementById('booster-vs').innerText = fmtDec(getVal(B1, "vs", "VS"), 1);
-                
+
                 // Si existe distancia al objetivo
                 const dist = getVal(B1, "dist", "DIST", "distance");
                 if (dist !== undefined) document.getElementById('booster-dist').innerText = fmtNum(dist);
@@ -1091,7 +1092,6 @@
 
         // --- CORE UPDATE LOOP ---
         // (Borrada la escucha a la raíz para evitar conflictos con el particionamiento por misión)
-    </script>
     </script>
 </body>
 

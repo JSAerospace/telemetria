@@ -413,13 +413,13 @@
                     updateEl('b1-status', (B1.status || "OFFLINE"));
                     updateEl('b1-alt', Math.round(B1.alt || 0).toLocaleString());
                     updateEl('b1-vel', Math.round(B1.vel || 0).toLocaleString());
-                    updateEl('b1-fuel', Math.round(B1.fuel || 0));
+                    updateEl('b1-fuel', Math.round(B1.fuelPct || B1.fuel_pct || 0));
                 }
                 if (S2) {
                     updateEl('s2-status', (S2.status || "OFFLINE"));
                     updateEl('s2-alt', Math.round(S2.alt || 0).toLocaleString());
                     updateEl('s2-vel', Math.round(S2.vel || 0).toLocaleString());
-                    updateEl('s2-fuel', Math.round(S2.fuel || 0));
+                    updateEl('s2-fuel', Math.round(S2.fuelPct || S2.fuel_pct || 0));
                 }
             });
         }
@@ -434,6 +434,7 @@
             if (data.entries && Array.isArray(data.entries)) {
                 const result = {};
                 const ent = data.entries;
+                if (ent.length === 0) return result;
                 const isTypeA = (ent[0] && typeof ent[0] === 'object' && ent[0].key !== undefined);
                 if (isTypeA) {
                     for (let entry of ent) {
@@ -452,7 +453,15 @@
                 }
                 return result;
             }
-            return data;
+            if (data.values && Array.isArray(data.values)) {
+                return data.values.map(item => parseKosJson(item?.value ?? item));
+            }
+            const processed = {};
+            for (let k in data) {
+                if (k === '$type') continue;
+                processed[k] = parseKosJson(data[k]);
+            }
+            return processed;
         }
 
         function updateClock(start) {
