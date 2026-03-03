@@ -523,6 +523,11 @@
         </div>
     </header>
 
+    <div style="background: rgba(0,0,0,0.4); padding: 5px 40px; border-bottom: 1px solid rgba(0,243,255,0.1); font-size: 0.7rem; display: flex; justify-content: space-between; font-family: 'Orbitron', sans-serif;">
+        <div id="conn-status" style="color: #666;">DESCONECTADO</div>
+        <div>ID DE MISIÓN: <span id="data-id" style="color: var(--neon-blue);">-</span></div>
+    </div>
+
     <div class="go-no-go-container">
         <div class="go-no-go-status">
             <span class="label">ESTADO DEL CLIENTE:</span>
@@ -1001,118 +1006,92 @@
         initBoosterEngines();
         initShipEngines();
 
+        // --- FUNCIONES DE ACTUALIZACIÓN DE UI ---
+        function updateBoosterUI(B1) {
+            try {
+                const statusEl = document.getElementById('booster-status');
+                if (statusEl) {
+                    statusEl.innerText = getVal(B1, "status", "STATUS") || "STANDBY";
+                    statusEl.style.borderColor = "#ffae00";
+                }
+
+                document.getElementById('booster-alt').innerText = fmtNum(getVal(B1, "alt", "ALT"));
+                document.getElementById('booster-vel').innerText = fmtNum(getVal(B1, "vel", "VEL"));
+                document.getElementById('booster-vs').innerText = fmtDec(getVal(B1, "vs", "VS"), 1);
+                
+                // Si existe distancia al objetivo
+                const dist = getVal(B1, "dist", "DIST", "distance");
+                if (dist !== undefined) document.getElementById('booster-dist').innerText = fmtNum(dist);
+
+                // Fuel & Throttle
+                const fPct = getVal(B1, "fuelPct", "FUELPCT", "fuel_pct") || 0;
+                document.getElementById('booster-fuel-bar').style.width = Math.min(100, Math.max(0, fPct)) + "%";
+                document.getElementById('booster-fuel-pct').innerText = Math.round(Number(fPct)) + "%";
+
+                const thr = getVal(B1, "thr", "THR", "throttle") || 0;
+                document.getElementById('booster-thr-bar').style.width = Math.min(100, Math.max(0, thr)) + "%";
+                document.getElementById('booster-thr-pct').innerText = Math.round(Number(thr)) + "%";
+
+                // Engines
+                const engs = getVal(B1, "engStates", "ENGSTATES", "engines");
+                if (engs) {
+                    for (let tag in engs) {
+                        const state = engs[tag];
+                        const el = document.querySelector(`#booster-engines [data-tag="${tag}"]`);
+                        if (el) {
+                            if (Number(state) === 1) el.classList.add('active');
+                            else el.classList.remove('active');
+                        }
+                    }
+                }
+            } catch (e) { console.error("Booster UI Error", e); }
+        }
+
+        function updateShipUI(S2) {
+            try {
+                const statusEl = document.getElementById('ship-status');
+                if (statusEl) {
+                    statusEl.innerText = getVal(S2, "status", "STATUS") || "ON ORBIT";
+                    statusEl.style.borderColor = "#00f3ff";
+                }
+
+                document.getElementById('ship-alt').innerText = fmtNum(getVal(S2, "alt", "ALT"));
+                document.getElementById('ship-vel').innerText = fmtNum(getVal(S2, "vel", "VEL"));
+                document.getElementById('ship-apo').innerText = fmtDec((getVal(S2, "apo", "APO") || 0) / 1000, 1);
+                document.getElementById('ship-per').innerText = fmtDec((getVal(S2, "per", "PER") || 0) / 1000, 1);
+                document.getElementById('ship-dv').innerText = fmtNum(getVal(S2, "dv", "DV"));
+
+                // Fuel & Throttle
+                const fPct = getVal(S2, "fuelPct", "FUELPCT") || 0;
+                document.getElementById('ship-fuel-bar').style.width = Math.min(100, Math.max(0, fPct)) + "%";
+                document.getElementById('ship-fuel-pct').innerText = Math.round(Number(fPct)) + "%";
+
+                const thr = getVal(S2, "thr", "THR") || 0;
+                document.getElementById('ship-thr-bar').style.width = Math.min(100, Math.max(0, thr)) + "%";
+                document.getElementById('ship-thr-pct').innerText = Math.round(Number(thr)) + "%";
+
+                // Inclination
+                const incEl = document.getElementById('ship-inc');
+                if (incEl) incEl.innerText = fmtDec(getVal(S2, "inc", "INC", "inclination"), 1);
+
+                // Ship Engines
+                const engs = getVal(S2, "engStates", "ENGSTATES");
+                if (engs) {
+                    for (let tag in engs) {
+                        const state = engs[tag];
+                        const el = document.querySelector(`#ship-engines [data-tag="${tag}"]`);
+                        if (el) {
+                            if (Number(state) === 1) el.classList.add('active');
+                            else el.classList.remove('active');
+                        }
+                    }
+                }
+            } catch (e) { console.error("Ship UI Error", e); }
+        }
+
         // --- CORE UPDATE LOOP ---
-        const telemetryRef = ref(db, '/');
-        onValue(telemetryRef, (snapshot) => {
-            const raw = snapshot.val();
-            if (!raw) return;
-
-            // Update Connection Status
-            document.getElementById('conn-status').innerText = "ONLINE (LIVE)";
-            document.getElementById('conn-status').style.color = "#00ff41";
-            document.getElementById('conn-status').classList.add('blink');
-
-            // INTENTO DE RECUPERACIÓN DE CLAVES RAÍZ
-            const S2 = parseKosJson(getVal(raw, "ship", "SHIP", "Stage2"));
-            const B1 = parseKosJson(getVal(raw, "booster", "BOOSTER", "Stage1"));
-
-            // --- ACTUALIZAR BOOSTER (BLOCK PROTEGIDO) ---
-            if (B1) {
-                try {
-                    document.getElementById('booster-status').innerText = getVal(B1, "status", "STATUS") || "UNDEFINED";
-                    document.getElementById('booster-status').style.borderColor = "#ffae00";
-
-                    document.getElementById('booster-alt').innerText = fmtNum(getVal(B1, "alt", "ALT"));
-                    document.getElementById('booster-vel').innerText = fmtNum(getVal(B1, "vel", "VEL"));
-                    document.getElementById('booster-vs').innerText = fmtDec(getVal(B1, "vs", "VS"), 1);
-                    const currentQ = getVal(B1, "q", "Q") || 0;
-                    const qEl = document.getElementById('booster-dist'); // Reusing a box for Q if needed or just updating the existing one
-                    // Nota: El dashboard actual no tiene un 'booster-q' asignado explícitamente en el HTML mostrado arriba, 
-                    // pero podemos usar el badge de status o un campo para alertar.
-
-                    if (currentQ > 18000) {
-                        document.getElementById('booster-status').style.color = "var(--neon-red)";
-                        document.getElementById('booster-status').innerText = "MAX Q LIMITING";
-                    }
-
-                    // Fuel & Throttle
-                    const fPct = getVal(B1, "fuelPct", "FUELPCT", "fuel_pct") || 0;
-                    document.getElementById('booster-fuel-bar').style.width = Math.min(100, Math.max(0, fPct)) + "%";
-                    document.getElementById('booster-fuel-pct').innerText = Math.round(Number(fPct)) + "%";
-
-                    const thr = getVal(B1, "thr", "THR", "throttle") || 0;
-                    document.getElementById('booster-thr-bar').style.width = Math.min(100, Math.max(0, thr)) + "%";
-                    document.getElementById('booster-thr-pct').innerText = Math.round(Number(thr)) + "%";
-
-                    // Engines
-                    const engs = getVal(B1, "engStates", "ENGSTATES", "engines");
-                    if (engs) {
-                        for (let tag in engs) {
-                            const state = engs[tag];
-                            const el = document.querySelector(`#booster-engines [data-tag="${tag}"]`);
-                            if (el) {
-                                if (Number(state) === 1) el.classList.add('active');
-                                else el.classList.remove('active');
-                            }
-                        }
-                    }
-                } catch (e) { console.error("Booster UI Error", e); }
-            }
-
-            // --- ACTUALIZAR SHIP (BLOCK PROTEGIDO) ---
-            if (S2) {
-                try {
-                    document.getElementById('ship-status').innerText = getVal(S2, "status", "STATUS") || "UNDEFINED";
-                    document.getElementById('ship-status').style.borderColor = "#00f3ff";
-
-                    document.getElementById('ship-alt').innerText = fmtNum(getVal(S2, "alt", "ALT"));
-                    document.getElementById('ship-vel').innerText = fmtNum(getVal(S2, "vel", "VEL"));
-                    document.getElementById('ship-apo').innerText = fmtDec((getVal(S2, "apo", "APO") || 0) / 1000, 1);
-                    document.getElementById('ship-per').innerText = fmtDec((getVal(S2, "per", "PER") || 0) / 1000, 1);
-                    document.getElementById('ship-dv').innerText = fmtNum(getVal(S2, "dv", "DV"));
-
-                    // Fuel & Throttle
-                    const fPct = getVal(S2, "fuelPct", "FUELPCT") || 0;
-                    document.getElementById('ship-fuel-bar').style.width = Math.min(100, Math.max(0, fPct)) + "%";
-                    document.getElementById('ship-fuel-pct').innerText = Math.round(Number(fPct)) + "%";
-
-                    const thr = getVal(S2, "thr", "THR") || 0;
-                    document.getElementById('ship-thr-bar').style.width = Math.min(100, Math.max(0, thr)) + "%";
-                    document.getElementById('ship-thr-pct').innerText = Math.round(Number(thr)) + "%";
-
-                    // Inclination added
-                    document.getElementById('ship-inc').innerText = fmtDec(getVal(S2, "inc", "INC", "inclination"), 1);
-
-                    // Ship Engines (Cluster de 6)
-                    const engs = getVal(S2, "engStates", "ENGSTATES");
-                    if (engs) {
-                        for (let tag in engs) {
-                            const state = engs[tag];
-                            const el = document.querySelector(`#ship-engines [data-tag="${tag}"]`);
-                            if (el) {
-                                if (Number(state) === 1) el.classList.add('active');
-                                else el.classList.remove('active');
-                            }
-                        }
-                    } else {
-                        // Fallback: Si no hay data de motores, encender S1 si hay throttle > 1%
-                        const mainEng = document.getElementById('s2-engine-main');
-                        if (mainEng) {
-                            if (Number(thr) > 1) mainEng.classList.add('active');
-                            else mainEng.classList.remove('active');
-                        }
-                    }
-                } catch (e) { console.error("Ship UI Error", e); }
-            }
-
-            // MISSION TIME (EXTERNO - MANEJADO POR setInterval)
-            // No hacemos nada aquí para no interferir con el loop del reloj externo
-
-            // --- DEBUG OVERLAY (AUTO-INJECT) ---
-            if (Object.keys(B1 || {}).length > 0 || Object.keys(S2 || {}).length > 0) {
-                // Aquí podrías añadir un overlay si fuera necesario
-            }
-        });
+        // (Borrada la escucha a la raíz para evitar conflictos con el particionamiento por misión)
+    </script>
     </script>
 </body>
 
