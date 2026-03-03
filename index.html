@@ -243,8 +243,8 @@
             justify-content: center;
             background: rgba(0, 0, 0, 0.3);
             border-radius: 50%;
-            width: 200px;
-            height: 200px;
+            width: 250px;
+            height: 250px;
             margin-left: auto;
             margin-right: auto;
             position: relative;
@@ -434,9 +434,9 @@
             </div>
 
             <!-- Single Engine for S2 -->
-            <div class="engine-display" id="ship-engines" data-type="ship" style="width: 120px; height: 120px;">
+            <div class="engine-display" id="ship-engines" data-type="ship" style="width: 150px; height: 150px;">
                 <div id="s2-engine-main" class="engine-node"
-                    style="width: 60px; height: 60px; top: 30px; left: 30px; border-width: 4px;"></div>
+                    style="width: 100px; height: 100px; top: 25px; left: 25px; border-width: 5px;"></div>
             </div>
         </div>
 
@@ -599,30 +599,30 @@
         function initBoosterEngines() {
             const container = document.getElementById('booster-engines');
             container.innerHTML = '';
-            const cx = 100, cy = 100; // Center of 200x200
+            const cx = 125, cy = 125; // Center of 250x250
 
             // 1. Center Cluster (3 engines - C1, C2, C3)
             for (let i = 0; i < 3; i++) {
                 const angle = (i * 120 - 90) * (Math.PI / 180);
-                const x = cx + 30 * Math.cos(angle);
-                const y = cy + 30 * Math.sin(angle);
-                createNode(container, `C${i + 1}`, x, y, 24);
+                const x = cx + 50 * Math.cos(angle);
+                const y = cy + 50 * Math.sin(angle);
+                createNode(container, `C${i + 1}`, x, y, 50);
             }
 
             // 2. Ring (8 engines - R1..R8)
             for (let i = 0; i < 8; i++) {
                 const angle = (i * 45 - 90) * (Math.PI / 180);
-                const x = cx + 80 * Math.cos(angle);
-                const y = cy + 80 * Math.sin(angle);
-                createNode(container, `R${i + 1}`, x, y, 24);
+                const x = cx + 100 * Math.cos(angle);
+                const y = cy + 100 * Math.sin(angle);
+                createNode(container, `R${i + 1}`, x, y, 50);
             }
         }
 
         function initShipEngines() {
             const container = document.getElementById('ship-engines');
             container.innerHTML = '';
-            const cx = 60, cy = 60; // Center of 120x120
-            createNode(container, 'S1', cx, cy, 60);
+            const cx = 75, cy = 75; // Center of 150x150
+            createNode(container, 'S1', cx, cy, 100);
         }
 
         function createNode(parent, tag, x, y, size) {
