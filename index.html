@@ -1022,9 +1022,9 @@
                 if (dist !== undefined) document.getElementById('booster-dist').innerText = fmtNum(dist);
 
                 // Fuel & Throttle
-                const fPct = getVal(B1, "fuel", "fuelPct", "FUELPCT", "fuel_pct") || 0;
+                const fPct = getVal(B1, "fuelPct", "FUELPCT", "fuel_pct") || 0;
                 document.getElementById('booster-fuel-bar').style.width = Math.min(100, Math.max(0, fPct)) + "%";
-                document.getElementById('booster-fuel-pct').innerText = Math.round(Number(fPct)) + "%";
+                document.getElementById('booster-fuel-pct').innerText = Math.round(Math.min(100, Number(fPct))) + "%";
 
                 const thr = getVal(B1, "thr", "THR", "throttle") || 0;
                 document.getElementById('booster-thr-bar').style.width = Math.min(100, Math.max(0, thr)) + "%";
@@ -1062,7 +1062,7 @@
                 // Fuel & Throttle
                 const fPct = getVal(S2, "fuelPct", "FUELPCT") || 0;
                 document.getElementById('ship-fuel-bar').style.width = Math.min(100, Math.max(0, fPct)) + "%";
-                document.getElementById('ship-fuel-pct').innerText = Math.round(Number(fPct)) + "%";
+                document.getElementById('ship-fuel-pct').innerText = Math.round(Math.min(100, Number(fPct))) + "%";
 
                 const thr = getVal(S2, "thr", "THR") || 0;
                 document.getElementById('ship-thr-bar').style.width = Math.min(100, Math.max(0, thr)) + "%";
