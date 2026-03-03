@@ -301,20 +301,63 @@
                 opacity: 0;
             }
         }
+
+        /* --- LIFTOFF ALERT --- */
+        #liftoff-alert {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 255, 65, 0.9);
+            color: #000;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 5rem;
+            font-weight: 900;
+            padding: 20px 60px;
+            border-radius: 10px;
+            z-index: 1000;
+            display: none;
+            box-shadow: 0 0 50px rgba(0, 255, 65, 0.8);
+            pointer-events: none;
+            text-transform: uppercase;
+            letter-spacing: 10px;
+        }
+
+        .reset-btn {
+            background: rgba(255, 0, 60, 0.2);
+            border: 1px solid var(--neon-red);
+            color: var(--neon-red);
+            padding: 5px 15px;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.7rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-right: 20px;
+            text-transform: uppercase;
+        }
+
+        .reset-btn:hover {
+            background: var(--neon-red);
+            color: #fff;
+            box-shadow: 0 0 10px var(--neon-red);
+        }
     </style>
 </head>
 
 <body>
 
     <header>
-        <div class="header-container">
+        <div class="header-container" style="display: flex; align-items: center;">
+            <button class="reset-btn" id="btn-reset">Reset Mission</button>
             <div class="header-title">J.S. AEROSPACE</div>
         </div>
         <div class="mission-timer">
             <div class="label">MISSION ELAPSED TIME</div>
-            <div class="time" id="met-display">T+ 00:00:00</div>
+            <div class="time" id="met-display">T- 00:00:00</div>
         </div>
     </header>
+
+    <div id="liftoff-alert">LIFTOFF</div>
 
     <div class="dashboard-grid">
 
@@ -488,14 +531,33 @@
         const globalRef = ref(db, 'global/mission_start');
         onValue(globalRef, (snapshot) => {
             const val = snapshot.val();
+            const alertEl = document.getElementById('liftoff-alert');
+
             if (val) {
-                missionStartTimestamp = Number(val);
+                const newStart = Number(val);
+                // Si es un nuevo despegue (no estaba sincronizado antes y el tiempo es reciente)
+                if (missionStartTimestamp === null && (Date.now() / 1000 - newStart) < 10) {
+                    if (alertEl) {
+                        alertEl.style.display = 'block';
+                        setTimeout(() => { alertEl.style.display = 'none'; }, 4000);
+                    }
+                }
+                missionStartTimestamp = newStart;
                 console.log("External Mission Start Synced:", new Date(missionStartTimestamp * 1000));
             } else {
                 missionStartTimestamp = null;
                 metEl.innerText = "T- 00:00:00";
+                metEl.style.color = "var(--text-main)";
             }
         });
+
+        // 2.5 Lógica de Reset Manual
+        import { set } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+        document.getElementById('btn-reset').onclick = () => {
+            if (confirm("¿Estás seguro de que quieres resetear la misión? El reloj volverá a T-0 y se borrará el inicio detectado.")) {
+                set(ref(db, 'global/mission_start'), null);
+            }
+        };
 
         // 3. Loop de reloj independiente (1Hz)
         function updateExternalClock() {
