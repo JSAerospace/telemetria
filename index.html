@@ -471,6 +471,13 @@
             text-shadow: 0 0 5px var(--neon-green);
         }
 
+        .status-indicator.no-go {
+            background: rgba(255, 0, 60, 0.15);
+            color: var(--neon-red);
+            border-color: var(--neon-red);
+            box-shadow: 0 0 5px rgba(255, 0, 60, 0.1);
+        }
+
         .go-toggle-btn {
             background: rgba(0, 243, 255, 0.05);
             border: 1px solid var(--neon-blue);
@@ -813,10 +820,12 @@
                         if (clientGo) {
                             cIndicator.innerText = "GO";
                             cIndicator.classList.add('go');
+                            cIndicator.classList.remove('no-go');
                             cBtn.innerText = "MARCAR NO-GO";
                         } else {
                             cIndicator.innerText = "NO-GO";
                             cIndicator.classList.remove('go');
+                            cIndicator.classList.add('no-go');
                             cBtn.innerText = "MARCAR GO";
                         }
                     }
@@ -828,9 +837,11 @@
                         if (mGo) {
                             mIndicator.innerText = "MISSION GO";
                             mIndicator.classList.add('go');
+                            mIndicator.classList.remove('no-go');
                         } else {
                             mIndicator.innerText = "MISSION NO-GO";
                             mIndicator.classList.remove('go');
+                            mIndicator.classList.add('no-go');
                         }
                     }
                 }
