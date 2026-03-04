@@ -710,6 +710,7 @@
         let clientName = "";
         let missionStartTimestamp = null;
         let clientGo = false;
+        let lastPacketTime = 0; // Watchdog para evitar datos viejos
 
         // --- GESTIÓN DE MISIÓN ---
         window.startMetricSync = async function () {
@@ -869,11 +870,20 @@
         function checkLiftoff(telemetry) {
             if (!currentMissionID || missionStartTimestamp !== null) return;
 
+            // WATCHDOG: Solo actuamos si recibimos datos seguidos (señal de que Python está vivo)
+            const now = Date.now();
+            const isActiveStream = (lastPacketTime > 0 && (now - lastPacketTime < 3000));
+            lastPacketTime = now;
+
+            if (!isActiveStream) {
+                console.log("Ignorando paquete inicial o stream inactivo...");
+                return;
+            }
+
             const vs = getVal(telemetry, "vs", "VS") || 0;
             const status = (getVal(telemetry, "status", "STATUS") || "").toUpperCase();
 
-            // REGLA SOLICITADA: Solo cuando pase > 2m/s
-            // Agregamos protección para no disparar en PRELAUNCH por jitter de física
+            // REGLA: > 2m/s + No estar en PRELAUNCH
             if (vs > 2.0 && status !== "PRELAUNCH") {
                 console.log("¡DESPEGUE DETECTADO POR LA WEB (>2m/s)!");
                 set(ref(db, `missions/${currentMissionID}/global/mission_start`), Math.floor(Date.now() / 1000));
