@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SISTEMA DE ATERRIZAJE MUNAR - JS AEROSPACE</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Roboto+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #050505;
+            --panel-bg: rgba(20, 20, 20, 0.85);
+            --border-color: #333;
+            --accent-color: #b0b0b0; /* Lunar gray */
+            --warning-color: #ff3e3e;
+            --success-color: #44ff44;
+            --text-color: #e0e0e0;
+            --info-color: #00d4ff;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: 'Roboto Mono', monospace;
+            margin: 0;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+
+        header {
+            background: linear-gradient(180deg, #111 0%, transparent 100%);
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .logo {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.2rem;
+            letter-spacing: 2px;
+            color: var(--accent-color);
+        }
+
+        .mission-id {
+            color: var(--info-color);
+            font-weight: bold;
+        }
+
+        main {
+            display: grid;
+            grid-template-columns: 1fr 2fr 1fr;
+            gap: 20px;
+            padding: 20px;
+            flex-grow: 1;
+        }
+
+        .panel {
+            background: var(--panel-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .panel-header {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.8rem;
+            color: var(--accent-color);
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 5px;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+        }
+
+        .metric {
+            margin-bottom: 15px;
+        }
+
+        .metric-label {
+            font-size: 0.7rem;
+            color: #888;
+            margin-bottom: 5px;
+        }
+
+        .metric-value {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: var(--text-color);
+        }
+
+        .metric-unit {
+            font-size: 0.8rem;
+            color: #666;
+            margin-left: 5px;
+        }
+
+        /* Central Landing Interface */
+        .landing-display {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            background: radial-gradient(circle at center, #111 0%, #000 100%);
+        }
+
+        .radar-alt-box {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .radar-value {
+            font-size: 5rem;
+            font-family: 'Orbitron', sans-serif;
+            color: var(--info-color);
+            text-shadow: 0 0 20px rgba(0, 212, 255, 0.3);
+        }
+
+        .radar-label {
+            font-size: 1rem;
+            color: var(--accent-color);
+        }
+
+        .velocity-vectors {
+            display: flex;
+            gap: 50px;
+            margin-top: 40px;
+        }
+
+        .v-vector {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .v-value {
+            font-size: 2.5rem;
+        }
+
+        /* Engine & Fuel */
+        .engine-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(60px, 1fr));
+            gap: 10px;
+        }
+
+        .engine-node {
+            border: 1px solid #444;
+            padding: 10px;
+            text-align: center;
+            border-radius: 2px;
+        }
+
+        .engine-node.active {
+            border-color: var(--success-color);
+            box-shadow: inset 0 0 10px rgba(68, 255, 68, 0.2);
+        }
+
+        .fuel-bar {
+            height: 10px;
+            background: #222;
+            width: 100%;
+            margin-top: 5px;
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        .fuel-fill {
+            height: 100%;
+            background: var(--info-color);
+            transition: width 0.3s ease;
+        }
+
+        .status-badge {
+            padding: 5px 10px;
+            border-radius: 3px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+
+        .go { background: var(--success-color); color: #000; }
+        .no-go { background: var(--warning-color); color: #fff; }
+
+        .controls {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            background: transparent;
+            border: 1px solid var(--accent-color);
+            color: var(--accent-color);
+            padding: 8px 15px;
+            cursor: pointer;
+            text-decoration: none;
+            font-size: 0.8rem;
+        }
+
+        .btn:hover {
+            background: var(--accent-color);
+            color: #000;
+        }
+
+        #slope-display {
+            color: var(--warning-color);
+        }
+
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="logo">LU-C1: LANDING CONTROL</div>
+        <div id="mission-display">MISIÓN: <span class="mission-id" id="mission-tag">---</span></div>
+        <div id="readiness">ESTADO: <span class="status-badge" id="go-tag">OFFLINE</span></div>
+    </header>
+
+    <main>
+        <!-- Panel Izquierdo: Telemetría General -->
+        <div class="panel">
+            <div class="panel-header">Telemetría de Aproximación</div>
+            <div class="metric">
+                <div class="metric-label">Altitud Orbital</div>
+                <div class="metric-value" id="alt-val">0</div><span class="metric-unit">m</span>
+            </div>
+            <div class="metric">
+                <div class="metric-label">Apoapsis</div>
+                <div class="metric-value" id="apo-val">0</div><span class="metric-unit">km</span>
+            </div>
+            <div class="metric">
+                <div class="metric-label">Periapsis</div>
+                <div class="metric-value" id="per-val">0</div><span class="metric-unit">km</span>
+            </div>
+            <div class="metric">
+                <div class="metric-label">Combustible</div>
+                <div id="fuel-pct">0%</div>
+                <div class="fuel-bar"><div class="fuel-fill" id="fuel-bar-fill" style="width: 0%;"></div></div>
+            </div>
+        </div>
+
+        <!-- Panel Central: Radar y Descenso -->
+        <div class="panel landing-display">
+            <div class="radar-alt-box">
+                <div class="radar-label">ALTITUD RADAR</div>
+                <div class="radar-value" id="radar-val">----</div>
+                <div class="radar-label">METROS SOBRE TERRENO</div>
+            </div>
+
+            <div class="velocity-vectors">
+                <div class="v-vector">
+                    <div class="metric-label">V. VERTICAL</div>
+                    <div class="v-value" id="vs-val">0.0</div>
+                    <div class="metric-unit">m/s</div>
+                </div>
+                <div class="v-vector">
+                    <div class="metric-label">V. TERRENO</div>
+                    <div class="v-value" id="gs-val">0.0</div>
+                    <div class="metric-unit">m/s</div>
+                </div>
+            </div>
+
+            <div class="radar-alt-box" style="margin-top: 40px;">
+                <div class="radar-label">INCLINACIÓN TERRENO (SLOPE)</div>
+                <div class="v-value" id="slope-val">0.0°</div>
+            </div>
+
+            <div class="controls">
+                <a href="index.html" class="btn">CENTRO DE MISION</a>
+                <a href="admin.html" class="btn">PANEL ADMIN</a>
+            </div>
+        </div>
+
+        <!-- Panel Derecho: Estado de Motores y Propulsión -->
+        <div class="panel">
+            <div class="panel-header">Propulsión y Motores</div>
+            <div class="metric">
+                <div class="metric-label">TWR ACTUAL</div>
+                <div class="metric-value" id="twr-val">0.00</div>
+            </div>
+            <div class="metric">
+                <div class="metric-label">ACELERACIÓN (G)</div>
+                <div class="metric-value" id="g-val">0.0</div>
+            </div>
+            <div class="panel-header" style="margin-top: 20px;">Estado de Ignición</div>
+            <div class="engine-grid" id="engine-container">
+                <!-- Motores dinámicos -->
+            </div>
+        </div>
+    </main>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+
+    <script>
+        // CONFIGURACIÓN DE FIREBASE
+        const firebaseConfig = {
+            databaseURL: "https://control-de-mision-js-default-rtdb.firebaseio.com/"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+
+        // Obtener ID de misión desde la URL o prompt
+        const urlParams = new URLSearchParams(window.location.search);
+        let missionId = urlParams.get('m') || urlParams.get('mission') || localStorage.getItem('lastMissionId');
+
+        if (!missionId) {
+            missionId = prompt("Ingrese el Código de Misión (ej: LU-101):", "HS-DEFAULT");
+        }
+        
+        if (missionId) {
+            missionId = missionId.toUpperCase();
+            document.getElementById('mission-tag').innerText = missionId;
+            localStorage.setItem('lastMissionId', missionId);
+        }
+
+        // ELEMENTOS UI
+        const radarEl = document.getElementById('radar-val');
+        const vsEl = document.getElementById('vs-val');
+        const gsEl = document.getElementById('gs-val');
+        const altEl = document.getElementById('alt-val');
+        const apoEl = document.getElementById('apo-val');
+        const perEl = document.getElementById('per-val');
+        const fuelPctEl = document.getElementById('fuel-pct');
+        const fuelBarEl = document.getElementById('fuel-bar-fill');
+        const twrEl = document.getElementById('twr-val');
+        const gEl = document.getElementById('g-val');
+        const slopeEl = document.getElementById('slope-val');
+        const engineContainer = document.getElementById('engine-container');
+        const goTag = document.getElementById('go-tag');
+
+        // ESCUCHA DE TELEMETRÍA (LANDER)
+        if (missionId) {
+            db.ref(`missions/${missionId}/lander`).on('value', (snapshot) => {
+                const data = snapshot.val();
+                if (!data) return;
+
+                // Actualizar métricas principales
+                radarEl.innerText = Math.round(data.alt_radar || 0);
+                vsEl.innerText = (data.vs || 0).toFixed(1);
+                gsEl.innerText = Math.round(data.vel || 0);
+                altEl.innerText = Math.round(data.alt || 0).toLocaleString();
+                apoEl.innerText = (Math.round(data.apo || 0) / 1000).toFixed(1);
+                perEl.innerText = (Math.round(data.per || 0) / 1000).toFixed(1);
+                
+                const fuel = data.fuelpct || 0;
+                fuelPctEl.innerText = fuel + "%";
+                fuelBarEl.style.width = fuel + "%";
+
+                twrEl.innerText = (data.twr || 0).toFixed(2);
+                gEl.innerText = (data.g || 0).toFixed(1);
+                slopeEl.innerText = (data.slope || 0).toFixed(1) + "°";
+
+                // Alertas visuales
+                if (data.alt_radar < 500 && data.vs < -5) {
+                    radarEl.style.color = "var(--warning-color)";
+                } else {
+                    radarEl.style.color = "var(--info-color)";
+                }
+
+                // Motores
+                engineContainer.innerHTML = '';
+                if (data.engstates) {
+                    Object.entries(data.engstates).forEach(([tag, state]) => {
+                        const node = document.createElement('div');
+                        node.className = `engine-node ${state === 1 ? 'active' : ''}`;
+                        node.innerText = tag.toUpperCase();
+                        engineContainer.appendChild(node);
+                    });
+                }
+            });
+
+            // ESCUCHA GLOBAL (GO/NO-GO)
+            db.ref(`missions/${missionId}/global`).on('value', (snapshot) => {
+                const global = snapshot.val();
+                if (!global) return;
+
+                if (global.mission_go) {
+                    goTag.innerText = "MISSION GO";
+                    goTag.className = "status-badge go";
+                } else {
+                    goTag.innerText = "MISSION NO-GO";
+                    goTag.className = "status-badge no-go";
+                }
+            });
+        }
+    </script>
+</body>
+</html>
