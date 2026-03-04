@@ -312,6 +312,62 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 
     <script>
+        // --- HELPER SEGURO DE EXTRACCIÓN DE DATOS ---
+        function getVal(obj, ...keys) {
+            if (!obj) return undefined;
+            for (let k of keys) {
+                if (obj[k] !== undefined) return obj[k];
+                if (obj[k.toUpperCase()] !== undefined) return obj[k.toUpperCase()];
+                if (obj[k.toLowerCase()] !== undefined) return obj[k.toLowerCase()];
+            }
+            return undefined;
+        }
+
+        // --- PARSEADOR ROBUSTO DE LEXICONS KOS ---
+        function parseKosJson(data) {
+            if (!data || typeof data !== 'object') return data;
+            if (data.entries && Array.isArray(data.entries)) {
+                const result = {};
+                const ent = data.entries;
+                if (ent.length === 0) return result;
+                const first = ent[0];
+                const isTypeA = (first && typeof first === 'object' && first.key !== undefined);
+                try {
+                    if (isTypeA) {
+                        for (let entry of ent) {
+                            try {
+                                let k = entry.key?.value ?? entry.key;
+                                let v = entry.value?.value ?? entry.value;
+                                if (v && typeof v === 'object') v = parseKosJson(v);
+                                if (k != null) result[String(k).trim()] = v;
+                            } catch (e) { }
+                        }
+                    } else {
+                        for (let i = 0; i < ent.length - 1; i += 2) {
+                            try {
+                                let kObj = ent[i];
+                                let vObj = ent[i + 1];
+                                let k = kObj?.value ?? kObj;
+                                let v = vObj?.value ?? vObj;
+                                if (v && typeof v === 'object') v = parseKosJson(v);
+                                if (k != null) result[String(k).trim()] = v;
+                            } catch (e) { }
+                        }
+                    }
+                } catch (e) { }
+                return result;
+            }
+            if (data.values && Array.isArray(data.values)) {
+                return data.values.map(item => parseKosJson(item?.value ?? item));
+            }
+            const processed = {};
+            for (let k in data) {
+                if (k === '$type') continue;
+                processed[k] = parseKosJson(data[k]);
+            }
+            return processed;
+        }
+
         // CONFIGURACIÓN DE FIREBASE
         const firebaseConfig = {
             databaseURL: "https://control-de-mision-js-default-rtdb.firebaseio.com/"
@@ -351,27 +407,31 @@
         // ESCUCHA DE TELEMETRÍA (LANDER)
         if (missionId) {
             db.ref(`missions/${missionId}/lander`).on('value', (snapshot) => {
-                const data = snapshot.val();
-                if (!data) return;
+                const rawData = snapshot.val();
+                if (!rawData) return;
+                const data = parseKosJson(rawData);
 
                 // Actualizar métricas principales
-                radarEl.innerText = Math.round(data.alt_radar || 0);
-                vsEl.innerText = (data.vs || 0).toFixed(1);
-                gsEl.innerText = Math.round(data.vel || 0);
-                altEl.innerText = Math.round(data.alt || 0).toLocaleString();
-                apoEl.innerText = (Math.round(data.apo || 0) / 1000).toFixed(1);
-                perEl.innerText = (Math.round(data.per || 0) / 1000).toFixed(1);
+                radarEl.innerText = Math.round(getVal(data, "alt_radar", "ALT_RADAR") || 0);
+                vsEl.innerText = (getVal(data, "vs", "VS") || 0).toFixed(1);
+                gsEl.innerText = Math.round(getVal(data, "vel", "VEL") || 0);
+                altEl.innerText = Math.round(getVal(data, "alt", "ALT") || 0).toLocaleString();
+                apoEl.innerText = (Math.round(getVal(data, "apo", "APO") || 0) / 1000).toFixed(1);
+                perEl.innerText = (Math.round(getVal(data, "per", "PER") || 0) / 1000).toFixed(1);
 
-                const fuel = data.fuelpct || 0;
+                const fuel = getVal(data, "fuelpct", "FUELPCT", "fuel") || 0;
                 fuelPctEl.innerText = fuel + "%";
                 fuelBarEl.style.width = fuel + "%";
 
-                twrEl.innerText = (data.twr || 0).toFixed(2);
-                gEl.innerText = (data.g || 0).toFixed(1);
-                slopeEl.innerText = (data.slope || 0).toFixed(1) + "°";
+                twrEl.innerText = (getVal(data, "twr", "TWR") || 0).toFixed(2);
+                gEl.innerText = (getVal(data, "g", "G") || 0).toFixed(1);
+                slopeEl.innerText = (getVal(data, "slope", "SLOPE") || 0).toFixed(1) + "°";
+
+                const altRadar = getVal(data, "alt_radar", "ALT_RADAR") || 0;
+                const vs = getVal(data, "vs", "VS") || 0;
 
                 // Alertas visuales
-                if (data.alt_radar < 500 && data.vs < -5) {
+                if (altRadar < 500 && vs < -5) {
                     radarEl.style.color = "var(--warning-color)";
                 } else {
                     radarEl.style.color = "var(--info-color)";
@@ -379,8 +439,9 @@
 
                 // Motores
                 engineContainer.innerHTML = '';
-                if (data.engstates) {
-                    Object.entries(data.engstates).forEach(([tag, state]) => {
+                const engStates = getVal(data, "engstates", "engStates", "ENGSTATES");
+                if (engStates) {
+                    Object.entries(engStates).forEach(([tag, state]) => {
                         const node = document.createElement('div');
                         node.className = `engine-node ${state === 1 ? 'active' : ''}`;
                         node.innerText = tag.toUpperCase();
