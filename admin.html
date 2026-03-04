@@ -340,25 +340,37 @@
             if (val === ADMIN_PASS) {
                 document.getElementById('login-screen').style.display = 'none';
                 document.getElementById('admin-panel').style.display = 'block';
-                switchMission(); // Cargar por defecto
+                
+                // Intentar cargar ID de URL si existe
+                const params = new URLSearchParams(window.location.search);
+                const urlId = params.get('id');
+                if (urlId) {
+                    document.getElementById('mission-id-input').value = urlId;
+                    switchMission(urlId);
+                } else {
+                    switchMission(); // Cargar por defecto (HS-DEFAULT)
+                }
             } else {
                 showMsg("CLAVE DE ACCESO INVÁLIDA", "login-msg");
             }
         };
 
-        window.switchMission = function () {
-            const idInput = document.getElementById('mission-id-input').value.trim().toUpperCase();
+        window.switchMission = function (manualId) {
+            const idInput = manualId || document.getElementById('mission-id-input').value.trim().toUpperCase();
             if (idInput) currentMissionID = idInput;
 
             document.getElementById('current-id-display').innerText = currentMissionID;
             document.getElementById('dash-link').href = `index.html?id=${currentMissionID}`;
+
+            console.log("Admin: Conectando a misión:", currentMissionID);
 
             // Limpiar listeners viejos
             if (missionUnsub) missionUnsub();
             if (globalUnsub) globalUnsub();
 
             setupListeners();
-            showMsg("CAMBIADO A " + currentMissionID, "admin-msg");
+            if (manualId) showMsg("IDENTIDAD CARGADA", "admin-msg");
+            else showMsg("CAMBIADO A " + currentMissionID, "admin-msg");
         };
 
         function setupListeners() {

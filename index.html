@@ -870,16 +870,12 @@
             if (!currentMissionID || missionStartTimestamp !== null) return;
 
             const vs = getVal(telemetry, "vs", "VS") || 0;
-            const alt = getVal(telemetry, "alt", "ALT") || 0;
             const status = (getVal(telemetry, "status", "STATUS") || "").toUpperCase();
 
-            // Condición: VS > 2 m/s o Altitud > 50m (para evitar disparos en falso)
-            const launching = vs > 2.0 || alt > 50;
-            const hasStatus = ["IGNITION", "LIFTOFF", "LAUNCH", "ASCENT"].includes(status);
-
-            if (launching || hasStatus) {
-                console.log("¡DESPEGUE DETECTADO POR LA WEB!");
-                // Usamos el tiempo local del navegador para el inicio
+            // REGLA SOLICITADA: Solo cuando pase > 2m/s
+            // Agregamos protección para no disparar en PRELAUNCH por jitter de física
+            if (vs > 2.0 && status !== "PRELAUNCH") {
+                console.log("¡DESPEGUE DETECTADO POR LA WEB (>2m/s)!");
                 set(ref(db, `missions/${currentMissionID}/global/mission_start`), Math.floor(Date.now() / 1000));
             }
         }
