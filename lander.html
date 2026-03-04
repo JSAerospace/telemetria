@@ -1,16 +1,20 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SISTEMA DE ATERRIZAJE MUNAR - JS AEROSPACE</title>
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Roboto+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Roboto+Mono:wght@400;700&display=swap"
+        rel="stylesheet">
     <style>
         :root {
             --bg-color: #050505;
             --panel-bg: rgba(20, 20, 20, 0.85);
             --border-color: #333;
-            --accent-color: #b0b0b0; /* Lunar gray */
+            --accent-color: #b0b0b0;
+            /* Lunar gray */
             --warning-color: #ff3e3e;
             --success-color: #44ff44;
             --text-color: #e0e0e0;
@@ -182,8 +186,15 @@
             font-weight: bold;
         }
 
-        .go { background: var(--success-color); color: #000; }
-        .no-go { background: var(--warning-color); color: #fff; }
+        .go {
+            background: var(--success-color);
+            color: #000;
+        }
+
+        .no-go {
+            background: var(--warning-color);
+            color: #fff;
+        }
 
         .controls {
             position: absolute;
@@ -211,9 +222,9 @@
         #slope-display {
             color: var(--warning-color);
         }
-
     </style>
 </head>
+
 <body>
 
     <header>
@@ -241,7 +252,9 @@
             <div class="metric">
                 <div class="metric-label">Combustible</div>
                 <div id="fuel-pct">0%</div>
-                <div class="fuel-bar"><div class="fuel-fill" id="fuel-bar-fill" style="width: 0%;"></div></div>
+                <div class="fuel-bar">
+                    <div class="fuel-fill" id="fuel-bar-fill" style="width: 0%;"></div>
+                </div>
             </div>
         </div>
 
@@ -273,7 +286,6 @@
 
             <div class="controls">
                 <a href="index.html" class="btn">CENTRO DE MISION</a>
-                <a href="admin.html" class="btn">PANEL ADMIN</a>
             </div>
         </div>
 
@@ -314,7 +326,7 @@
         if (!missionId) {
             missionId = prompt("Ingrese el Código de Misión (ej: LU-101):", "HS-DEFAULT");
         }
-        
+
         if (missionId) {
             missionId = missionId.toUpperCase();
             document.getElementById('mission-tag').innerText = missionId;
@@ -349,7 +361,7 @@
                 altEl.innerText = Math.round(data.alt || 0).toLocaleString();
                 apoEl.innerText = (Math.round(data.apo || 0) / 1000).toFixed(1);
                 perEl.innerText = (Math.round(data.per || 0) / 1000).toFixed(1);
-                
+
                 const fuel = data.fuelpct || 0;
                 fuelPctEl.innerText = fuel + "%";
                 fuelBarEl.style.width = fuel + "%";
@@ -393,4 +405,5 @@
         }
     </script>
 </body>
+
 </html>
