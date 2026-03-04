@@ -226,6 +226,9 @@
                 <input type="text" id="mission-name-input" placeholder="ZHUQUE-3 VUELO X">
             </div>
             <button onclick="updateMissionName()">ACTUALIZAR IDENTIDAD</button>
+            <button onclick="resetMET()"
+                style="margin-top: 10px; border-color: var(--danger); color: var(--danger);">RESETEAR RELOJ
+                (MET)</button>
         </div>
 
         <!-- GO/NO-GO ADMIN SECTION -->
@@ -340,7 +343,7 @@
             if (val === ADMIN_PASS) {
                 document.getElementById('login-screen').style.display = 'none';
                 document.getElementById('admin-panel').style.display = 'block';
-                
+
                 // Intentar cargar ID de URL si existe
                 const params = new URLSearchParams(window.location.search);
                 const urlId = params.get('id');
@@ -510,6 +513,15 @@
             const newState = !missionGoState;
             set(ref(db, `missions/${currentMissionID}/global/mission_go`), newState)
                 .then(() => showMsg(newState ? "MISIÓN AUTORIZADA" : "AUTORIZACIÓN REVOCADA", "admin-msg"));
+        };
+
+        window.resetMET = function () {
+            if (!currentMissionID) return;
+            if (confirm("¿Estás seguro de que quieres resetear el reloj de misión (MET) a cero?")) {
+                set(ref(db, `missions/${currentMissionID}/global/mission_start`), null);
+                showMsg("RELOJ RESETEADO", "admin-msg");
+                console.log("Admin: MET reseted for", currentMissionID);
+            }
         };
 
         window.resetAllData = function () {
