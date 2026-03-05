@@ -562,10 +562,12 @@
                 const data = parseKosJson(rawData);
 
                 // Actualizar métricas principales
-                radarEl.innerText = Math.round(getVal(data, "alt_radar", "ALT_RADAR") || 0);
+                const fmt = (num) => Math.round(num || 0).toLocaleString('es-AR');
+
+                radarEl.innerText = fmt(getVal(data, "alt_radar", "ALT_RADAR"));
                 vsEl.innerText = (getVal(data, "vs", "VS") || 0).toFixed(1);
-                gsEl.innerText = Math.round(getVal(data, "vel", "VEL") || 0);
-                altEl.innerText = Math.round(getVal(data, "alt", "ALT") || 0).toLocaleString();
+                gsEl.innerText = fmt(getVal(data, "vel", "VEL"));
+                altEl.innerText = fmt(getVal(data, "alt", "ALT"));
                 apoEl.innerText = (Math.round(getVal(data, "apo", "APO") || 0) / 1000).toFixed(1);
                 perEl.innerText = (Math.round(getVal(data, "per", "PER") || 0) / 1000).toFixed(1);
 
@@ -599,13 +601,23 @@
                 const engStates = getVal(data, "engstates", "engStates", "ENGSTATES");
                 const l1Node = document.getElementById('engine-L1');
                 if (l1Node && engStates && typeof engStates === 'object') {
-                    // Priorizar la clave L1 o l1; si no, usar el primer motor que encuentre
-                    let state = engStates['L1'] ?? engStates['l1'];
+                    // Buscar 'l1' (normalizado por el sync) o 'L1'
+                    let state = engStates['l1'] ?? engStates['L1'];
+
+                    // Si no hay L1 específico, usar el primer motor disponible
                     if (state === undefined) {
-                        const firstKey = Object.keys(engStates)[0];
-                        state = firstKey !== undefined ? engStates[firstKey] : 0;
+                        const keys = Object.keys(engStates);
+                        if (keys.length > 0) {
+                            state = engStates[keys[0]];
+                        }
                     }
-                    l1Node.className = `engine-node ${state === 1 ? 'active' : ''}`;
+
+                    // Aplicar clase si el estado es 1 o true
+                    if (state == 1 || state === true) {
+                        l1Node.classList.add('active');
+                    } else {
+                        l1Node.classList.remove('active');
+                    }
                 }
             });
 
