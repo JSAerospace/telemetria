@@ -327,7 +327,8 @@
         <div style="display: flex; align-items: center; gap: 20px;">
             <button class="btn"
                 style="background: rgba(0, 243, 255, 0.1); border: 1px solid var(--accent-color); color: var(--accent-color); font-family: 'Orbitron', sans-serif; font-size: 0.7rem; padding: 5px 15px; cursor: pointer; text-transform: uppercase;"
-                onclick="window.location.href=window.location.pathname">CAMBIAR MISIÓN</button>
+                onclick="window.location.href='lander.html'">CAMBIAR
+                MISIÓN</button>
             <div class="logo">LU-C1: LANDING CONTROL</div>
         </div>
         <div id="mission-display">MISIÓN: <span class="mission-id" id="mission-tag">---</span></div>
@@ -488,10 +489,10 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
-        // Obtener ID de misión desde la URL o LocalStorage
+        // Obtener ID de misión desde la URL
         const urlParams = new URLSearchParams(window.location.search);
-        let missionId = urlParams.get('id') || urlParams.get('m') || urlParams.get('mission') || localStorage.getItem('lastMissionId');
-        let clientName = urlParams.get('name') || "J.S. Aerospace"; // Prevenir undefined en la url y matchear con index
+        let missionId = urlParams.get('id') || urlParams.get('m') || urlParams.get('mission');
+        let clientName = urlParams.get('name') || "J.S. Aerospace"; // Valor por defecto igual que index
 
         // ELEMENTOS UI
         const radarEl = document.getElementById('radar-val');
@@ -523,7 +524,6 @@
 
             missionId = idInput;
             document.getElementById('mission-tag').innerText = missionId;
-            localStorage.setItem('lastMissionId', missionId);
 
             // Ocultar modal
             document.getElementById('login-overlay').classList.remove('visible');
@@ -536,7 +536,6 @@
             document.getElementById('login-overlay').classList.add('visible');
         } else {
             document.getElementById('mission-tag').innerText = missionId;
-            // Retraso muy corto para permitir a la UI pintar antes de buscar firebase
             setTimeout(startListening, 100);
         }
 
