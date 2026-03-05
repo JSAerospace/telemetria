@@ -329,7 +329,7 @@
                 style="background: rgba(0, 243, 255, 0.1); border: 1px solid var(--accent-color); color: var(--accent-color); font-family: 'Orbitron', sans-serif; font-size: 0.7rem; padding: 5px 15px; cursor: pointer; text-transform: uppercase;"
                 onclick="window.location.href='lander.html'">CAMBIAR
                 MISIÓN</button>
-            <div class="logo">LU-C1: LANDING CONTROL</div>
+            <div class="logo">Endurance: Landing Control</div>
         </div>
         <div id="mission-display">MISIÓN: <span class="mission-id" id="mission-tag">---</span></div>
         <div id="readiness">ESTADO: <span class="status-badge" id="go-tag">OFFLINE</span></div>
@@ -389,8 +389,8 @@
             </div>
 
             <div class="radar-alt-box" style="margin-top: 40px;">
-                <div class="radar-label">INCLINACIÓN TERRENO (SLOPE)</div>
-                <div class="v-value" id="slope-val">0.0°</div>
+                <div class="radar-label">INCLINACIÓN LANDER</div>
+                <div class="v-value" id="tilt-val">0.0°</div>
             </div>
 
             <div class="controls">
@@ -509,7 +509,7 @@
         const thrBarEl = document.getElementById('thr-bar-fill');
         const twrEl = document.getElementById('twr-val');
         const gEl = document.getElementById('g-val');
-        const slopeEl = document.getElementById('slope-val');
+        const tiltEl = document.getElementById('tilt-val');
         const goTag = document.getElementById('go-tag');
 
         // --- SISTEMA DE AUTENTICACIÓN ---
@@ -583,7 +583,7 @@
 
                 twrEl.innerText = (getVal(data, "twr", "TWR") || 0).toFixed(2);
                 gEl.innerText = (getVal(data, "g", "G") || 0).toFixed(1);
-                slopeEl.innerText = (getVal(data, "slope", "SLOPE") || 0).toFixed(1) + "°";
+                tiltEl.innerText = (getVal(data, "tilt", "TILT") || 0).toFixed(1) + "°";
 
                 const altRadar = getVal(data, "alt_radar", "ALT_RADAR") || 0;
                 const vs = getVal(data, "vs", "VS") || 0;
