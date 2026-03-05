@@ -519,17 +519,32 @@
 
             if (!idInput) { alert("Se requiere ID de misión para acceder al lander."); return; }
 
-            btn.innerText = "CONECTANDO...";
+            btn.innerText = "VERIFICANDO...";
             btn.disabled = true;
 
-            missionId = idInput;
-            document.getElementById('mission-tag').innerText = missionId;
+            // Verificar si la misión existe en Firebase
+            db.ref(`missions/${idInput}/global/mission_name`).once('value').then((snapshot) => {
+                if (!snapshot.exists()) {
+                    alert("ERROR: La ID de misión '" + idInput + "' no existe o no ha sido activada.");
+                    btn.innerText = "ESTABLECER CONEXIÓN";
+                    btn.disabled = false;
+                    return;
+                }
 
-            // Ocultar modal
-            document.getElementById('login-overlay').classList.remove('visible');
-            history.pushState(null, '', `?id=${missionId}&name=${encodeURIComponent(clientName)}`); // Persistir en la URL
+                missionId = idInput;
+                document.getElementById('mission-tag').innerText = missionId;
 
-            startListening();
+                // Ocultar modal
+                document.getElementById('login-overlay').classList.remove('visible');
+                history.pushState(null, '', `?id=${missionId}&name=${encodeURIComponent(clientName)}`); // Persistir en la URL
+
+                startListening();
+            }).catch((error) => {
+                console.error("Error de validación:", error);
+                alert("Error al conectar con la base de datos.");
+                btn.innerText = "ESTABLECER CONEXIÓN";
+                btn.disabled = false;
+            });
         };
 
         if (!missionId) {
