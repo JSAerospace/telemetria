@@ -597,23 +597,19 @@
                     radarEl.style.color = "var(--info-color)";
                 }
 
-                // Motor L1 (circular) - busca cualquier motor en engstates
+                // Motor L1 (circular) - Lógica robusta: ON si cualquier motor está activo OR throttle > 1%
                 const engStates = getVal(data, "engstates", "engStates", "ENGSTATES");
                 const l1Node = document.getElementById('engine-L1');
-                if (l1Node && engStates && typeof engStates === 'object') {
-                    // Buscar 'l1' (normalizado por el sync) o 'L1'
-                    let state = engStates['l1'] ?? engStates['L1'];
+                const throttle = getVal(data, "throttle", "THROTTLE") || 0;
 
-                    // Si no hay L1 específico, usar el primer motor disponible
-                    if (state === undefined) {
-                        const keys = Object.keys(engStates);
-                        if (keys.length > 0) {
-                            state = engStates[keys[0]];
-                        }
+                if (l1Node) {
+                    let anyEngineActive = false;
+                    if (engStates && typeof engStates === 'object') {
+                        anyEngineActive = Object.values(engStates).some(s => s == 1 || s === true);
                     }
 
-                    // Aplicar clase si el estado es 1 o true
-                    if (state == 1 || state === true) {
+                    // Si hay empuje (throttle > 1%) o algún motor dice estar activo
+                    if (anyEngineActive || throttle > 1) {
                         l1Node.classList.add('active');
                     } else {
                         l1Node.classList.remove('active');
