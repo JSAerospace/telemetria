@@ -264,10 +264,17 @@
                 <div class="metric-value" id="per-val">0</div><span class="metric-unit">km</span>
             </div>
             <div class="metric">
-                <div class="metric-label">Combustible</div>
+                <div class="metric-label">Combustible (LF + Ox)</div>
                 <div id="fuel-pct">0%</div>
                 <div class="fuel-bar">
                     <div class="fuel-fill" id="fuel-bar-fill" style="width: 0%;"></div>
+                </div>
+            </div>
+            <div class="metric">
+                <div class="metric-label">Monopropelente (RCS)</div>
+                <div id="mono-pct">0%</div>
+                <div class="fuel-bar">
+                    <div class="fuel-fill" id="mono-bar-fill" style="width: 0%; background: #ffae00;"></div>
                 </div>
             </div>
         </div>
@@ -313,6 +320,11 @@
             <div class="metric">
                 <div class="metric-label">ACELERACIÓN (G)</div>
                 <div class="metric-value" id="g-val">0.0</div>
+            </div>
+            <div class="panel-header" style="margin-top: 20px;">Potencia Motor (Throttle)</div>
+            <div id="thr-pct" style="font-size: 0.9rem; color: #888; margin-bottom: 4px;">0%</div>
+            <div class="fuel-bar">
+                <div class="fuel-fill" id="thr-bar-fill" style="width: 0%; background: var(--success-color);"></div>
             </div>
             <div class="panel-header" style="margin-top: 20px;">Estado de Ignición</div>
             <div class="engine-display">
@@ -412,10 +424,13 @@
         const perEl = document.getElementById('per-val');
         const fuelPctEl = document.getElementById('fuel-pct');
         const fuelBarEl = document.getElementById('fuel-bar-fill');
+        const monoPctEl = document.getElementById('mono-pct');
+        const monoBarEl = document.getElementById('mono-bar-fill');
+        const thrPctEl = document.getElementById('thr-pct');
+        const thrBarEl = document.getElementById('thr-bar-fill');
         const twrEl = document.getElementById('twr-val');
         const gEl = document.getElementById('g-val');
         const slopeEl = document.getElementById('slope-val');
-        const engineContainer = document.getElementById('engine-container');
         const goTag = document.getElementById('go-tag');
 
         // ESCUCHA DE TELEMETRÍA (LANDER)
@@ -435,7 +450,15 @@
 
                 const fuel = getVal(data, "fuelpct", "FUELPCT", "fuel") || 0;
                 fuelPctEl.innerText = fuel + "%";
-                fuelBarEl.style.width = fuel + "%";
+                fuelBarEl.style.width = Math.min(fuel, 100) + "%";
+
+                const mono = getVal(data, "monopct", "MONOPCT") || 0;
+                monoPctEl.innerText = mono + "%";
+                monoBarEl.style.width = Math.min(mono, 100) + "%";
+
+                const thr = getVal(data, "throttle", "THROTTLE") || 0;
+                thrPctEl.innerText = thr.toFixed(1) + "%";
+                thrBarEl.style.width = Math.min(thr, 100) + "%";
 
                 twrEl.innerText = (getVal(data, "twr", "TWR") || 0).toFixed(2);
                 gEl.innerText = (getVal(data, "g", "G") || 0).toFixed(1);
