@@ -324,7 +324,12 @@
     </div>
 
     <header>
-        <div class="logo">LU-C1: LANDING CONTROL</div>
+        <div style="display: flex; align-items: center; gap: 20px;">
+            <button class="btn"
+                style="background: rgba(0, 243, 255, 0.1); border: 1px solid var(--accent-color); color: var(--accent-color); font-family: 'Orbitron', sans-serif; font-size: 0.7rem; padding: 5px 15px; cursor: pointer; text-transform: uppercase;"
+                onclick="window.location.href=window.location.pathname">CAMBIAR MISIÓN</button>
+            <div class="logo">LU-C1: LANDING CONTROL</div>
+        </div>
         <div id="mission-display">MISIÓN: <span class="mission-id" id="mission-tag">---</span></div>
         <div id="readiness">ESTADO: <span class="status-badge" id="go-tag">OFFLINE</span></div>
     </header>
@@ -485,7 +490,8 @@
 
         // Obtener ID de misión desde la URL o LocalStorage
         const urlParams = new URLSearchParams(window.location.search);
-        let missionId = urlParams.get('m') || urlParams.get('mission') || localStorage.getItem('lastMissionId');
+        let missionId = urlParams.get('id') || urlParams.get('m') || urlParams.get('mission') || localStorage.getItem('lastMissionId');
+        let clientName = urlParams.get('name') || "J.S. Aerospace"; // Prevenir undefined en la url y matchear con index
 
         // ELEMENTOS UI
         const radarEl = document.getElementById('radar-val');
@@ -521,7 +527,7 @@
 
             // Ocultar modal
             document.getElementById('login-overlay').classList.remove('visible');
-            history.pushState(null, '', `?m=${missionId}`); // Persistir en la URL
+            history.pushState(null, '', `?id=${missionId}&name=${encodeURIComponent(clientName)}`); // Persistir en la URL
 
             startListening();
         };
