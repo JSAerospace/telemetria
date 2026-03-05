@@ -474,11 +474,16 @@
                     radarEl.style.color = "var(--info-color)";
                 }
 
-                // Motor L1 (circular)
+                // Motor L1 (circular) - busca cualquier motor en engstates
                 const engStates = getVal(data, "engstates", "engStates", "ENGSTATES");
                 const l1Node = document.getElementById('engine-L1');
-                if (l1Node) {
-                    const state = engStates ? (engStates['L1'] ?? engStates['l1'] ?? 0) : 0;
+                if (l1Node && engStates && typeof engStates === 'object') {
+                    // Priorizar la clave L1 o l1; si no, usar el primer motor que encuentre
+                    let state = engStates['L1'] ?? engStates['l1'];
+                    if (state === undefined) {
+                        const firstKey = Object.keys(engStates)[0];
+                        state = firstKey !== undefined ? engStates[firstKey] : 0;
+                    }
                     l1Node.className = `engine-node ${state === 1 ? 'active' : ''}`;
                 }
             });
