@@ -145,23 +145,37 @@
             font-size: 2.5rem;
         }
 
-        /* Engine & Fuel */
-        .engine-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(60px, 1fr));
-            gap: 10px;
+        /* Engine Display - Circular (igual que S2 en index.html) */
+        .engine-display {
+            margin-top: 15px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 50%;
+            width: 150px;
+            height: 150px;
+            margin-left: auto;
+            margin-right: auto;
+            position: relative;
+            border: 1px dashed rgba(255, 255, 255, 0.15);
         }
 
         .engine-node {
-            border: 1px solid #444;
-            padding: 10px;
-            text-align: center;
-            border-radius: 2px;
+            position: absolute;
+            border-radius: 50%;
+            border: 4px solid #333;
+            background: #111;
+            box-shadow: inset 0 0 8px #000;
+            transition: all 0.3s;
+            width: 90px;
+            height: 90px;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
         }
 
         .engine-node.active {
+            background: var(--success-color);
             border-color: var(--success-color);
-            box-shadow: inset 0 0 10px rgba(68, 255, 68, 0.2);
+            box-shadow: 0 0 20px rgba(68, 255, 68, 0.5), inset 0 0 10px rgba(0, 0, 0, 0.3);
         }
 
         .fuel-bar {
@@ -301,8 +315,8 @@
                 <div class="metric-value" id="g-val">0.0</div>
             </div>
             <div class="panel-header" style="margin-top: 20px;">Estado de Ignición</div>
-            <div class="engine-grid" id="engine-container">
-                <!-- Motores dinámicos -->
+            <div class="engine-display">
+                <div class="engine-node" id="engine-L1"></div>
             </div>
         </div>
     </main>
@@ -437,16 +451,12 @@
                     radarEl.style.color = "var(--info-color)";
                 }
 
-                // Motores
-                engineContainer.innerHTML = '';
+                // Motor L1 (circular)
                 const engStates = getVal(data, "engstates", "engStates", "ENGSTATES");
-                if (engStates) {
-                    Object.entries(engStates).forEach(([tag, state]) => {
-                        const node = document.createElement('div');
-                        node.className = `engine-node ${state === 1 ? 'active' : ''}`;
-                        node.innerText = tag.toUpperCase();
-                        engineContainer.appendChild(node);
-                    });
+                const l1Node = document.getElementById('engine-L1');
+                if (l1Node) {
+                    const state = engStates ? (engStates['L1'] ?? engStates['l1'] ?? 0) : 0;
+                    l1Node.className = `engine-node ${state === 1 ? 'active' : ''}`;
                 }
             });
 
