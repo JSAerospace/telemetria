@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SISTEMA DE TELEMETRÍA - SPACE SHUTTLE</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Roboto+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #050505;
+            --panel-bg: rgba(20, 20, 20, 0.85);
+            --border-color: #333;
+            --accent-color: #ff9900; /* Shuttle orange accent */
+            --warning-color: #ff3e3e;
+            --success-color: #44ff44;
+            --text-color: #e0e0e0;
+            --info-color: #00d4ff;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: 'Roboto Mono', monospace;
+            margin: 0;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+
+        header {
+            background: linear-gradient(180deg, #111 0%, transparent 100%);
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .logo {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.2rem;
+            letter-spacing: 2px;
+            color: var(--accent-color);
+        }
+
+        .mission-id {
+            color: var(--info-color);
+            font-weight: bold;
+        }
+
+        main {
+            display: grid;
+            grid-template-columns: 1fr 2fr 1fr;
+            gap: 20px;
+            padding: 20px;
+            flex-grow: 1;
+        }
+
+        .panel {
+            background: var(--panel-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .panel-header {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.8rem;
+            color: var(--accent-color);
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 5px;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+        }
+
+        .metric {
+            margin-bottom: 15px;
+        }
+
+        .metric-label {
+            font-size: 0.7rem;
+            color: #888;
+            margin-bottom: 5px;
+        }
+
+        .metric-value {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: var(--text-color);
+        }
+
+        .metric-unit {
+            font-size: 0.8rem;
+            color: #666;
+            margin-left: 5px;
+        }
+
+        /* Central Landing Interface */
+        .landing-display {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            background: radial-gradient(circle at center, #111 0%, #000 100%);
+        }
+
+        .radar-value {
+            font-size: 5rem;
+            font-family: 'Orbitron', sans-serif;
+            color: var(--info-color);
+            text-shadow: 0 0 20px rgba(0, 212, 255, 0.3);
+        }
+
+        .velocity-vectors {
+            display: flex;
+            gap: 50px;
+            margin-top: 40px;
+        }
+
+        .v-vector {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .v-value {
+            font-size: 2.5rem;
+        }
+
+        .engine-display {
+            margin-top: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+        }
+
+        .engine-node {
+            border-radius: 50%;
+            border: 4px solid #333;
+            background: #111;
+            box-shadow: inset 0 0 8px #000;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Orbitron';
+            font-size: 0.7rem;
+            color: #555;
+        }
+
+        .engine-main { width: 90px; height: 90px; }
+        .engine-oms { width: 60px; height: 60px; }
+
+        .engine-node.active {
+            background: var(--accent-color);
+            border-color: var(--accent-color);
+            color: #000;
+            font-weight: bold;
+            box-shadow: 0 0 20px rgba(255, 153, 0, 0.5), inset 0 0 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .fuel-bar {
+            height: 10px;
+            background: #222;
+            width: 100%;
+            margin-top: 5px;
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        .fuel-fill {
+            height: 100%;
+            background: var(--info-color);
+            transition: width 0.3s ease;
+        }
+
+        .status-badge {
+            padding: 5px 10px;
+            border-radius: 3px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+
+        .go { background: var(--success-color); color: #000; }
+        .no-go { background: var(--warning-color); color: #fff; }
+        .warn { background: var(--accent-color); color: #000; }
+
+        .systems-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .sys-ind {
+            padding: 8px;
+            text-align: center;
+            border: 1px solid #333;
+            color: #555;
+            font-weight: bold;
+            font-size: 0.8rem;
+            border-radius: 4px;
+        }
+        
+        .sys-ind.active {
+            border-color: var(--success-color);
+            color: var(--success-color);
+            background: rgba(68, 255, 68, 0.1);
+        }
+
+        /* --- AUTH OVERLAY --- */
+        .overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(5, 10, 15, 0.98);
+            backdrop-filter: blur(15px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.5s ease;
+        }
+
+        .overlay.visible {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .login-card {
+            background: rgba(30, 15, 5, 0.85);
+            border: 1px solid var(--accent-color);
+            padding: 40px;
+            width: 90%;
+            max-width: 450px;
+            text-align: center;
+            box-shadow: 0 0 30px rgba(255, 153, 0, 0.2);
+            clip-path: polygon(0 0, 100% 0, 100% calc(100% - 20px), calc(100% - 20px) 100%, 0 100%);
+        }
+
+        .login-card h2 {
+            font-family: 'Orbitron', sans-serif;
+            color: var(--accent-color);
+            margin-bottom: 20px;
+            letter-spacing: 2px;
+        }
+
+        .login-input {
+            width: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid #333;
+            color: #fff;
+            padding: 15px;
+            margin-bottom: 20px;
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 1.1rem;
+            outline: none;
+        }
+
+        .login-input:focus {
+            border-color: var(--accent-color);
+        }
+
+        .login-btn {
+            width: 100%;
+            background: var(--accent-color);
+            color: #000;
+            border: none;
+            padding: 15px;
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .login-btn:hover {
+            box-shadow: 0 0 20px var(--accent-color);
+            transform: scale(1.02);
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="login-overlay" class="overlay">
+        <div class="login-card">
+            <h2>SHUTTLE TELEMETRY LINK</h2>
+            <p style="font-size: 0.9rem; opacity: 0.7; margin-bottom: 25px;">Enter mission parameters to sync with the Space Shuttle.</p>
+            <input type="text" id="mission-id-input" class="login-input" placeholder="MISSION ID (e.g. STS-101)" autocomplete="off">
+            <button class="login-btn" onclick="startMetricSync()">ESTABLISH LINK</button>
+        </div>
+    </div>
+
+    <header>
+        <div style="display: flex; align-items: center; gap: 20px;">
+            <button class="btn"
+                style="background: transparent; border: 1px solid var(--accent-color); color: var(--accent-color); font-family: 'Orbitron', sans-serif; font-size: 0.7rem; padding: 5px 15px; cursor: pointer; text-transform: uppercase;"
+                onclick="changeMission()">CHANGE MISSION</button>
+            <div class="logo">JS AEROSPACE: SHUTTLE FLIGHT CONTROL</div>
+        </div>
+        <div id="mission-display">MISSION: <span class="mission-id" id="mission-tag">---</span></div>
+        <div id="readiness">STATUS: <span class="status-badge" id="go-tag">OFFLINE</span></div>
+    </header>
+
+    <main>
+        <!-- Left Panel: General Telemetry -->
+        <div class="panel">
+            <div class="panel-header">FLIGHT DYNAMICS</div>
+            <div class="metric">
+                <div class="metric-label">ASL Altitude</div>
+                <div class="metric-value" id="alt-val">0</div><span class="metric-unit">m</span>
+            </div>
+            <div class="metric">
+                <div class="metric-label">Mach Number</div>
+                <div class="metric-value" id="mach-val">0.00</div><span class="metric-unit">M</span>
+            </div>
+            <div class="metric">
+                <div class="metric-label">Dynamic Pressure (Q)</div>
+                <div class="metric-value" id="q-val">0</div><span class="metric-unit">kPa</span>
+            </div>
+            
+            <div style="margin-top: 30px;"></div>
+            <div class="panel-header">SYSTEMS</div>
+            <div class="systems-grid">
+                <div class="sys-ind" id="sys-gear">GEAR</div>
+                <div class="sys-ind" id="sys-brakes">BRAKES</div>
+                <div class="sys-ind" id="sys-rcs">RCS</div>
+            </div>
+        </div>
+
+        <!-- Center Panel: Descent HUD -->
+        <div class="panel landing-display">
+            <div style="text-align: center; margin-bottom: 20px;">
+                <div class="metric-label" style="font-size: 1rem;">RADAR ALTITUDE</div>
+                <div class="radar-value" id="radar-val">0</div>
+                <div class="metric-unit">METERS AGL</div>
+            </div>
+            
+            <div class="velocity-vectors">
+                <div class="v-vector">
+                    <div class="metric-label">SURFACE VELOCITY</div>
+                    <div class="v-value" id="vel-val">0.0</div>
+                    <div class="metric-unit">m/s</div>
+                </div>
+                <div class="v-vector">
+                    <div class="metric-label" id="vs-label">VERTICAL VELOCITY</div>
+                    <div class="v-value" id="vs-val">0.0</div>
+                    <div class="metric-unit">m/s</div>
+                </div>
+            </div>
+
+            <div class="engine-display">
+                <div id="engine-OMS1" class="engine-node engine-oms">OMS 1</div>
+                <div id="engine-MAIN" class="engine-node engine-main">MAIN</div>
+                <div id="engine-OMS2" class="engine-node engine-oms">OMS 2</div>
+            </div>
+        </div>
+
+        <!-- Right Panel: Navigation & Fuel -->
+        <div class="panel">
+            <div class="panel-header">ATTITUDE & NAVIGATION</div>
+            <div class="metric">
+                <div class="metric-label">Angle of Attack (AoA)</div>
+                <div class="metric-value" id="aoa-val" style="color: var(--accent-color);">0.0</div><span class="metric-unit">°</span>
+            </div>
+            <div class="metric">
+                <div class="metric-label">Pitch</div>
+                <div class="metric-value" id="pitch-val">0.0</div><span class="metric-unit">°</span>
+            </div>
+            <div class="metric">
+                <div class="metric-label">Roll</div>
+                <div class="metric-value" id="roll-val">0.0</div><span class="metric-unit">°</span>
+            </div>
+            <div class="metric">
+                <div class="metric-label">Heading</div>
+                <div class="metric-value" id="heading-val">0.0</div><span class="metric-unit">°</span>
+            </div>
+
+            <div style="margin-top: 30px;"></div>
+            <div class="panel-header">PROPULSION</div>
+            <div class="metric" style="margin-bottom: 10px;">
+                <div style="display: flex; justify-content: space-between;">
+                    <span class="metric-label">MAIN TANK (LFO)</span>
+                    <span class="metric-label" id="fuel-pct" style="color: var(--text-color);">0%</span>
+                </div>
+                <div class="fuel-bar"><div class="fuel-fill" id="fuel-bar" style="background: var(--accent-color);"></div></div>
+            </div>
+            <div class="metric" style="margin-bottom: 10px;">
+                <div style="display: flex; justify-content: space-between;">
+                    <span class="metric-label">OMS TANK (MONO)</span>
+                    <span class="metric-label" id="mono-pct" style="color: var(--text-color);">0%</span>
+                </div>
+                <div class="fuel-bar"><div class="fuel-fill" id="mono-bar" style="background: #fff;"></div></div>
+            </div>
+            <div class="metric" style="margin-bottom: 10px;">
+                <div style="display: flex; justify-content: space-between;">
+                    <span class="metric-label">THROTTLE</span>
+                    <span class="metric-label" id="thr-pct" style="color: var(--text-color);">0%</span>
+                </div>
+                <div class="fuel-bar"><div class="fuel-fill" id="thr-bar"></div></div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+
+    <script>
+        const firebaseConfig = {
+            databaseURL: "https://control-de-mision-js-default-rtdb.firebaseio.com/"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+
+        let missionId = null;
+
+        const radarEl = document.getElementById('radar-val');
+        const vsEl = document.getElementById('vs-val');
+        const vsLabel = document.getElementById('vs-label');
+        const velEl = document.getElementById('vel-val');
+        const altEl = document.getElementById('alt-val');
+        const machEl = document.getElementById('mach-val');
+        const qEl = document.getElementById('q-val');
+        
+        const aoaEl = document.getElementById('aoa-val');
+        const pitchEl = document.getElementById('pitch-val');
+        const rollEl = document.getElementById('roll-val');
+        const headingEl = document.getElementById('heading-val');
+
+        const sysGear = document.getElementById('sys-gear');
+        const sysBrakes = document.getElementById('sys-brakes');
+        const sysRcs = document.getElementById('sys-rcs');
+
+        const fuelPctEl = document.getElementById('fuel-pct');
+        const fuelBarEl = document.getElementById('fuel-bar');
+        const monoPctEl = document.getElementById('mono-pct');
+        const monoBarEl = document.getElementById('mono-bar');
+        const thrPctEl = document.getElementById('thr-pct');
+        const thrBarEl = document.getElementById('thr-bar');
+        const goTag = document.getElementById('go-tag');
+
+        function parseKosJson(data) {
+            if (!data || typeof data !== 'object') return data;
+            if (data.entries && Array.isArray(data.entries)) {
+                let parsed = {};
+                if (data.entries.length > 0 && typeof data.entries[0] === 'object' && "key" in data.entries[0]) {
+                    data.entries.forEach(e => {
+                        let k = typeof e.key === 'object' ? e.key.value : e.key;
+                        let v = typeof e.value === 'object' ? e.value.value : e.value;
+                        if (typeof v === 'object') v = parseKosJson(v);
+                        parsed[String(k).toLowerCase()] = v;
+                    });
+                } else {
+                    for (let i = 0; i < data.entries.length; i += 2) {
+                        let kObj = data.entries[i];
+                        let vObj = data.entries[i + 1];
+                        let k = typeof kObj === 'object' ? kObj.value : kObj;
+                        let v = typeof vObj === 'object' ? vObj.value : vObj;
+                        if (typeof v === 'object') v = parseKosJson(v);
+                        parsed[String(k).toLowerCase()] = v;
+                    }
+                }
+                return parsed;
+            }
+            let processed = {};
+            for (let t in data) {
+                if (t === "$type") continue;
+                processed[String(t).toLowerCase()] = (typeof data[t] === 'object') ? parseKosJson(data[t]) : data[t];
+            }
+            return processed;
+        }
+
+        function getVal(data, ...keys) {
+            for (let k of keys) {
+                if (data[k] !== undefined) return data[k];
+            }
+            return undefined;
+        }
+
+        function changeMission() {
+            history.pushState(null, '', window.location.pathname);
+            document.getElementById('mission-id-input').value = "";
+            document.getElementById('login-overlay').classList.add('visible');
+        }
+
+        window.onload = () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            missionId = urlParams.get('id') || urlParams.get('m') || urlParams.get('mission');
+
+            if (!missionId) {
+                document.getElementById('login-overlay').classList.add('visible');
+            } else {
+                document.getElementById('mission-tag').innerText = missionId;
+                setTimeout(startListening, 100);
+            }
+        };
+
+        function startMetricSync() {
+            const btn = document.querySelector('.login-btn');
+            const idInput = document.getElementById('mission-id-input').value.trim().toUpperCase();
+            
+            if (!idInput) { alert('ENTER MISSION ID'); return; }
+
+            btn.innerText = "VERIFICANDO...";
+            db.ref(`missions/${idInput}/global/mission_name`).once('value', snapshot => {
+                if (snapshot.exists()) {
+                    missionId = idInput;
+                    const defaultName = localStorage.getItem('companyName') || "J.S. Aerospace";
+                    history.pushState(null, '', `?id=${missionId}&name=${encodeURIComponent(defaultName)}`);
+                    
+                    document.getElementById('mission-tag').innerText = missionId;
+                    document.getElementById('login-overlay').classList.remove('visible');
+                    btn.innerText = "ESTABLISH LINK";
+                    startListening();
+                } else {
+                    alert(`ID DE MISIÓN '${idInput}' NO ENCONTRADO EN LA RED.`);
+                    btn.innerText = "ESTABLISH LINK";
+                }
+            });
+        }
+
+        function startListening() {
+            db.ref(`missions/${missionId}/shuttle`).on('value', (snapshot) => {
+                const rawData = snapshot.val();
+                if (!rawData) return;
+                const data = parseKosJson(rawData);
+
+                const fmt = (num) => Math.round(num || 0).toLocaleString('es-AR');
+                
+                radarEl.innerText = fmt(getVal(data, "alt_radar", "ALT_RADAR"));
+                altEl.innerText = fmt(getVal(data, "alt", "ALT"));
+                
+                let vs = getVal(data, "vs", "VS") || 0;
+                vsEl.innerText = vs.toFixed(1);
+                if (vs < -10) { vsLabel.style.color = "var(--warning-color)"; } else { vsLabel.style.color = "#888"; }
+                
+                velEl.innerText = fmt(getVal(data, "vel", "VEL"));
+                machEl.innerText = (getVal(data, "mach", "MACH") || 0).toFixed(2);
+                qEl.innerText = (getVal(data, "q", "Q") || 0).toFixed(1);
+
+                aoaEl.innerText = (getVal(data, "aoa", "AOA") || 0).toFixed(1);
+                pitchEl.innerText = (getVal(data, "pitch", "PITCH") || 0).toFixed(1);
+                rollEl.innerText = (getVal(data, "roll", "ROLL") || 0).toFixed(1);
+                headingEl.innerText = (getVal(data, "heading", "HEADING") || 0).toFixed(1);
+
+                const fuel = getVal(data, "fuelpct", "FUELPCT", "fuel") || 0;
+                fuelPctEl.innerText = fuel + "%";
+                fuelBarEl.style.width = Math.min(fuel, 100) + "%";
+
+                const mono = getVal(data, "monopct", "MONOPCT") || 0;
+                monoPctEl.innerText = mono + "%";
+                monoBarEl.style.width = Math.min(mono, 100) + "%";
+
+                const thr = getVal(data, "throttle", "THROTTLE") || 0;
+                thrPctEl.innerText = thr.toFixed(1) + "%";
+                thrBarEl.style.width = Math.min(thr, 100) + "%";
+
+                // Systems
+                if (getVal(data, "gear", "GEAR")) { sysGear.classList.add('active'); } else { sysGear.classList.remove('active'); }
+                if (getVal(data, "brakes", "BRAKES")) { sysBrakes.classList.add('active'); } else { sysBrakes.classList.remove('active'); }
+                if (getVal(data, "rcs", "RCS")) { sysRcs.classList.add('active'); } else { sysRcs.classList.remove('active'); }
+
+                // Alertas visuales Altitud
+                const altRadar = getVal(data, "alt_radar", "ALT_RADAR") || 0;
+                if (altRadar < 500 && vs < -10) {
+                    radarEl.style.color = "var(--warning-color)";
+                } else {
+                    radarEl.style.color = "var(--info-color)";
+                }
+
+                // Motores (MAIN, OMS1, OMS2)
+                const engStates = getVal(data, "engstates", "engStates", "ENGSTATES");
+                const throttleFallback = thr > 1;
+
+                const updateEngine = (id, key) => {
+                    const node = document.getElementById(id);
+                    if (!node) return;
+                    let state = engStates && typeof engStates === 'object' ? (engStates[key.toLowerCase()] ?? engStates[key.toUpperCase()]) : undefined;
+                    if (state == 1 || state === true || (key === 'MAIN' && throttleFallback)) {
+                        node.classList.add('active');
+                    } else {
+                        node.classList.remove('active');
+                    }
+                };
+
+                updateEngine('engine-MAIN', 'MAIN');
+                updateEngine('engine-OMS1', 'OMS1');
+                updateEngine('engine-OMS2', 'OMS2');
+                
+                // Status Flight phase update
+                const flightStatus = getVal(data, "status", "STATUS") || "UNKNOWN";
+                document.getElementById('go-tag').innerText = flightStatus;
+            });
+
+            db.ref(`missions/${missionId}/global`).on('value', (snapshot) => {
+                const global = snapshot.val();
+                if (!global) return;
+                if (global.mission_go) {
+                    goTag.className = "status-badge go";
+                } else {
+                    goTag.className = "status-badge warn";
+                }
+            });
+        }
+    </script>
+</body>
+</html>
