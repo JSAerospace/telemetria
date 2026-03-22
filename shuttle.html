@@ -53,8 +53,8 @@
         main {
             display: grid;
             grid-template-columns: 1fr 2fr 1fr;
-            gap: 20px;
-            padding: 20px;
+            gap: 10px;
+            padding: 10px;
             flex-grow: 1;
         }
 
@@ -110,7 +110,7 @@
         }
 
         .radar-value {
-            font-size: 5rem;
+            font-size: 3.8rem;
             font-family: 'Orbitron', sans-serif;
             color: var(--info-color);
             text-shadow: 0 0 20px rgba(0, 212, 255, 0.3);
@@ -118,8 +118,8 @@
 
         .velocity-vectors {
             display: flex;
-            gap: 50px;
-            margin-top: 40px;
+            gap: 30px;
+            margin-top: 20px;
         }
 
         .v-vector {
@@ -129,11 +129,11 @@
         }
 
         .v-value {
-            font-size: 2.5rem;
+            font-size: 2.0rem;
         }
 
         .engine-display {
-            margin-top: 50px;
+            margin-top: 30px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -383,23 +383,23 @@
                 <div class="metric-value" id="heading-val">0.0</div><span class="metric-unit">°</span>
             </div>
 
-            <div style="margin-top: 30px;"></div>
+            <div style="margin-top: 15px;"></div>
             <div class="panel-header">PROPULSION</div>
-            <div class="metric" style="margin-bottom: 10px;">
+            <div class="metric" style="margin-bottom: 5px;">
                 <div style="display: flex; justify-content: space-between;">
-                    <span class="metric-label">MAIN TANK (LFO)</span>
+                    <span class="metric-label">MAIN TANK (LF)</span>
                     <span class="metric-label" id="fuel-pct" style="color: var(--text-color);">0%</span>
                 </div>
                 <div class="fuel-bar"><div class="fuel-fill" id="fuel-bar" style="background: var(--accent-color);"></div></div>
             </div>
-            <div class="metric" style="margin-bottom: 10px;">
+            <div class="metric" style="margin-bottom: 5px;">
                 <div style="display: flex; justify-content: space-between;">
                     <span class="metric-label">OMS TANK (MONO)</span>
                     <span class="metric-label" id="mono-pct" style="color: var(--text-color);">0%</span>
                 </div>
                 <div class="fuel-bar"><div class="fuel-fill" id="mono-bar" style="background: #fff;"></div></div>
             </div>
-            <div class="metric" style="margin-bottom: 10px;">
+            <div class="metric" style="margin-bottom: 5px;">
                 <div style="display: flex; justify-content: space-between;">
                     <span class="metric-label">THROTTLE</span>
                     <span class="metric-label" id="thr-pct" style="color: var(--text-color);">0%</span>
@@ -509,22 +509,17 @@
             
             if (!idInput) { alert('ENTER MISSION ID'); return; }
 
-            btn.innerText = "VERIFICANDO...";
-            db.ref(`missions/${idInput}/global/mission_name`).once('value', snapshot => {
-                if (snapshot.exists()) {
-                    missionId = idInput;
-                    const defaultName = localStorage.getItem('companyName') || "J.S. Aerospace";
-                    history.pushState(null, '', `?id=${missionId}&name=${encodeURIComponent(defaultName)}`);
-                    
-                    document.getElementById('mission-tag').innerText = missionId;
-                    document.getElementById('login-overlay').classList.remove('visible');
-                    btn.innerText = "ESTABLISH LINK";
-                    startListening();
-                } else {
-                    alert(`ID DE MISIÓN '${idInput}' NO ENCONTRADO EN LA RED.`);
-                    btn.innerText = "ESTABLISH LINK";
-                }
-            });
+            btn.innerText = "CONECTANDO...";
+            
+            // Bypass estricto: conectamos directamente al ID proporcionado
+            missionId = idInput;
+            const defaultName = localStorage.getItem('companyName') || "J.S. Aerospace";
+            history.pushState(null, '', `?id=${missionId}&name=${encodeURIComponent(defaultName)}`);
+            
+            document.getElementById('mission-tag').innerText = missionId;
+            document.getElementById('login-overlay').classList.remove('visible');
+            btn.innerText = "ESTABLISH LINK";
+            startListening();
         }
 
         function startListening() {
@@ -577,19 +572,45 @@
                 }
 
                 // Motores (MAIN, OMS1, OMS2)
-                const engStates = getVal(data, "engstates", "engStates", "ENGSTATES");
-                const throttleFallback = thr > 1;
+                const engStates = getVal(data, "engstates", "engStates", "ENGSTATES") || {};
+
+                const getEngState = (targetKey) => {
+                    if (typeof engStates !== 'object') return 0;
+                    for (let k in engStates) {
+                        let cleanK = String(k).toUpperCase().replace(/\s/g, '');
+                        if (cleanK === targetKey) {
+                            let val = engStates[k];
+                            // kOS a veces envuelve enteros primitivos en { value: 1, type: "..." }
+                            if (val && typeof val === 'object' && val.value !== undefined) {
+                                val = val.value;
+                            }
+                            return val;
+                        }
+                    }
+                    return 0;
+                };
 
                 const updateEngine = (id, key) => {
                     const node = document.getElementById(id);
                     if (!node) return;
-                    let state = engStates && typeof engStates === 'object' ? (engStates[key.toLowerCase()] ?? engStates[key.toUpperCase()]) : undefined;
-                    if (state == 1 || state === true || (key === 'MAIN' && throttleFallback)) {
+                    let state = getEngState(key);
+                    
+                    // Forzar el apagado visual inmediato si el acelerador está en 0
+                    if (thr < 1) {
+                        state = 0;
+                    }
+                    
+                    if (state == 1 || state === true || state === "1") {
                         node.classList.add('active');
                     } else {
                         node.classList.remove('active');
                     }
                 };
+                
+                // let debugDiv = document.getElementById("debug-eng"); ...
+                // Hemos removido el texto rojo de DEBUG porque ya funciona perfecto.
+                let debugDiv = document.getElementById("debug-eng");
+                if (debugDiv) debugDiv.remove();
 
                 updateEngine('engine-MAIN', 'MAIN');
                 updateEngine('engine-OMS1', 'OMS1');
