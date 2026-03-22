@@ -88,14 +88,15 @@
         }
 
         .metric-value {
-            font-size: 1.8rem;
+            font-size: 2.5rem;
             font-weight: bold;
-            color: var(--text-color);
+            color: #fff;
+            margin-right: 5px;
         }
 
         .metric-unit {
-            font-size: 0.8rem;
-            color: #666;
+            font-size: 0.9rem;
+            color: var(--text-dim);
             margin-left: 5px;
         }
 
@@ -110,7 +111,7 @@
         }
 
         .radar-value {
-            font-size: 3.8rem;
+            font-size: 4.8rem;
             font-family: 'Orbitron', sans-serif;
             color: var(--info-color);
             text-shadow: 0 0 20px rgba(0, 212, 255, 0.3);
@@ -129,7 +130,7 @@
         }
 
         .v-value {
-            font-size: 2.0rem;
+            font-size: 2.8rem;
         }
 
         .engine-display {
@@ -299,13 +300,9 @@
     </div>
 
     <header>
-        <div style="display: flex; align-items: center; gap: 20px;">
-            <button class="btn"
-                style="background: transparent; border: 1px solid var(--accent-color); color: var(--accent-color); font-family: 'Orbitron', sans-serif; font-size: 0.7rem; padding: 5px 15px; cursor: pointer; text-transform: uppercase;"
-                onclick="changeMission()">CHANGE MISSION</button>
-            <div class="logo">JS AEROSPACE: SHUTTLE FLIGHT CONTROL</div>
-        </div>
-        <div id="mission-display">MISSION: <span class="mission-id" id="mission-tag">---</span></div>
+        <button class="nav-btn" onclick="openLoginOverlay()">CHANGE MISSION</button>
+        <div class="header-title" id="main-title">JS AEROSPACE: SHUTTLE FLIGHT CONTROL</div>
+        <div class="header-info">MISSION: <span class="mission-id" id="mission-id">---</span></div>
         <div id="readiness">STATUS: <span class="status-badge" id="go-tag">OFFLINE</span></div>
     </header>
 
@@ -485,7 +482,7 @@
             return undefined;
         }
 
-        function changeMission() {
+        function openLoginOverlay() {
             history.pushState(null, '', window.location.pathname);
             document.getElementById('mission-id-input').value = "";
             document.getElementById('login-overlay').classList.add('visible');
@@ -498,8 +495,8 @@
             if (!missionId) {
                 document.getElementById('login-overlay').classList.add('visible');
             } else {
-                document.getElementById('mission-tag').innerText = missionId;
-                setTimeout(startListening, 100);
+                document.getElementById('mission-id').innerText = missionId;
+                setTimeout(startMetricSync, 100);
             }
         };
 
@@ -507,23 +504,29 @@
             const btn = document.querySelector('.login-btn');
             const idInput = document.getElementById('mission-id-input').value.trim().toUpperCase();
             
-            if (!idInput) { alert('ENTER MISSION ID'); return; }
+            if (!idInput && !missionId) { alert('ENTER MISSION ID'); return; }
+            if (idInput) missionId = idInput;
 
-            btn.innerText = "CONECTANDO...";
+            if (btn) btn.innerText = "CONECTANDO...";
             
-            // Bypass estricto: conectamos directamente al ID proporcionado
-            missionId = idInput;
             const defaultName = localStorage.getItem('companyName') || "J.S. Aerospace";
             history.pushState(null, '', `?id=${missionId}&name=${encodeURIComponent(defaultName)}`);
             
-            document.getElementById('mission-tag').innerText = missionId;
-            document.getElementById('login-overlay').classList.remove('visible');
-            btn.innerText = "ESTABLISH LINK";
-            startListening();
-        }
+            document.getElementById("mission-id").innerText = missionId;
+            document.getElementById("login-overlay").style.display = "none";
+            document.getElementById("login-overlay").classList.remove('visible');
 
-        function startListening() {
-            db.ref(`missions/${missionId}/shuttle`).on('value', (snapshot) => {
+            // Limpiar listener anterior si existe
+            if (window.shuttleUnsub) {
+                db.ref(`missions/${window.oldMissionId}/shuttle`).off('value', window.shuttleUnsub);
+            }
+            if (window.globalUnsub) {
+                db.ref(`missions/${window.oldMissionId}/global`).off('value', window.globalUnsub);
+            }
+            window.oldMissionId = missionId;
+
+            // Escuchar telemetría
+            window.shuttleUnsub = db.ref(`missions/${missionId}/shuttle`).on('value', (snapshot) => {
                 const rawData = snapshot.val();
                 if (!rawData) return;
                 const data = parseKosJson(rawData);
@@ -621,9 +624,17 @@
                 document.getElementById('go-tag').innerText = flightStatus;
             });
 
-            db.ref(`missions/${missionId}/global`).on('value', (snapshot) => {
+            window.globalUnsub = db.ref(`missions/${missionId}/global`).on('value', (snapshot) => {
                 const global = snapshot.val();
                 if (!global) return;
+                
+                // Actualizar Nombre de Mision en el Titulo
+                if (global.mission_name) {
+                    document.getElementById('main-title').innerText = "JS AEROSPACE: " + global.mission_name.toUpperCase();
+                } else {
+                    document.getElementById('main-title').innerText = "JS AEROSPACE: SHUTTLE FLIGHT CONTROL";
+                }
+
                 if (global.mission_go) {
                     goTag.className = "status-badge go";
                 } else {
