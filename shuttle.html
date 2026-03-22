@@ -363,7 +363,6 @@
         <button class="nav-btn" onclick="openLoginOverlay()">CHANGE MISSION</button>
         <div class="header-title" id="main-title">JS AEROSPACE: SHUTTLE FLIGHT CONTROL</div>
         <div class="header-info">MISSION: <span class="mission-id" id="mission-id">---</span></div>
-        <div id="readiness">STATUS: <span class="status-badge" id="go-tag">OFFLINE</span></div>
     </header>
 
     <main>
@@ -502,7 +501,6 @@
         const monoBarEl = document.getElementById('mono-bar');
         const thrPctEl = document.getElementById('thr-pct');
         const thrBarEl = document.getElementById('thr-bar');
-        const goTag = document.getElementById('go-tag');
 
         function parseKosJson(data) {
             if (!data || typeof data !== 'object') return data;
@@ -678,10 +676,6 @@
                 updateEngine('engine-MAIN', 'MAIN');
                 updateEngine('engine-OMS1', 'OMS1');
                 updateEngine('engine-OMS2', 'OMS2');
-                
-                // Status Flight phase update
-                const flightStatus = getVal(data, "status", "STATUS") || "UNKNOWN";
-                document.getElementById('go-tag').innerText = flightStatus;
             });
 
             window.globalUnsub = db.ref(`missions/${missionId}/global`).on('value', (snapshot) => {
@@ -693,12 +687,6 @@
                     document.getElementById('main-title').innerText = "JS AEROSPACE: " + global.mission_name.toUpperCase();
                 } else {
                     document.getElementById('main-title').innerText = "JS AEROSPACE: SHUTTLE FLIGHT CONTROL";
-                }
-
-                if (global.mission_go) {
-                    goTag.className = "status-badge go";
-                } else {
-                    goTag.className = "status-badge warn";
                 }
             });
         }
