@@ -279,7 +279,7 @@
             <div
                 style="font-size: 0.7rem; color: #00f3ff; margin-bottom: 5px; border-left: 2px solid #00f3ff; padding-left: 5px;">
                 ORBITADOR / S2</div>
-            <div class="telemetry-grid">
+            <div class="telemetry-grid" style="margin-bottom: 20px;">
                 <div class="tel-item">
                     <span class="tel-label">ESTADO</span>
                     <span id="s2-status" class="tel-val">OFFLINE</span>
@@ -298,6 +298,29 @@
                 </div>
             </div>
 
+            <!-- LANDER SECTION -->
+            <div
+                style="font-size: 0.7rem; color: #b0b0b0; margin-bottom: 5px; border-left: 2px solid #b0b0b0; padding-left: 5px;">
+                ALUNIZADOR / LANDER</div>
+            <div class="telemetry-grid">
+                <div class="tel-item">
+                    <span class="tel-label">ESTADO</span>
+                    <span id="l3-status" class="tel-val">OFFLINE</span>
+                </div>
+                <div class="tel-item">
+                    <span class="tel-label">ALT. RADAR</span>
+                    <span id="l3-alt" class="tel-val">0</span> M
+                </div>
+                <div class="tel-item">
+                    <span class="tel-label">V. VERTICAL</span>
+                    <span id="l3-vs" class="tel-val">0</span> M/S
+                </div>
+                <div class="tel-item">
+                    <span class="tel-label">COMBUSTIBLE</span>
+                    <span id="l3-fuel" class="tel-val">0</span>%
+                </div>
+            </div>
+
             <div class="tel-item" style="grid-column: span 2; margin-top: 15px; text-align: center;">
                 <span class="tel-label">RELOJ DE MISIÓN (MET)</span>
                 <span id="tel-met" style="font-size: 1.2rem; color: #fff;">T- 00:00:00</span>
@@ -307,9 +330,11 @@
         <button class="danger" style="margin-top: 10px;" onclick="resetAllData()">PURGAR DATOS DE ESTA MISIÓN</button>
 
         <div id="admin-msg" class="status-msg"></div>
-        <div style="margin-top: 1rem; text-align: center;">
+        <div style="margin-top: 1rem; text-align: center; display: flex; flex-direction: column; gap: 10px;">
             <a href="index.html" id="dash-link"
                 style="color: var(--primary); text-decoration: none; font-size: 0.7rem;">← VOLVER AL DASHBOARD</a>
+            <a href="lander.html" id="lander-link"
+                style="color: #b0b0b0; text-decoration: none; font-size: 0.7rem;">📊 ABRIR PANEL DEL LANDER</a>
         </div>
     </div>
 
@@ -364,6 +389,7 @@
 
             document.getElementById('current-id-display').innerText = currentMissionID;
             document.getElementById('dash-link').href = `index.html?id=${currentMissionID}`;
+            document.getElementById('lander-link').href = `lander.html?id=${currentMissionID}`;
 
             console.log("Admin: Conectando a misión:", currentMissionID);
 
@@ -434,6 +460,16 @@
                     updateEl('s2-alt', Math.round(S2.alt || 0).toLocaleString());
                     updateEl('s2-vel', Math.round(S2.vel || 0).toLocaleString());
                     updateEl('s2-fuel', Math.round(S2.fuelPct || S2.fuel_pct || 0));
+                }
+            });
+
+            onValue(ref(db, `missions/${currentMissionID}/lander`), (snap) => {
+                const L3 = parseKosJson(snap.val());
+                if (L3) {
+                    updateEl('l3-status', (L3.status || "OFFLINE"));
+                    updateEl('l3-alt', Math.round(L3.alt_radar || 0).toLocaleString());
+                    updateEl('l3-vs', (L3.vs || 0).toFixed(1));
+                    updateEl('l3-fuel', Math.round(L3.fuelpct || 0));
                 }
             });
         }
