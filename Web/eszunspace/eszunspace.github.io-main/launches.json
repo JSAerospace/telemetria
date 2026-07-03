@@ -1,0 +1,13 @@
+[
+    {
+        "id": "init-launch-001",
+        "mission": "STARLINK MISSION 6-24",
+        "date": "2026-02-02T16:17:00",
+        "image": "background.jpg",
+        "description": "SpaceX is targeting Sunday, February 2 for a Falcon 9 launch of 23 Starlink satellites to low-Earth orbit from Space Launch Complex 40 (SLC-40) at Cape Canaveral Space Force Station in Florida. Liftoff is targeted for 4:17 p.m. ET (21:17 UTC).",
+        "vehicle": "FALCON 9",
+        "site": "Cape Canaveral SFS, FL",
+        "status": "upcoming",
+        "video_link": "#"
+    }
+]

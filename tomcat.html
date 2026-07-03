@@ -1,0 +1,985 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>J.S. AEROSPACE | TOMCAT CONTROL PANEL</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;500;700&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #050a0f;
+            --panel-bg: rgba(10, 20, 30, 0.85);
+            --neon-blue: #00f3ff;
+            --neon-amber: #ff6a00; /* Amber/Orange for Tomcat */
+            --neon-green: #00ff41;
+            --neon-red: #ff003c;
+            --text-main: #e0e0e0;
+            --grid-color: rgba(0, 243, 255, 0.05);
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-dark);
+            background-image:
+                linear-gradient(var(--grid-color) 1px, transparent 1px),
+                linear-gradient(90deg, var(--grid-color) 1px, transparent 1px);
+            background-size: 40px 40px;
+            color: var(--text-main);
+            font-family: 'Rajdhani', sans-serif;
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+
+        /* --- HEADER --- */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 40px;
+            background: rgba(0, 0, 0, 0.85);
+            border-bottom: 2px solid var(--neon-amber);
+            box-shadow: 0 0 20px rgba(255, 106, 0, 0.2);
+            position: relative;
+            z-index: 10;
+        }
+
+        .header-title {
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 900;
+            font-size: 2rem;
+            margin: 0;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            color: #fff;
+            text-shadow: 0 0 10px var(--neon-amber);
+        }
+
+        /* --- CAMERA FEED --- */
+        .camera-section {
+            padding: 0 40px 20px 40px;
+            max-width: 1600px;
+            margin: 20px auto 0 auto;
+        }
+
+        .camera-wrapper {
+            position: relative;
+            background: #000;
+            border: 1px solid var(--neon-amber);
+            box-shadow: 0 0 30px rgba(255, 106, 0, 0.15);
+            overflow: hidden;
+            clip-path: polygon(0 0, 100% 0, 100% calc(100% - 16px), calc(100% - 16px) 100%, 0 100%);
+        }
+
+        .camera-feed {
+            width: 100%;
+            display: block;
+            aspect-ratio: 16/9;
+            object-fit: cover;
+            background: #050505;
+            transition: opacity 0.1s ease;
+        }
+
+        /* HUD Overlay sobre el feed de cámara */
+        .camera-hud {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+        }
+
+        .cam-label {
+            position: absolute;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.75rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            padding: 4px 12px;
+            background: rgba(0,0,0,0.65);
+        }
+
+        .cam-label.top-left {
+            top: 14px;
+            left: 14px;
+            color: var(--neon-amber);
+            border-left: 2px solid var(--neon-amber);
+        }
+
+        .cam-label.top-right {
+            top: 14px;
+            right: 14px;
+            color: var(--neon-green);
+            border-right: 2px solid var(--neon-green);
+        }
+
+        .cam-label.bot-left {
+            bottom: 14px;
+            left: 14px;
+            color: rgba(255,255,255,0.7);
+        }
+
+        .cam-label.bot-right {
+            bottom: 14px;
+            right: 14px;
+            color: var(--neon-blue);
+            border-right: 2px solid var(--neon-blue);
+        }
+
+        /* Corner brackets decorativos */
+        .cam-corner {
+            position: absolute;
+            width: 22px;
+            height: 22px;
+            border-color: var(--neon-amber);
+            border-style: solid;
+            opacity: 0.7;
+        }
+        .cam-corner.tl { top: 8px; left: 8px; border-width: 2px 0 0 2px; }
+        .cam-corner.tr { top: 8px; right: 8px; border-width: 2px 2px 0 0; }
+        .cam-corner.bl { bottom: 8px; left: 8px; border-width: 0 0 2px 2px; }
+        .cam-corner.br { bottom: 8px; right: 8px; border-width: 0 2px 2px 0; }
+
+        /* Scanlines overlay */
+        .cam-scanlines {
+            display: none;
+        }
+
+        /* Indicador REC */
+        .rec-indicator {
+            position: absolute;
+            top: 14px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.7rem;
+            color: var(--neon-red);
+            letter-spacing: 3px;
+            background: rgba(0,0,0,0.6);
+            padding: 4px 12px;
+        }
+
+        .rec-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--neon-red);
+            box-shadow: 0 0 8px var(--neon-red);
+            animation: blinker 1s ease-in-out infinite;
+        }
+
+        /* Barra de selección de cámara */
+        .camera-controls {
+            display: flex;
+            gap: 10px;
+            margin-top: 12px;
+            align-items: center;
+        }
+
+        .cam-btn {
+            background: rgba(255, 106, 0, 0.07);
+            border: 1px solid var(--neon-amber);
+            color: var(--neon-amber);
+            padding: 6px 16px;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.7rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .cam-btn:hover, .cam-btn.active {
+            background: var(--neon-amber);
+            color: #000;
+            box-shadow: 0 0 12px rgba(255, 106, 0, 0.5);
+        }
+
+        .cam-offline {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: rgba(5, 10, 15, 0.95);
+            font-family: 'Orbitron', sans-serif;
+            color: rgba(255,255,255,0.3);
+            font-size: 1rem;
+            letter-spacing: 3px;
+            gap: 12px;
+            z-index: 10;
+        }
+
+        .cam-offline .cam-offline-hint {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 0.85rem;
+            color: rgba(255,255,255,0.2);
+            letter-spacing: 1px;
+        }
+
+        .mission-timer {
+            text-align: right;
+        }
+
+        .mission-timer .label {
+            font-size: 0.8rem;
+            opacity: 0.7;
+            letter-spacing: 2px;
+        }
+
+        .mission-timer .time {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2.5rem;
+            color: var(--neon-green);
+            text-shadow: 0 0 10px rgba(0, 255, 65, 0.5);
+        }
+
+        /* --- DASHBOARD GRID --- */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            padding: 40px;
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        @media (max-width: 1200px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* --- PANELS --- */
+        .panel {
+            background: var(--panel-bg);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 25px;
+            position: relative;
+            clip-path: polygon(0 0,
+                    100% 0,
+                    100% calc(100% - 20px),
+                    calc(100% - 20px) 100%,
+                    0 100%);
+        }
+
+        .panel::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 120px;
+            height: 3px;
+        }
+
+        .panel.booster::before {
+            background: var(--neon-amber);
+            box-shadow: 0 0 10px var(--neon-amber);
+        }
+
+        .panel.ship::before {
+            background: var(--neon-blue);
+            box-shadow: 0 0 10px var(--neon-blue);
+        }
+
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+            padding-bottom: 10px;
+        }
+
+        .panel-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.5rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .panel.booster .panel-title {
+            color: var(--neon-amber);
+        }
+
+        .panel.ship .panel-title {
+            color: var(--neon-blue);
+        }
+
+        .status-badge {
+            font-family: 'Orbitron', sans-serif;
+            padding: 5px 15px;
+            background: rgba(0, 0, 0, 0.6);
+            border: 1px solid #fff;
+            color: #fff;
+            font-size: 0.9rem;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        /* --- METRICS --- */
+        .metrics-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .metric-box {
+            background: rgba(255, 255, 255, 0.02);
+            padding: 15px;
+            border-left: 3px solid rgba(255, 255, 255, 0.15);
+        }
+
+        .panel.booster .metric-box {
+            border-left-color: var(--neon-amber);
+        }
+
+        .panel.ship .metric-box {
+            border-left-color: var(--neon-blue);
+        }
+
+        .metric-label {
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            color: rgba(255, 255, 255, 0.6);
+            margin-bottom: 5px;
+            display: block;
+        }
+
+        .metric-value {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2rem;
+            font-weight: 700;
+            color: #fff;
+        }
+
+        .metric-unit {
+            font-size: 1rem;
+            color: rgba(255, 255, 255, 0.4);
+            margin-left: 5px;
+        }
+
+        /* --- BARS --- */
+        .bar-container {
+            margin-top: 25px;
+        }
+
+        .bar-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+        }
+
+        .progress-track {
+            height: 14px;
+            background: rgba(255, 255, 255, 0.08);
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .progress-fill {
+            height: 100%;
+            width: 0%;
+            transition: width 0.25s ease-out;
+            position: relative;
+        }
+
+        .panel.booster .progress-fill {
+            background: var(--neon-amber);
+            box-shadow: 0 0 10px var(--neon-amber);
+        }
+
+        .panel.ship .progress-fill {
+            background: var(--neon-blue);
+            box-shadow: 0 0 10px var(--neon-blue);
+        }
+
+        .progress-fill::after {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-image: linear-gradient(45deg, rgba(0, 0, 0, 0.15) 25%, transparent 25%,
+                    transparent 50%, rgba(0, 0, 0, 0.15) 50%,
+                    rgba(0, 0, 0, 0.15) 75%, transparent 75%, transparent);
+            background-size: 20px 20px;
+        }
+
+        /* --- ENGINE CLUSTER --- */
+        .engine-display {
+            margin-top: 30px;
+            display: flex;
+            justify-content: center;
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 50%;
+            width: 220px;
+            height: 220px;
+            margin-left: auto;
+            margin-right: auto;
+            position: relative;
+            border: 1px dashed rgba(255, 255, 255, 0.15);
+        }
+
+        .engine-node {
+            position: absolute;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            border: 2px solid #2a2a2a;
+            background: #121212;
+            box-shadow: inset 0 0 6px #000;
+            transition: all 0.2s ease-out;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Orbitron', sans-serif;
+            font-weight: bold;
+            color: #444;
+        }
+
+        .engine-node.active {
+            background: #fff;
+            border-color: #fff;
+            color: #000;
+            box-shadow: 0 0 20px currentColor;
+        }
+
+        .panel.ship .engine-node.active {
+            color: var(--neon-blue);
+        }
+
+        .panel.booster .engine-node.active {
+            color: var(--neon-amber);
+        }
+
+        /* --- FOOTER --- */
+        .status-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0, 0, 0, 0.9);
+            padding: 10px 40px;
+            font-family: monospace;
+            border-top: 1px solid rgba(255, 255, 255, 0.15);
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.8rem;
+            z-index: 100;
+        }
+
+        .blink {
+            animation: blinker 1.5s linear infinite;
+        }
+
+        @keyframes blinker {
+            50% {
+                opacity: 0;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <div class="brand">
+            <h1 class="header-title">TOMCAT MISSION CONTROL</h1>
+        </div>
+        <div class="mission-timer">
+            <div class="label">TIEMPO ELAPSADO (MET)</div>
+            <div class="time" id="met-display">T+ 00:00:00</div>
+        </div>
+    </header>
+
+    <!-- === CAMERA FEED SECTION === -->
+    <div class="camera-section">
+        <div class="camera-wrapper">
+            <!-- El src se actualiza por JS; si el servidor no tiene Pillow, se muestra offline -->
+            <img id="cam-feed" class="camera-feed" src="/api/camera" alt="KSP Live Feed" />
+
+            <!-- Overlay sin senal -->
+            <div class="cam-offline" id="cam-offline" style="display:none;">
+                <span>&#9679; SIN SEÑAL</span>
+                <span class="cam-offline-hint">Instala Pillow: pip install pillow pywin32</span>
+            </div>
+
+            <!-- HUD decorativo -->
+            <div class="camera-hud">
+                <div class="cam-scanlines"></div>
+                <div class="cam-corner tl"></div>
+                <div class="cam-corner tr"></div>
+                <div class="cam-corner bl"></div>
+                <div class="cam-corner br"></div>
+
+                <div class="rec-indicator">
+                    <div class="rec-dot"></div>
+                    <span>EN VIVO</span>
+                </div>
+
+                <div class="cam-label top-left" id="cam-label-status">TOMCAT / BOOSTER CAM</div>
+                <div class="cam-label top-right" id="cam-label-alt">ALT: --- m</div>
+                <div class="cam-label bot-left" id="cam-label-spd">VS: --- m/s</div>
+                <div class="cam-label bot-right" id="cam-label-dist">DIST BARCA: --- m</div>
+            </div>
+        </div>
+
+        <div class="camera-controls">
+            <span style="font-family:'Orbitron',sans-serif;font-size:0.7rem;opacity:0.5;letter-spacing:2px;">VISTA:</span>
+            <button class="cam-btn active" id="cam-btn-ksp" onclick="setCamMode('ksp')">&#9654; KSP EN VIVO</button>
+            <button class="cam-btn" id="cam-btn-pause" onclick="setCamMode('pause')">&#10074;&#10074; PAUSA</button>
+            <span style="margin-left:auto;font-family:'Orbitron',sans-serif;font-size:0.65rem;opacity:0.4;letter-spacing:2px;" id="cam-fps-label">FPS: --</span>
+        </div>
+    </div>
+
+    <div class="dashboard-grid">
+
+        <!-- === BOOSTER PANEL (IZQUIERDA) === -->
+        <div class="panel booster">
+            <div class="panel-header">
+                <div class="panel-title">TOMCAT BOOSTER / S1</div>
+                <div class="status-badge" id="booster-status">STANDBY</div>
+            </div>
+
+            <div class="metrics-container">
+                <div class="metric-box">
+                    <span class="metric-label">Altitud</span>
+                    <span class="metric-value" id="booster-alt">0</span>
+                    <span class="metric-unit">m</span>
+                </div>
+                <div class="metric-box">
+                    <span class="metric-label">Velocidad Superficie</span>
+                    <span class="metric-value" id="booster-vel">0</span>
+                    <span class="metric-unit">m/s</span>
+                </div>
+                <div class="metric-box">
+                    <span class="metric-label">V. Vertical</span>
+                    <span class="metric-value" id="booster-vs">0.0</span>
+                    <span class="metric-unit">m/s</span>
+                </div>
+                <div class="metric-box">
+                    <span class="metric-label">Dist. Barca</span>
+                    <span class="metric-value" id="booster-dist">0</span>
+                    <span class="metric-unit">m</span>
+                </div>
+            </div>
+
+            <div class="bar-container">
+                <div class="bar-label">
+                    <span>COMBUSTIBLE RESTANTE</span>
+                    <span id="booster-fuel-pct">0%</span>
+                </div>
+                <div class="progress-track">
+                    <div class="progress-fill" id="booster-fuel-bar"></div>
+                </div>
+            </div>
+
+            <div class="bar-container">
+                <div class="bar-label">
+                    <span>EMPUJE (THROTTLE)</span>
+                    <span id="booster-thr-pct">0%</span>
+                </div>
+                <div class="progress-track">
+                    <div class="progress-fill" id="booster-thr-bar" style="width: 0%"></div>
+                </div>
+            </div>
+
+            <div class="engine-display" id="booster-engines" data-type="booster">
+                <!-- Generado dinámicamente: 1 motor central + 6 radiales -->
+            </div>
+        </div>
+
+        <!-- === SHIP PANEL (DERECHA) === -->
+        <div class="panel ship">
+            <div class="panel-header">
+                <div class="panel-title">TOMCAT SHIP / S2</div>
+                <div class="status-badge" id="ship-status">STANDBY</div>
+            </div>
+
+            <div class="metrics-container">
+                <div class="metric-box">
+                    <span class="metric-label">Apoapsis</span>
+                    <span class="metric-value" id="ship-apo">0.0</span>
+                    <span class="metric-unit">km</span>
+                </div>
+                <div class="metric-box">
+                    <span class="metric-label">Periapsis</span>
+                    <span class="metric-value" id="ship-per">0.0</span>
+                    <span class="metric-unit">km</span>
+                </div>
+                <div class="metric-box">
+                    <span class="metric-label">Velocidad</span>
+                    <span class="metric-value" id="ship-vel">0</span>
+                    <span class="metric-unit">m/s</span>
+                </div>
+                <div class="metric-box">
+                    <span class="metric-label">Altitud</span>
+                    <span class="metric-value" id="ship-alt">0</span>
+                    <span class="metric-unit">m</span>
+                </div>
+                <div class="metric-box">
+                    <span class="metric-label">Relación TWR</span>
+                    <span class="metric-value" id="ship-twr">0.00</span>
+                </div>
+                <div class="metric-box">
+                    <span class="metric-label">V. Vertical</span>
+                    <span class="metric-value" id="ship-vs">0.0</span>
+                    <span class="metric-unit">m/s</span>
+                </div>
+            </div>
+
+            <div class="bar-container">
+                <div class="bar-label">
+                    <span>COMBUSTIBLE RESTANTE</span>
+                    <span id="ship-fuel-pct">0%</span>
+                </div>
+                <div class="progress-track">
+                    <div class="progress-fill" id="ship-fuel-bar"></div>
+                </div>
+            </div>
+
+            <div class="bar-container">
+                <div class="bar-label">
+                    <span>EMPUJE (THROTTLE)</span>
+                    <span id="ship-thr-pct">0%</span>
+                </div>
+                <div class="progress-track">
+                    <div class="progress-fill" id="ship-thr-bar" style="width: 0%"></div>
+                </div>
+            </div>
+
+            <!-- Single engine for Ship S2 -->
+            <div class="engine-display" id="ship-engines" data-type="ship" style="width: 140px; height: 140px;">
+                <!-- Un único motor central -->
+            </div>
+        </div>
+
+    </div>
+
+    <div class="status-bar">
+        <span>CONEXIÓN: <span id="conn-status" style="color:red">OFFLINE</span></span>
+        <span>SISTEMA: TOMCAT DUAL-LINK ACTIVE</span>
+        <span>PUERTO: LOCAL API (8080)</span>
+    </div>
+
+    <!-- LOCAL TELEMETRY POLLING SCRIPT -->
+    <script>
+        const fmtNum = (n) => Math.round(n || 0).toLocaleString();
+        const fmtDec = (n, d = 1) => (Number(n) || 0).toFixed(d);
+
+        // --- GENERADOR DE MOTORES ---
+        // Tomcat Booster tiene 7 motores lógicos en la telemetría (1 central y 6 en anillo)
+        function initBoosterEngines() {
+            const container = document.getElementById('booster-engines');
+            container.innerHTML = '';
+            const cx = 110, cy = 110; // Centro de 220x220
+
+            // 1. Motor Central (1)
+            createNode(container, '1', cx, cy, 38);
+
+            // 2. Anillo de 6 Motores (2 al 7)
+            for (let i = 0; i < 6; i++) {
+                const angle = (i * 60 - 90) * (Math.PI / 180);
+                const r = 70; // radio de colocación
+                const x = cx + r * Math.cos(angle);
+                const y = cy + r * Math.sin(angle);
+                createNode(container, String(i + 2), x, y, 28);
+            }
+        }
+
+        function initShipEngines() {
+            const container = document.getElementById('ship-engines');
+            container.innerHTML = '';
+            const cx = 70, cy = 70; // Centro de 140x140
+            createNode(container, 'S2', cx, cy, 56);
+        }
+
+        function createNode(parent, tag, x, y, size) {
+            const div = document.createElement('div');
+            div.className = 'engine-node';
+            div.dataset.tag = tag;
+            div.innerText = tag;
+            div.style.width = size + 'px';
+            div.style.height = size + 'px';
+            div.style.left = (x - size / 2) + 'px';
+            div.style.top = (y - size / 2) + 'px';
+            div.style.fontSize = Math.max(8, size / 3.2) + 'px';
+            div.style.display = 'flex';
+            div.style.alignItems = 'center';
+            div.style.justifyContent = 'center';
+            parent.appendChild(div);
+        }
+
+        initBoosterEngines();
+        initShipEngines();
+
+        // --- CORE UPDATE LOOP ---
+        async function fetchLocalTelemetry() {
+            try {
+                const response = await fetch('/api/telemetry?t=' + Date.now());
+                if (!response.ok) throw new Error("Server error");
+                const raw = await response.json();
+                
+                const connStatus = document.getElementById('conn-status');
+                if (connStatus) {
+                    connStatus.innerText = "ONLINE (LOCAL)";
+                    connStatus.style.color = "#00ff41";
+                    connStatus.classList.add('blink');
+                }
+
+                const B1 = raw.booster;
+                const S2 = raw.ship;
+
+                // --- ACTUALIZAR BOOSTER (S1) ---
+                if (B1) {
+                    document.getElementById('booster-status').innerText = B1.status || B1.STATUS || "OFFLINE";
+                    document.getElementById('booster-status').style.borderColor = "var(--neon-amber)";
+
+                    document.getElementById('booster-alt').innerText = fmtNum(B1.alt || B1.ALT);
+                    document.getElementById('booster-vel').innerText = fmtNum(B1.vel || B1.VEL);
+                    document.getElementById('booster-vs').innerText = fmtDec(B1.vs || B1.VS, 1);
+                    document.getElementById('booster-dist').innerText = fmtNum(B1.hdist || B1.HDIST || B1.dist || B1.DIST);
+
+                    const fPct = B1.fuelpct || B1.fuelPct || B1.FUELPCT || 0;
+                    document.getElementById('booster-fuel-bar').style.width = fPct + "%";
+                    document.getElementById('booster-fuel-pct').innerText = Math.round(fPct) + "%";
+
+                    const thr = B1.thr || B1.THR || B1.throttle || B1.THROTTLE || 0;
+                    document.getElementById('booster-thr-bar').style.width = thr + "%";
+                    document.getElementById('booster-thr-pct').innerText = Math.round(thr) + "%";
+
+                    // Estado del cluster de motores (1 al 7)
+                    const engs = B1.engstates || B1.engStates || B1.ENGSTATES;
+                    if (engs) {
+                        for (let tag in engs) {
+                            const state = engs[tag];
+                            const el = document.querySelector(`#booster-engines [data-tag="${tag}"]`);
+                            if (el) {
+                                if (Number(state) === 1) el.classList.add('active');
+                                else el.classList.remove('active');
+                            }
+                        }
+                    }
+                }
+
+                // --- ACTUALIZAR SHIP (S2) ---
+                if (S2) {
+                    document.getElementById('ship-status').innerText = S2.status || S2.STATUS || "OFFLINE";
+                    document.getElementById('ship-status').style.borderColor = "var(--neon-blue)";
+
+                    document.getElementById('ship-alt').innerText = fmtNum(S2.alt || S2.ALT);
+                    document.getElementById('ship-vel').innerText = fmtNum(S2.spd || S2.SPD || S2.vel || S2.VEL);
+                    document.getElementById('ship-vs').innerText = fmtDec(S2.vs || S2.VS, 1);
+                    document.getElementById('ship-apo').innerText = fmtDec((S2.apo || S2.APO || 0) / 1000, 1);
+                    document.getElementById('ship-per').innerText = fmtDec((S2.per || S2.PER || 0) / 1000, 1);
+                    document.getElementById('ship-twr').innerText = fmtDec(S2.twr || S2.TWR || 0, 2);
+
+                    const fPct = S2.fuel || S2.FUEL || S2.fuelpct || S2.FUELPCT || 0;
+                    document.getElementById('ship-fuel-bar').style.width = fPct + "%";
+                    document.getElementById('ship-fuel-pct').innerText = Math.round(fPct) + "%";
+
+                    const thr = S2.throttle || S2.THROTTLE || S2.thr || S2.THR || 0;
+                    document.getElementById('ship-thr-bar').style.width = thr + "%";
+                    document.getElementById('ship-thr-pct').innerText = Math.round(thr) + "%";
+
+                    // Motor S2 se enciende si el throttle del ship es mayor a 0%
+                    const elShipEng = document.querySelector(`#ship-engines [data-tag="S2"]`);
+                    if (elShipEng) {
+                        if (thr > 0) elShipEng.classList.add('active');
+                        else elShipEng.classList.remove('active');
+                    }
+                }
+
+                // --- CRONOMETRO DE MISIÓN ---
+                const activeData = B1 || S2;
+                if (activeData) {
+                    const sec = activeData.time || activeData.missiontime || activeData.MISSIONTIME || 0;
+                    const h = Math.floor(sec / 3600).toString().padStart(2, '0');
+                    const m = Math.floor((sec % 3600) / 60).toString().padStart(2, '0');
+                    const s = Math.floor(sec % 60).toString().padStart(2, '0');
+                    document.getElementById('met-display').innerText = `T+ ${h}:${m}:${s}`;
+                }
+            } catch (e) {
+                const connStatus = document.getElementById('conn-status');
+                if (connStatus) {
+                    connStatus.innerText = "OFFLINE";
+                    connStatus.style.color = "red";
+                    connStatus.classList.remove('blink');
+                }
+            }
+        }
+
+        setInterval(fetchLocalTelemetry, 250);
+
+        // --- CAMERA FEED LOOP ---
+        let camMode = 'ksp';
+        let camFrameCount = 0;
+        let camLastFpsTime = Date.now();
+        let camErrorCount = 0;
+
+        function setCamMode(mode) {
+            camMode = mode;
+            document.querySelectorAll('.cam-btn').forEach(b => b.classList.remove('active'));
+            const btn = document.getElementById('cam-btn-' + mode);
+            if (btn) btn.classList.add('active');
+        }
+
+        function refreshCameraFeed() {
+            if (camMode !== 'ksp') return;
+
+            const img = document.getElementById('cam-feed');
+            const offline = document.getElementById('cam-offline');
+            if (!img) return;
+
+            const newImg = new Image();
+            newImg.onload = () => {
+                img.src = newImg.src;
+                if (offline) offline.style.display = 'none';
+                camErrorCount = 0;
+                camFrameCount++;
+
+                // FPS counter (actualizar cada segundo)
+                const now = Date.now();
+                if (now - camLastFpsTime >= 1000) {
+                    const fps = Math.round(camFrameCount * 1000 / (now - camLastFpsTime));
+                    const fpsLabel = document.getElementById('cam-fps-label');
+                    if (fpsLabel) fpsLabel.innerText = `FPS: ${fps}`;
+                    camFrameCount = 0;
+                    camLastFpsTime = now;
+                }
+            };
+            newImg.onerror = () => {
+                camErrorCount++;
+                if (camErrorCount > 3) {
+                    if (offline) offline.style.display = 'flex';
+                    const fpsLabel = document.getElementById('cam-fps-label');
+                    if (fpsLabel) fpsLabel.innerText = 'FPS: --';
+                }
+            };
+            newImg.src = '/api/camera?t=' + Date.now();
+        }
+
+        // Actualizar las etiquetas HUD del feed con los datos de telemetría más recientes
+        let _lastB1 = null, _lastS2 = null;
+        const _origFetch = fetchLocalTelemetry;
+        async function fetchLocalTelemetryWrapped() {
+            try {
+                const response = await fetch('/api/telemetry?t=' + Date.now());
+                if (!response.ok) throw new Error("Server error");
+                const raw = await response.json();
+
+                const connStatus = document.getElementById('conn-status');
+                if (connStatus) {
+                    connStatus.innerText = "ONLINE (LOCAL)";
+                    connStatus.style.color = "#00ff41";
+                    connStatus.classList.add('blink');
+                }
+
+                const B1 = raw.booster;
+                const S2 = raw.ship;
+                _lastB1 = B1; _lastS2 = S2;
+
+                // Actualizar etiquetas del HUD de cámara
+                const activeFor = B1 || S2;
+                if (activeFor) {
+                    const altEl = document.getElementById('cam-label-alt');
+                    const spdEl = document.getElementById('cam-label-spd');
+                    const distEl = document.getElementById('cam-label-dist');
+                    const stEl = document.getElementById('cam-label-status');
+
+                    if (B1) {
+                        if (altEl) altEl.innerText = `ALT: ${Math.round(B1.alt || B1.ALT || 0).toLocaleString()} m`;
+                        if (spdEl) spdEl.innerText = `VS: ${(B1.vs || B1.VS || 0).toFixed(1)} m/s`;
+                        if (distEl) distEl.innerText = `DIST BARCA: ${Math.round(B1.hdist || B1.dist || B1.HDIST || 0)} m`;
+                        if (stEl) stEl.innerText = `TOMCAT / ${(B1.status || 'BOOSTER').toUpperCase()}`;
+                    } else if (S2) {
+                        if (altEl) altEl.innerText = `ALT: ${Math.round(S2.alt || S2.ALT || 0).toLocaleString()} m`;
+                        if (spdEl) spdEl.innerText = `VS: ${(S2.vs || S2.VS || 0).toFixed(1)} m/s`;
+                        if (distEl) distEl.innerText = `APO: ${((S2.apo || S2.APO || 0)/1000).toFixed(1)} km`;
+                        if (stEl) stEl.innerText = `TOMCAT / ${(S2.status || 'SHIP').toUpperCase()}`;
+                    }
+                }
+
+                // --- ACTUALIZAR BOOSTER (S1) ---
+                if (B1) {
+                    document.getElementById('booster-status').innerText = B1.status || B1.STATUS || "OFFLINE";
+                    document.getElementById('booster-status').style.borderColor = "var(--neon-amber)";
+                    document.getElementById('booster-alt').innerText = fmtNum(B1.alt || B1.ALT);
+                    document.getElementById('booster-vel').innerText = fmtNum(B1.vel || B1.VEL);
+                    document.getElementById('booster-vs').innerText = fmtDec(B1.vs || B1.VS, 1);
+                    document.getElementById('booster-dist').innerText = fmtNum(B1.hdist || B1.HDIST || B1.dist || B1.DIST);
+                    const fPct = B1.fuelpct || B1.fuelPct || B1.FUELPCT || 0;
+                    document.getElementById('booster-fuel-bar').style.width = fPct + "%";
+                    document.getElementById('booster-fuel-pct').innerText = Math.round(fPct) + "%";
+                    const thr = B1.thr || B1.THR || B1.throttle || B1.THROTTLE || 0;
+                    document.getElementById('booster-thr-bar').style.width = thr + "%";
+                    document.getElementById('booster-thr-pct').innerText = Math.round(thr) + "%";
+                    const engs = B1.engstates || B1.engStates || B1.ENGSTATES;
+                    if (engs) {
+                        for (let tag in engs) {
+                            const el = document.querySelector(`#booster-engines [data-tag="${tag}"]`);
+                            if (el) {
+                                if (Number(engs[tag]) === 1) el.classList.add('active');
+                                else el.classList.remove('active');
+                            }
+                        }
+                    }
+                }
+
+                // --- ACTUALIZAR SHIP (S2) ---
+                if (S2) {
+                    document.getElementById('ship-status').innerText = S2.status || S2.STATUS || "OFFLINE";
+                    document.getElementById('ship-status').style.borderColor = "var(--neon-blue)";
+                    document.getElementById('ship-alt').innerText = fmtNum(S2.alt || S2.ALT);
+                    document.getElementById('ship-vel').innerText = fmtNum(S2.spd || S2.SPD || S2.vel || S2.VEL);
+                    document.getElementById('ship-vs').innerText = fmtDec(S2.vs || S2.VS, 1);
+                    document.getElementById('ship-apo').innerText = fmtDec((S2.apo || S2.APO || 0) / 1000, 1);
+                    document.getElementById('ship-per').innerText = fmtDec((S2.per || S2.PER || 0) / 1000, 1);
+                    document.getElementById('ship-twr').innerText = fmtDec(S2.twr || S2.TWR || 0, 2);
+                    const fPct = S2.fuel || S2.FUEL || S2.fuelpct || S2.FUELPCT || 0;
+                    document.getElementById('ship-fuel-bar').style.width = fPct + "%";
+                    document.getElementById('ship-fuel-pct').innerText = Math.round(fPct) + "%";
+                    const thr = S2.throttle || S2.THROTTLE || S2.thr || S2.THR || 0;
+                    document.getElementById('ship-thr-bar').style.width = thr + "%";
+                    document.getElementById('ship-thr-pct').innerText = Math.round(thr) + "%";
+                    const elShipEng = document.querySelector(`#ship-engines [data-tag="S2"]`);
+                    if (elShipEng) {
+                        if (thr > 0) elShipEng.classList.add('active');
+                        else elShipEng.classList.remove('active');
+                    }
+                }
+
+                // --- CRONÓMETRO ---
+                const activeData = B1 || S2;
+                if (activeData) {
+                    const sec = activeData.time || activeData.missiontime || activeData.MISSIONTIME || 0;
+                    const h = Math.floor(sec / 3600).toString().padStart(2, '0');
+                    const m = Math.floor((sec % 3600) / 60).toString().padStart(2, '0');
+                    const s = Math.floor(sec % 60).toString().padStart(2, '0');
+                    document.getElementById('met-display').innerText = `T+ ${h}:${m}:${s}`;
+                }
+            } catch (e) {
+                const connStatus = document.getElementById('conn-status');
+                if (connStatus) {
+                    connStatus.innerText = "OFFLINE";
+                    connStatus.style.color = "red";
+                    connStatus.classList.remove('blink');
+                }
+            }
+        }
+
+        setInterval(fetchLocalTelemetryWrapped, 250);
+        setInterval(refreshCameraFeed, 250); // ~4 FPS para el feed de cámara
+    </script>
+</body>
+
+</html>

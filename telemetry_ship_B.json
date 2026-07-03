@@ -1,0 +1,166 @@
+{
+    "entries": [
+        {
+            "value": "time",
+            "$type": "kOS.Safe.Encapsulation.StringValue"
+        },
+        {
+            "value": 84686818.2,
+            "$type": "kOS.Safe.Encapsulation.ScalarDoubleValue"
+        },
+        {
+            "value": "met",
+            "$type": "kOS.Safe.Encapsulation.StringValue"
+        },
+        {
+            "value": 526.6270966231823,
+            "$type": "kOS.Safe.Encapsulation.ScalarDoubleValue"
+        },
+        {
+            "value": "mode",
+            "$type": "kOS.Safe.Encapsulation.StringValue"
+        },
+        {
+            "value": 0,
+            "$type": "kOS.Safe.Encapsulation.ScalarIntValue"
+        },
+        {
+            "value": "alt",
+            "$type": "kOS.Safe.Encapsulation.StringValue"
+        },
+        {
+            "value": 203606,
+            "$type": "kOS.Safe.Encapsulation.ScalarIntValue"
+        },
+        {
+            "value": "apo",
+            "$type": "kOS.Safe.Encapsulation.StringValue"
+        },
+        {
+            "value": 215525,
+            "$type": "kOS.Safe.Encapsulation.ScalarIntValue"
+        },
+        {
+            "value": "per",
+            "$type": "kOS.Safe.Encapsulation.StringValue"
+        },
+        {
+            "value": 198252,
+            "$type": "kOS.Safe.Encapsulation.ScalarIntValue"
+        },
+        {
+            "value": "vel",
+            "$type": "kOS.Safe.Encapsulation.StringValue"
+        },
+        {
+            "value": 1868,
+            "$type": "kOS.Safe.Encapsulation.ScalarIntValue"
+        },
+        {
+            "value": "vs",
+            "$type": "kOS.Safe.Encapsulation.StringValue"
+        },
+        {
+            "value": 20.8,
+            "$type": "kOS.Safe.Encapsulation.ScalarDoubleValue"
+        },
+        {
+            "value": "dv",
+            "$type": "kOS.Safe.Encapsulation.StringValue"
+        },
+        {
+            "value": 0,
+            "$type": "kOS.Safe.Encapsulation.ScalarIntValue"
+        },
+        {
+            "value": "g",
+            "$type": "kOS.Safe.Encapsulation.StringValue"
+        },
+        {
+            "value": 0,
+            "$type": "kOS.Safe.Encapsulation.ScalarIntValue"
+        },
+        {
+            "value": "q",
+            "$type": "kOS.Safe.Encapsulation.StringValue"
+        },
+        {
+            "value": 0,
+            "$type": "kOS.Safe.Encapsulation.ScalarIntValue"
+        },
+        {
+            "value": "twr",
+            "$type": "kOS.Safe.Encapsulation.StringValue"
+        },
+        {
+            "value": 2.43,
+            "$type": "kOS.Safe.Encapsulation.ScalarDoubleValue"
+        },
+        {
+            "value": "hdist",
+            "$type": "kOS.Safe.Encapsulation.StringValue"
+        },
+        {
+            "value": 204.8,
+            "$type": "kOS.Safe.Encapsulation.ScalarDoubleValue"
+        },
+        {
+            "value": "thr",
+            "$type": "kOS.Safe.Encapsulation.StringValue"
+        },
+        {
+            "value": 0,
+            "$type": "kOS.Safe.Encapsulation.ScalarIntValue"
+        },
+        {
+            "value": "fuel",
+            "$type": "kOS.Safe.Encapsulation.StringValue"
+        },
+        {
+            "value": 7502,
+            "$type": "kOS.Safe.Encapsulation.ScalarIntValue"
+        },
+        {
+            "value": "fuelPct",
+            "$type": "kOS.Safe.Encapsulation.StringValue"
+        },
+        {
+            "value": 49.6,
+            "$type": "kOS.Safe.Encapsulation.ScalarDoubleValue"
+        },
+        {
+            "value": "engStates",
+            "$type": "kOS.Safe.Encapsulation.StringValue"
+        },
+        {
+            "entries": [
+                {
+                    "value": "S1",
+                    "$type": "kOS.Safe.Encapsulation.StringValue"
+                },
+                {
+                    "value": 0,
+                    "$type": "kOS.Safe.Encapsulation.ScalarIntValue"
+                }
+            ],
+            "$type": "kOS.Safe.Encapsulation.Lexicon"
+        },
+        {
+            "value": "status",
+            "$type": "kOS.Safe.Encapsulation.StringValue"
+        },
+        {
+            "value": "ORBITING",
+            "$type": "kOS.Safe.Encapsulation.StringValue"
+        },
+        {
+            "value": "version",
+            "$type": "kOS.Safe.Encapsulation.StringValue"
+        },
+        {
+            "value": "2.1-FIX",
+            "$type": "kOS.Safe.Encapsulation.StringValue"
+        }
+    ],
+    "$type": "kOS.Safe.Encapsulation.Lexicon"
+}

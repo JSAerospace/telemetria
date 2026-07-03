@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="shortcut icon" href="https://halconspace.site/img/logo.png" type="image/x-icon">
+    <title>En Desarrollo</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #121212;
+            font-family: Arial, sans-serif;
+            color: #ffffff;
+        }
+
+        .container {
+            text-align: center;
+            animation: fadeIn 2s ease-in-out;
+        }
+
+        .icon {
+            font-size: 100px;
+            animation: bounce 1s infinite alternate;
+            color: #ff9900;
+        }
+
+        .message {
+            font-size: 24px;
+            margin-top: 20px;
+            color: #ffffff;
+            animation: slideIn 1.5s ease-out;
+        }
+
+        .dots {
+            display: inline-block;
+            animation: dots 1.5s infinite steps(5, end);
+            overflow: hidden;
+            width: 0;
+        }
+
+        .buttons {
+            margin-top: 30px;
+        }
+
+        .button {
+            padding: 10px 20px;
+            margin: 10px;
+            font-size: 18px;
+            background-color: #ff9900;
+            color: #121212;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .button:hover {
+            background-color: #e68a00;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes bounce {
+            from { transform: translateY(0); }
+            to { transform: translateY(-20px); }
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(-100%); }
+            to { transform: translateX(0); }
+        }
+
+        @keyframes dots {
+            0% { width: 0; }
+            100% { width: 1em; } /* Ajusta según el número de puntos */
+        }
+    </style>
+    <!-- EMBED DE LA PAGINA -->
+     <!-- Open Graph (Facebook, WhatsApp, LinkedIn, etc.) -->
+<meta property="og:title" content="Clientes - Halcon Space">
+<meta property="og:description" content="Sitio web exclusivo para clientes de Halcon Space">
+<meta property="og:url" content="https://admin.halconspace.site/">
+<meta property="og:image" content="https://halconspace.site/img/fotos/Falcon%209%20en%20SLC-40.jpg">
+<meta property="og:image:alt" content="Halcon Space">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="es_ES">
+
+<!-- Twitter Card -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Clientes - Halcon Space">
+<meta name="twitter:description" content="Sitio web exclusivo para clientes de Halcon Space">
+<meta name="twitter:image" content="https://halconspace.site/img/fotos/Falcon%209%20en%20SLC-40.jpg">
+<meta name="twitter:image:alt" content="Halcon Space">
+<meta name="twitter:site" content="@HalconSpace">
+</head>
+<body>
+    <div class="container">
+        <div class="icon">🚧</div>
+        <div class="message">Esta web está en desarrollo<span class="dots">...</span></div>
+        <div class="buttons">
+            <button class="button" onclick="window.location.href='https://new.halconspace.site/'">Web principal</button>
+        </div>
+    </div>
+    <script>
+        // Animación de puntos adicionales si es necesario
+        const dots = document.querySelector('.dots');
+        dots.textContent = '...';
+    </script>
+</body>
+</html>

@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Mission Control</title>
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #00ff41;
+            --bg: #0a0a0b;
+            --surface: #151517;
+            --danger: #ff3e3e;
+            --border: #333;
+            --text-dim: #666;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--primary);
+            font-family: 'Share Tech Mono', monospace;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            text-transform: uppercase;
+            padding: 20px;
+        }
+
+        .container {
+            background: var(--surface);
+            padding: 2rem;
+            border: 1px solid var(--border);
+            box-shadow: 0 0 20px rgba(0, 255, 65, 0.1);
+            width: 100%;
+            max-width: 500px;
+            margin-bottom: 2rem;
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 1.5rem;
+            margin-bottom: 2rem;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 1rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-size: 0.8rem;
+            opacity: 0.8;
+        }
+
+        input {
+            width: 100%;
+            background: #000;
+            border: 1px solid var(--border);
+            color: var(--primary);
+            padding: 0.8rem;
+            font-family: inherit;
+            box-sizing: border-box;
+            outline: none;
+        }
+
+        input:focus {
+            border-color: var(--primary);
+        }
+
+        button {
+            width: 100%;
+            background: transparent;
+            border: 1px solid var(--primary);
+            color: var(--primary);
+            padding: 0.8rem;
+            cursor: pointer;
+            font-family: inherit;
+            transition: all 0.3s ease;
+            margin-top: 0.5rem;
+        }
+
+        button:hover {
+            background: var(--primary);
+            color: #000;
+        }
+
+        button.danger {
+            border-color: var(--danger);
+            color: var(--danger);
+            margin-top: 2rem;
+        }
+
+        button.danger:hover {
+            background: var(--danger);
+            color: #000;
+        }
+
+        .telemetry-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 1rem;
+            border-top: 1px dashed var(--border);
+            padding-top: 1rem;
+        }
+
+        .tel-item {
+            font-size: 0.9rem;
+            background: #000;
+            padding: 5px 10px;
+            border: 1px solid #222;
+        }
+
+        .tel-label {
+            color: var(--text-dim);
+            font-size: 0.7rem;
+            display: block;
+        }
+
+        #login-screen {
+            display: block;
+        }
+
+        #admin-panel {
+            display: none;
+        }
+
+        .status-msg {
+            text-align: center;
+            margin-top: 1rem;
+            font-size: 0.8rem;
+            height: 1rem;
+        }
+
+        .info-box {
+            background: rgba(0, 255, 65, 0.05);
+            border: 1px solid rgba(0, 255, 65, 0.2);
+            padding: 10px;
+            margin-bottom: 1rem;
+            font-size: 0.8rem;
+            text-align: center;
+        }
+
+        .go-no-go-admin {
+            margin-top: 1.5rem;
+            padding: 15px;
+            border: 1px solid #333;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .go-no-go-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .go-status {
+            padding: 4px 12px;
+            font-size: 0.75rem;
+            font-weight: bold;
+            border: 1px solid #444;
+            min-width: 80px;
+            text-align: center;
+            letter-spacing: 1px;
+        }
+
+        .go-status.go {
+            color: var(--primary);
+            border-color: var(--primary);
+            background: rgba(0, 255, 65, 0.1);
+            box-shadow: 0 0 10px rgba(0, 255, 65, 0.1);
+        }
+
+        .go-status.no-go {
+            color: var(--danger);
+            border-color: var(--danger);
+            background: rgba(255, 62, 62, 0.1);
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- LOGIN SCREEN -->
+    <div id="login-screen" class="container">
+        <h1>CONTROL DE ACCESO</h1>
+        <div class="form-group">
+            <label>INGRESAR CONTRASEÑA ADMIN</label>
+            <input type="password" id="pass-input">
+        </div>
+        <button onclick="checkPass()">ACCEDER A COMANDOS</button>
+        <div id="login-msg" class="status-msg"></div>
+    </div>
+
+    <!-- ADMIN PANEL -->
+    <div id="admin-panel" class="container">
+        <h1>COMANDO DE MISIÓN</h1>
+
+        <div class="info-box">
+            GESTIONANDO MISIÓN: <span id="current-id-display" style="color:#fff">NINGUNA</span>
+            <br>
+            <span style="font-size: 0.7rem; color: var(--text-dim);">CLIENTE: </span>
+            <span id="tel-client" style="color:var(--primary); font-size: 0.7rem;">-</span>
+        </div>
+
+        <div class="form-group">
+            <label>ID DE MISIÓN OBJETIVO</label>
+            <input type="text" id="mission-id-input" placeholder="HS-001">
+            <button onclick="switchMission()">CAMBIAR CANAL</button>
+        </div>
+
+        <div style="border: 1px solid #333; padding: 15px; margin-bottom: 20px;">
+            <div class="form-group" style="margin-bottom: 5px;">
+                <label>NOMBRE DE LA MISIÓN (DASHBOARD)</label>
+                <input type="text" id="mission-name-input" placeholder="ZHUQUE-3 VUELO X">
+            </div>
+            <button onclick="updateMissionName()">ACTUALIZAR IDENTIDAD</button>
+            <button onclick="resetMET()"
+                style="margin-top: 10px; border-color: var(--danger); color: var(--danger);">RESETEAR RELOJ
+                (MET)</button>
+        </div>
+
+            <button onclick="resetMET()"
+                style="margin-top: 10px; border-color: var(--danger); color: var(--danger);">RESETEAR RELOJ
+                (MET)</button>
+        </div>
+
+        <!-- GO/NO-GO ADMIN SECTION -->
+        <div class="go-no-go-admin">
+            <div
+                style="text-align: center; font-size: 0.7rem; color: var(--text-dim); margin-bottom: 5px; border-bottom: 1px solid #222; padding-bottom: 5px;">
+                VERIFICACIÓN DE LANZAMIENTO</div>
+            <div class="go-no-go-row">
+                <span style="font-size: 0.8rem; opacity: 0.8;">ESTADO DEL CLIENTE:</span>
+                <span id="client-go-status" class="go-status no-go">NO-GO</span>
+            </div>
+            <div class="go-no-go-row">
+                <span style="font-size: 0.8rem; opacity: 0.8;">AUTORIZACIÓN MAESTRA:</span>
+                <button id="mission-go-btn" onclick="toggleMissionGo()"
+                    style="width: auto; padding: 5px 15px; margin: 0; font-size: 0.8rem; font-weight: bold;">ACTIVAR
+                    MISSION GO</button>
+            </div>
+        </div>
+
+        <div id="telemetry-monitor">
+            <div style="text-align: center; font-size: 0.7rem; color: var(--text-dim); margin-bottom: 15px;">MONITOR DE
+                TELEMETRÍA EN VIVO</div>
+
+            <!-- BOOSTER SECTION -->
+            <div
+                style="font-size: 0.7rem; color: var(--primary); margin-bottom: 5px; border-left: 2px solid var(--primary); padding-left: 5px;">
+                BOOSTER / S1</div>
+            <div class="telemetry-grid" style="margin-bottom: 20px;">
+                <div class="tel-item">
+                    <span class="tel-label">ESTADO</span>
+                    <span id="b1-status" class="tel-val">OFFLINE</span>
+                </div>
+                <div class="tel-item">
+                    <span class="tel-label">ALTITUD</span>
+                    <span id="b1-alt" class="tel-val">0</span> M
+                </div>
+                <div class="tel-item">
+                    <span class="tel-label">VELOCIDAD</span>
+                    <span id="b1-vel" class="tel-val">0</span> M/S
+                </div>
+                <div class="tel-item">
+                    <span class="tel-label">COMBUSTIBLE</span>
+                    <span id="b1-fuel" class="tel-val">0</span>%
+                </div>
+            </div>
+
+            <!-- SHIP SECTION -->
+            <div
+                style="font-size: 0.7rem; color: #00f3ff; margin-bottom: 5px; border-left: 2px solid #00f3ff; padding-left: 5px;">
+                ORBITADOR / S2</div>
+            <div class="telemetry-grid" style="margin-bottom: 20px;">
+                <div class="tel-item">
+                    <span class="tel-label">ESTADO</span>
+                    <span id="s2-status" class="tel-val">OFFLINE</span>
+                </div>
+                <div class="tel-item">
+                    <span class="tel-label">ALTITUD</span>
+                    <span id="s2-alt" class="tel-val">0</span> M
+                </div>
+                <div class="tel-item">
+                    <span class="tel-label">VELOCIDAD</span>
+                    <span id="s2-vel" class="tel-val">0</span> M/S
+                </div>
+                <div class="tel-item">
+                    <span class="tel-label">COMBUSTIBLE</span>
+                    <span id="s2-fuel" class="tel-val">0</span>%
+                </div>
+            </div>
+
+            <!-- LANDER SECTION -->
+            <div
+                style="font-size: 0.7rem; color: #b0b0b0; margin-bottom: 5px; border-left: 2px solid #b0b0b0; padding-left: 5px;">
+                ALUNIZADOR / LANDER</div>
+            <div class="telemetry-grid">
+                <div class="tel-item">
+                    <span class="tel-label">ESTADO</span>
+                    <span id="l3-status" class="tel-val">OFFLINE</span>
+                </div>
+                <div class="tel-item">
+                    <span class="tel-label">ALT. RADAR</span>
+                    <span id="l3-alt" class="tel-val">0</span> M
+                </div>
+                <div class="tel-item">
+                    <span class="tel-label">V. VERTICAL</span>
+                    <span id="l3-vs" class="tel-val">0</span> M/S
+                </div>
+                <div class="tel-item">
+                    <span class="tel-label">COMBUSTIBLE</span>
+                    <span id="l3-fuel" class="tel-val">0</span>%
+                </div>
+            </div>
+
+            <div class="tel-item" style="grid-column: span 2; margin-top: 15px; text-align: center;">
+                <span class="tel-label">RELOJ DE MISIÓN (MET)</span>
+                <span id="tel-met" style="font-size: 1.2rem; color: #fff;">T- 00:00:00</span>
+            </div>
+        </div>
+
+        <button class="danger" style="margin-top: 10px;" onclick="resetAllData()">PURGAR DATOS DE ESTA MISIÓN</button>
+
+        <div id="admin-msg" class="status-msg"></div>
+        <div style="margin-top: 1rem; text-align: center; display: flex; flex-direction: column; gap: 10px;">
+            <a href="index.html" id="dash-link"
+                style="color: var(--primary); text-decoration: none; font-size: 0.7rem;">← VOLVER AL DASHBOARD</a>
+            <a href="lander.html" id="lander-link" style="color: #b0b0b0; text-decoration: none; font-size: 0.7rem;">📊
+                ABRIR PANEL DEL LANDER</a>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getDatabase, ref, set, remove, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyAiZs5Edhj2M0GIroo7thpD-fz6UOWpoZQ",
+            authDomain: "control-de-mision-js.firebaseapp.com",
+            projectId: "control-de-mision-js",
+            storageBucket: "control-de-mision-js.firebasestorage.app",
+            messagingSenderId: "771859762827",
+            appId: "1:771859762827:web:00caa47bca9e3aad5b4e8e",
+            measurementId: "G-WY3SGSG5YM",
+            databaseURL: "https://control-de-mision-js-default-rtdb.firebaseio.com/"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
+        const ADMIN_PASS = "Kion2011";
+        let currentMissionID = "HS-DEFAULT";
+        let missionUnsub = null;
+        let globalUnsub = null;
+        let missionStartVal = null;
+        let missionGoState = false;
+
+        window.checkPass = function () {
+            const val = document.getElementById('pass-input').value;
+            if (val === ADMIN_PASS) {
+                document.getElementById('login-screen').style.display = 'none';
+                document.getElementById('admin-panel').style.display = 'block';
+
+                // Intentar cargar ID de URL si existe
+                const params = new URLSearchParams(window.location.search);
+                const urlId = params.get('id');
+                if (urlId) {
+                    document.getElementById('mission-id-input').value = urlId;
+                    switchMission(urlId);
+                } else {
+                    switchMission(); // Cargar por defecto (HS-DEFAULT)
+                }
+            } else {
+                showMsg("CLAVE DE ACCESO INVÁLIDA", "login-msg");
+            }
+        };
+
+        window.switchMission = function (manualId) {
+            const idInput = manualId || document.getElementById('mission-id-input').value.trim().toUpperCase();
+            if (idInput) currentMissionID = idInput;
+
+            document.getElementById('current-id-display').innerText = currentMissionID;
+            document.getElementById('dash-link').href = `index.html?id=${currentMissionID}`;
+            document.getElementById('lander-link').href = `lander.html?id=${currentMissionID}`;
+
+            console.log("Admin: Conectando a misión:", currentMissionID);
+
+            // Limpiar listeners viejos
+            if (missionUnsub) missionUnsub();
+            if (globalUnsub) globalUnsub();
+
+            setupListeners();
+            if (manualId) showMsg("IDENTIDAD CARGADA", "admin-msg");
+            else showMsg("CAMBIADO A " + currentMissionID, "admin-msg");
+        };
+
+        function setupListeners() {
+            // MET, Nombre e Info del Cliente
+            globalUnsub = onValue(ref(db, `missions/${currentMissionID}/global`), (snap) => {
+                const data = snap.val();
+                if (data) {
+                    document.getElementById('mission-name-input').value = data.mission_name || "";
+                    document.getElementById('tel-client').innerText = data.client_name || "SIN IDENTIFICAR";
+                    missionStartVal = data.mission_start;
+
+                    // Sync Go/No-Go Statuses
+                    const clientGo = !!data.client_go;
+                    const cIndicator = document.getElementById('client-go-status');
+                    if (clientGo) {
+                        cIndicator.innerText = "GO";
+                        cIndicator.classList.add('go');
+                        cIndicator.classList.remove('no-go');
+                    } else {
+                        cIndicator.innerText = "NO-GO";
+                        cIndicator.classList.remove('go');
+                        cIndicator.classList.add('no-go');
+                    }
+
+                    missionGoState = !!data.mission_go;
+                    const mBtn = document.getElementById('mission-go-btn');
+                    if (missionGoState) {
+                        mBtn.innerText = "DESACTIVAR MISSION GO";
+                        mBtn.style.background = "var(--primary)";
+                        mBtn.style.color = "#000";
+                    } else {
+                        mBtn.innerText = "ACTIVAR MISSION GO";
+                        mBtn.style.background = "transparent";
+                        mBtn.style.color = "var(--primary)";
+                    }
+                } else {
+                    missionStartVal = null;
+                    document.getElementById('tel-met').innerText = "T- 00:00:00";
+                    document.getElementById('tel-client').innerText = "-";
+                }
+            });
+
+            // Dual Telemetry (S1 & S2) - Escuchas directas
+            onValue(ref(db, `missions/${currentMissionID}/booster`), (snap) => {
+                const B1 = parseKosJson(snap.val());
+                if (B1) {
+                    updateEl('b1-status', (B1.status || "OFFLINE"));
+                    updateEl('b1-alt', Math.round(B1.alt || 0).toLocaleString());
+                    updateEl('b1-vel', Math.round(B1.vel || 0).toLocaleString());
+                    updateEl('b1-fuel', Math.round(B1.fuelPct || B1.fuel_pct || 0));
+                }
+            });
+
+            onValue(ref(db, `missions/${currentMissionID}/ship`), (snap) => {
+                const S2 = parseKosJson(snap.val());
+                if (S2) {
+                    updateEl('s2-status', (S2.status || "OFFLINE"));
+                    updateEl('s2-alt', Math.round(S2.alt || 0).toLocaleString());
+                    updateEl('s2-vel', Math.round(S2.vel || 0).toLocaleString());
+                    updateEl('s2-fuel', Math.round(S2.fuelPct || S2.fuel_pct || 0));
+                }
+            });
+
+            onValue(ref(db, `missions/${currentMissionID}/lander`), (snap) => {
+                const L3 = parseKosJson(snap.val());
+                if (L3) {
+                    updateEl('l3-status', (L3.status || "OFFLINE"));
+                    updateEl('l3-alt', Math.round(L3.alt_radar || 0).toLocaleString());
+                    updateEl('l3-vs', (L3.vs || 0).toFixed(1));
+                    updateEl('l3-fuel', Math.round(L3.fuelpct || 0));
+                }
+            });
+        }
+
+        function updateEl(id, val) {
+            const el = document.getElementById(id);
+            if (el) el.innerText = val;
+        }
+
+        function parseKosJson(data) {
+            if (!data || typeof data !== 'object') return data;
+            if (data.entries && Array.isArray(data.entries)) {
+                const result = {};
+                const ent = data.entries;
+                if (ent.length === 0) return result;
+                const isTypeA = (ent[0] && typeof ent[0] === 'object' && ent[0].key !== undefined);
+                if (isTypeA) {
+                    for (let entry of ent) {
+                        let k = entry.key?.value ?? entry.key;
+                        let v = entry.value?.value ?? entry.value;
+                        if (v && typeof v === 'object') v = parseKosJson(v);
+                        if (k != null) result[String(k).trim()] = v;
+                    }
+                } else {
+                    for (let i = 0; i < ent.length - 1; i += 2) {
+                        let k = ent[i]?.value ?? ent[i];
+                        let v = ent[i + 1]?.value ?? ent[i + 1];
+                        if (v && typeof v === 'object') v = parseKosJson(v);
+                        if (k != null) result[String(k).trim()] = v;
+                    }
+                }
+                return result;
+            }
+            if (data.values && Array.isArray(data.values)) {
+                return data.values.map(item => parseKosJson(item?.value ?? item));
+            }
+            const processed = {};
+            for (let k in data) {
+                if (k === '$type') continue;
+                processed[k] = parseKosJson(data[k]);
+            }
+            return processed;
+        }
+
+        function updateClock(start) {
+            if (!start) {
+                document.getElementById('tel-met').innerText = "T- 00:00:00";
+                return;
+            }
+            const diff = (Date.now() / 1000) - start;
+            if (diff < 0) {
+                document.getElementById('tel-met').innerText = "T- 00:00:00";
+                return;
+            }
+            const hrs = Math.floor(diff / 3600);
+            const mins = Math.floor((diff % 3600) / 60);
+            const secs = Math.floor(diff % 60);
+            document.getElementById('tel-met').innerText = "T+ " +
+                String(hrs).padStart(2, '0') + ":" +
+                String(mins).padStart(2, '0') + ":" +
+                String(secs).padStart(2, '0');
+        }
+
+        setInterval(() => {
+            if (missionStartVal) updateClock(missionStartVal);
+        }, 1000);
+
+        window.updateMissionName = function () {
+            const name = document.getElementById('mission-name-input').value;
+            if (!name) return;
+            set(ref(db, `missions/${currentMissionID}/global/mission_name`), name)
+                .then(() => showMsg("IDENTIDAD ACTUALIZADA", "admin-msg"));
+        };
+
+        window.toggleMissionGo = function () {
+            if (!currentMissionID) return;
+            const newState = !missionGoState;
+            set(ref(db, `missions/${currentMissionID}/global/mission_go`), newState)
+                .then(() => showMsg(newState ? "MISIÓN AUTORIZADA" : "AUTORIZACIÓN REVOCADA", "admin-msg"));
+        };
+
+        window.resetMET = function () {
+            if (!currentMissionID) return;
+            if (confirm("¿Estás seguro de que quieres resetear el reloj de misión (MET) a cero?")) {
+                set(ref(db, `missions/${currentMissionID}/global/mission_start`), null);
+                showMsg("RELOJ RESETEADO", "admin-msg");
+                console.log("Admin: MET reseted for", currentMissionID);
+            }
+        };
+
+        window.resetAllData = function () {
+            if (confirm(`CRÍTICO: ¿PURGAR TODOS LOS DATOS DE LA MISIÓN ${currentMissionID}?`)) {
+                remove(ref(db, `missions/${currentMissionID}`))
+                    .then(() => showMsg("DATOS DE MISIÓN PURGADOS", "admin-msg"));
+            }
+        };
+
+        function showMsg(txt, id) {
+            const el = document.getElementById(id);
+            el.innerText = txt;
+            setTimeout(() => { el.innerText = ""; }, 3000);
+        }
+    </script>
+</body>
+
+</html>

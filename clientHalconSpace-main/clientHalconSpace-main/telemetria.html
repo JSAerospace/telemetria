@@ -1,0 +1,896 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Halcón Space • Mission Control</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.2/p5.min.js"></script>
+    <style>
+        :root {
+            --bg: #0d1117;
+            --surface: #161b22;
+            --surface-hover: #21262d;
+            --border: #30363d;
+            --primary: #00e1ff;
+            --text: #e6edf3;
+            --text-muted: #8b949e;
+            --success: #238636;
+            --warning: #d29922;
+            --danger: #da3633;
+            --rp1: #00d4ff;
+            --lox: #39d353;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', system-ui, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100dvh;
+            line-height: 1.5;
+        }
+
+        h1, h2, h3 { font-family: 'Orbitron', sans-serif; }
+
+        .app {
+            display: flex;
+            flex-direction: column;
+            min-height: 100dvh;
+        }
+
+        /* Header */
+        header {
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+            padding: 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            text-align: center;
+        }
+
+        @media (min-width: 768px) {
+            header {
+                flex-direction: row;
+                justify-content: space-between;
+                align-items: center;
+                text-align: left;
+                padding: 1rem 2rem;
+            }
+        }
+
+        .logo-section {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+        }
+
+        .logo-section img { height: 40px; }
+
+        .mission-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+
+        .mission-id {
+            font-size: 0.875rem;
+            color: var(--text-muted);
+        }
+
+        .status-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        @media (min-width: 768px) {
+            .status-section { flex-direction: row; }
+        }
+
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: var(--danger);
+            animation: pulse 2s infinite;
+        }
+
+        .status-dot.connected {
+            background: var(--success);
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        /* Main content */
+        main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* Sidebar → se convierte en sección superior en móvil */
+        .sidebar {
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        @media (min-width: 1024px) {
+            main { flex-direction: row; }
+            .sidebar {
+                width: 360px;
+                border-bottom: none;
+                border-right: 1px solid var(--border);
+                min-height: 100%;
+            }
+        }
+
+        .countdown {
+            text-align: center;
+        }
+
+        .countdown-label {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-muted);
+        }
+
+        .countdown-value {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .phase {
+            text-align: center;
+            padding: 1rem;
+            background: rgba(0, 225, 255, 0.1);
+            border: 1px solid rgba(0, 225, 255, 0.3);
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        .telemetry-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+            gap: 1rem;
+        }
+
+        .telemetry-card {
+            background: var(--surface-hover);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1rem;
+            text-align: center;
+        }
+
+        .card-label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-muted);
+            margin-bottom: 0.5rem;
+        }
+
+        .card-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .card-unit {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            margin-left: 0.25rem;
+        }
+
+        /* GO/NO-GO Section */
+        .gng-section {
+            text-align: center;
+            padding: 1rem;
+        }
+
+        .client-name {
+            font-size: 1.1rem;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+        }
+
+        #goNoGoBtn {
+            padding: 1.5rem 3rem;
+            margin: 1rem 0;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2rem;
+            font-weight: 700;
+            border: none;
+            border-radius: 16px;
+            color: white;
+            cursor: pointer;
+            min-width: 260px;
+            background: #475569;
+            transition: all 0.3s ease;
+        }
+
+        #goStatusText {
+            min-height: 1.5em;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        /* Visual area */
+        .visual-area {
+            flex: 1;
+            position: relative;
+            background: var(--surface);
+            border-radius: 12px;
+            margin: 1.5rem;
+            overflow: hidden;
+        }
+
+        @media (max-width: 1023px) {
+            .visual-area { margin: 1rem; border-radius: 12px; }
+        }
+
+        canvas {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        .altitude-overlay {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            pointer-events: none;
+            z-index: 2;
+        }
+
+        .altitude-value {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 5rem;
+            font-weight: 700;
+            color: var(--primary);
+            text-shadow: 0 0 20px rgba(0, 225, 255, 0.6);
+        }
+
+        .altitude-label {
+            font-size: 1rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        @media (max-width: 640px) {
+            .altitude-value { font-size: 3.5rem; }
+        }
+
+        /* Bottom panels */
+        .bottom-panels {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1.5rem;
+            padding: 0 1.5rem 1.5rem;
+        }
+
+        @media (min-width: 768px) {
+            .bottom-panels { grid-template-columns: 1fr 1fr; }
+        }
+
+        .panel {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.5rem;
+        }
+
+        /* NUEVO: Panel de órbita con canvas p5.js */
+        .orbit-panel {
+            position: relative;
+            min-height: 280px;
+        }
+
+        #orbitCanvas {
+            position: absolute !important;
+            top: 0;
+            left: 0;
+            width: 100% !important;
+            height: 100% !important;
+        }
+
+        .propellant-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .propellant-item {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .prop-label {
+            font-size: 0.9rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .bar-container {
+            height: 40px;
+            background: #0d1117;
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid var(--border);
+            position: relative;
+        }
+
+        .bar-fill {
+            height: 100%;
+            width: 100%;
+            border-radius: 8px;
+            transition: width 0.8s ease;
+        }
+
+        .rp1-fill { background: linear-gradient(90deg, var(--rp1), #00a8cc); }
+        .lox-fill { background: linear-gradient(90deg, var(--lox), #238636); }
+
+        .bar-text {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.1rem;
+            color: white;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.8);
+        }
+
+        .prop-info {
+            font-size: 0.875rem;
+            color: var(--text-muted);
+            text-align: center;
+        }
+
+        /* Overlays */
+        .overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(13, 17, 23, 0.95);
+            backdrop-filter: blur(10px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.4s ease;
+        }
+
+        .overlay.visible {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 2rem;
+            width: 90%;
+            max-width: 480px;
+            text-align: center;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+        }
+
+        .card h2 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2rem;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .card p {
+            color: var(--text-muted);
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.25rem;
+            text-align: left;
+        }
+
+        label {
+            display: block;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-muted);
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+
+        input {
+            width: 100%;
+            padding: 1rem;
+            background: var(--surface-hover);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            color: var(--text);
+            font-size: 1rem;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        button.primary {
+            width: 100%;
+            padding: 1rem;
+            background: var(--primary);
+            color: #000;
+            font-weight: 700;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 0.5rem;
+            transition: all 0.3s;
+        }
+
+        button.primary:hover {
+            background: #00f0ff;
+            transform: translateY(-2px);
+        }
+
+        .btn-change {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text);
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            cursor: pointer;
+        }
+
+        .btn-change:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+    </style>
+</head>
+<body>
+
+<div id="missionInputOverlay" class="overlay visible">
+    <div class="card">
+        <h2>Halcón Space</h2>
+        <p>Bienvenido al Control de Misión.<br>Ingrese sus datos para comenzar el seguimiento en vivo.</p>
+        <form id="initialForm">
+            <div class="form-group">
+                <label>Nombre del Cliente</label>
+                <input type="text" id="clientNameInput" placeholder="Ej: Juan Pérez" required>
+            </div>
+            <div class="form-group">
+                <label>ID de Misión</label>
+                <input type="text" id="missionIdInput" placeholder="Ej: HS-001" required>
+            </div>
+            <button type="submit" class="primary">Iniciar Seguimiento</button>
+        </form>
+    </div>
+</div>
+
+<div id="changeNameModal" class="overlay">
+    <div class="card">
+        <h2>Cambiar Nombre</h2>
+        <p>Ingrese el nuevo nombre para esta sesión</p>
+        <div class="form-group">
+            <input type="text" id="newClientNameInput" placeholder="Nuevo nombre">
+        </div>
+        <div style="display:flex;gap:1rem;margin-top:1.5rem;">
+            <button class="btn-change" id="btnCancelName" style="flex:1;">Cancelar</button>
+            <button class="primary" id="btnConfirmName" style="flex:1;">Confirmar</button>
+        </div>
+    </div>
+</div>
+
+<div class="app">
+    <header>
+        <div class="logo-section">
+            <img src="https://halconspace.site/img/logo.png" alt="Halcón Space">
+            <div>
+                <div class="mission-title">Telemetría en tiempo real</div>
+                <div class="mission-id">Misión: <span id="missionName">—</span></div>
+            </div>
+        </div>
+        <div class="status-section">
+            <div style="display:flex;align-items:center;gap:0.5rem;">
+                <div class="status-dot" id="statusDot"></div>
+                <span id="connectionStatus">Conectando...</span>
+            </div>
+            <button class="btn-change" id="btnOpenChangeName">Cambiar nombre</button>
+        </div>
+    </header>
+
+    <main>
+        <section class="sidebar">
+            <div class="countdown">
+                <div class="countdown-label">Tiempo de misión</div>
+                <div class="countdown-value" id="missionTimeDisplay">T- 00:00:00</div>
+            </div>
+
+            <div class="phase" id="missionStatusDisplay">PREPARACIÓN</div>
+
+            <div class="telemetry-grid">
+                <div class="telemetry-card">
+                    <div class="card-label">Velocidad</div>
+                    <div class="card-value" id="velocityDisplay">0<span class="card-unit"> km/h</span></div>
+                </div>
+                <div class="telemetry-card">
+                    <div class="card-label">Propelente Total</div>
+                    <div class="card-value" id="propelenteDisplay">100<span class="card-unit"> %</span></div>
+                </div>
+                <div class="telemetry-card">
+                    <div class="card-label">Altitud</div>
+                    <div class="card-value" id="altitudeSidebar">0.0<span class="card-unit"> km</span></div>
+                </div>
+                <div class="telemetry-card">
+                    <div class="card-label">Inclinación</div>
+                    <div class="card-value" id="inclinationDisplay">0.0<span class="card-unit"> °</span></div>
+                </div>
+            </div>
+
+            <div class="gng-section">
+                <div class="countdown-label">Cliente</div>
+                <div class="client-name" id="clientNameDisplay">—</div>
+                <div class="countdown-label" style="margin-top:1rem;">Autorización de Lanzamiento</div>
+                <button id="goNoGoBtn">CARGANDO...</button>
+                <div id="goStatusText">Esperando autorización del cliente...</div>
+            </div>
+        </section>
+
+        <div style="flex:1;display:flex;flex-direction:column;">
+            <div class="visual-area">
+                <canvas id="trajectoryCanvas"></canvas>
+                <div class="altitude-overlay">
+                    <div class="altitude-value" id="altitudeDisplay">0.0</div>
+                    <div class="altitude-label">Altitud (km)</div>
+                </div>
+            </div>
+
+            <div class="bottom-panels">
+                <div class="panel orbit-panel">
+                    <div id="orbitCanvasContainer"></div>
+                </div>
+
+                <div class="panel">
+                    <div style="text-align:center;margin-bottom:1rem;">
+                        <div class="card-label">Propelentes</div>
+                    </div>
+                    <div class="propellant-list">
+                        <div class="propellant-item">
+                            <div class="prop-label" style="color:var(--rp1);">Queroseno Refinado (RP1)</div>
+                            <div class="bar-container">
+                                <div class="bar-fill rp1-fill" id="plFill"></div>
+                                <div class="bar-text" id="plText">100%</div>
+                            </div>
+                            <div class="prop-info" id="plInfo">12.420 kg / 12.420 kg</div>
+                        </div>
+                        <div class="propellant-item">
+                            <div class="prop-label" style="color:var(--lox);">Oxígeno Líquido (LOX)</div>
+                            <div class="bar-container">
+                                <div class="bar-fill lox-fill" id="loxFill"></div>
+                                <div class="bar-text" id="loxText">100%</div>
+                            </div>
+                            <div class="prop-info" id="loxInfo">15.180 kg / 15.180 kg</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+
+<script type="module">
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+    import { getFirestore, doc, onSnapshot, updateDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyAiLw2zwfsjdMP-IlEoE5JugyFvmaQLFC0",
+        authDomain: "halcon-space-348e7.firebaseapp.com",
+        projectId: "halcon-space-348e7",
+        storageBucket: "halcon-space-348e7.firebasestorage.app",
+        messagingSenderId: "741724706453",
+        appId: "1:741724706453:web:519531e63f2b923f952d9c"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    let interval = null;
+    let clientName = "";
+
+    // Variables para p5.js
+    window.perigeo = 0;
+    window.apogeo = 0;
+    window.perigeoMax = 500;
+    window.apogeoMax = 500;
+    window.perigeoVisual = 0;
+    window.apogeoVisual = 0;
+    window.datosCargados = false;
+
+    const calcularT = (fecha, timeUTC, holdTime = null) => {
+        const [d, m, a] = fecha.split("/").map(Number);
+        const [h, mi, s] = timeUTC.split(":").map(Number);
+        const launchTime = Date.UTC(a, m - 1, d, h, mi, s);
+
+        let now = Date.now();
+        if (holdTime) {
+            const holdTimestamp = new Date(holdTime).getTime();
+            if (holdTimestamp > 0) now = holdTimestamp;
+        }
+
+        const diff = (launchTime - now) / 1000;
+        const abs = Math.abs(diff);
+
+        const hh = String(Math.floor(abs / 3600)).padStart(2, "0");
+        const mm = String(Math.floor((abs % 3600) / 60)).padStart(2, "0");
+        const ss = String(Math.floor(abs % 60)).padStart(2, "0");
+
+        return diff < 0 ? `T+ ${hh}:${mm}:${ss}` : `T- ${hh}:${mm}:${ss}`;
+    };
+
+    function iniciarMision(id, nombre) {
+        clientName = nombre;
+        document.getElementById('clientNameDisplay').textContent = nombre;
+        document.getElementById('missionInputOverlay').classList.remove('visible');
+
+        onSnapshot(doc(db, 'lanzamientos', id), s => {
+            if (!s.exists()) return;
+            const d = s.data();
+
+            document.getElementById('missionName').textContent = d.nombre || "Halcón Space";
+            const estado = (d.estado || "PREPARACIÓN").toUpperCase();
+            document.getElementById('missionStatusDisplay').textContent = estado;
+
+            if (interval) clearInterval(interval);
+            interval = setInterval(() => {
+                const tiempoTexto = calcularT(d.fecha, d.timeUTC, d.holdTime || null);
+                const display = document.getElementById('missionTimeDisplay');
+                display.textContent = tiempoTexto;
+
+                if (estado === "HOLD") display.style.color = '#fb923c';
+                else if (estado === "SCRUB") display.style.color = '#ef4444';
+                else display.style.color = 'var(--primary)';
+            }, 500);
+        });
+
+        onSnapshot(doc(db, 'telemetria', 'estado_actual'), s => {
+            if (!s.exists()) return;
+            const d = s.data();
+
+            const alt = (d.altitude_m || 0) / 1000;
+            const vel = d.velocity_kmh || 0;
+
+            const p = d.propelente || {};
+            const pl = p.pl || 0;
+            const lox = p.ox || 0;
+            const maxpl = p.maxpl || 12420;
+            const maxox = p.maxox || 15180;
+            const plPct = maxpl > 0 ? (pl / maxpl) * 100 : 100;
+            const loxPct = maxox > 0 ? (lox / maxox) * 100 : 100;
+            const totalPct = Math.round(((pl + lox) / (maxpl + maxox)) * 100);
+
+            document.getElementById('altitudeDisplay').textContent = alt.toFixed(1);
+            document.getElementById('altitudeSidebar').innerHTML = alt.toFixed(1) + '<span class="card-unit"> km</span>';
+            document.getElementById('velocityDisplay').innerHTML = Math.round(vel).toLocaleString() + '<span class="card-unit"> km/h</span>';
+            document.getElementById('propelenteDisplay').innerHTML = totalPct + '<span class="card-unit"> %</span>';
+            document.getElementById('inclinationDisplay').innerHTML = (d.inclination || 0).toFixed(1) + '<span class="card-unit"> °</span>';
+
+            // Actualizar datos para p5.js
+            window.perigeo = (d.perigeo || 0) / 1000;
+            window.apogeo = (d.apogeo || 0) / 1000;
+            window.datosCargados = true;
+
+            document.getElementById('plFill').style.width = plPct + '%';
+            document.getElementById('plText').textContent = Math.round(plPct) + '%';
+            document.getElementById('plInfo').textContent = `${pl.toLocaleString()} kg / ${maxpl.toLocaleString()} kg`;
+
+            document.getElementById('loxFill').style.width = loxPct + '%';
+            document.getElementById('loxText').textContent = Math.round(loxPct) + '%';
+            document.getElementById('loxInfo').textContent = `${lox.toLocaleString()} kg / ${maxox.toLocaleString()} kg`;
+
+            document.getElementById('connectionStatus').textContent = "CONECTADO";
+            document.getElementById('statusDot').classList.add('connected');
+        });
+
+        // Escuchar configuración
+        onSnapshot(doc(db, 'telemetria', 'config'), s => {
+            if (!s.exists()) return;
+            const config = s.data();
+            window.perigeoMax = config.perigeoMax ?? 500;
+            window.apogeoMax = config.apogeoMax ?? 500;
+        });
+    }
+
+    // Carga desde URL
+    const urlParams = new URLSearchParams(location.search);
+    const urlId = urlParams.get('id');
+    const urlName = urlParams.get('name');
+    if (urlId && urlId.trim()) {
+        const nombre = urlName && urlName.trim() ? urlName.trim() : "Cliente";
+        iniciarMision(urlId.trim(), nombre);
+    }
+
+    // Form inicial
+    document.getElementById('initialForm').addEventListener('submit', e => {
+        e.preventDefault();
+        const nombre = document.getElementById('clientNameInput').value.trim();
+        const id = document.getElementById('missionIdInput').value.trim();
+        if (nombre && id) {
+            history.pushState(null, '', `?id=${id}&name=${encodeURIComponent(nombre)}`);
+            iniciarMision(id, nombre);
+        }
+    });
+
+    // Modal cambiar nombre
+    const modal = document.getElementById('changeNameModal');
+    document.getElementById('btnOpenChangeName').addEventListener('click', () => {
+        modal.classList.add('visible');
+        document.getElementById('newClientNameInput').focus();
+    });
+    document.getElementById('btnCancelName').addEventListener('click', () => modal.classList.remove('visible'));
+    document.getElementById('btnConfirmName').addEventListener('click', () => {
+        const nuevo = document.getElementById('newClientNameInput').value.trim();
+        if (nuevo) {
+            clientName = nuevo;
+            document.getElementById('clientNameDisplay').textContent = nuevo;
+            const currentId = urlParams.get('id');
+            if (currentId) history.pushState(null, '', `?id=${currentId}&name=${encodeURIComponent(nuevo)}`);
+            modal.classList.remove('visible');
+        }
+    });
+
+    // GO / NO GO
+    const goBtn = document.getElementById('goNoGoBtn');
+    const statusText = document.getElementById('goStatusText');
+    let currentGo = null;
+
+    onSnapshot(doc(db, 'telemetria', 'ControlCenter'), snap => {
+        if (!snap.exists()) {
+            goBtn.textContent = "SIN CONEXIÓN";
+            goBtn.style.background = "#475569";
+            statusText.textContent = "Esperando centro de control...";
+            return;
+        }
+        const data = snap.data();
+        currentGo = data.cliente ?? false;
+
+        if (currentGo) {
+            goBtn.textContent = "GO";
+            goBtn.style.background = "linear-gradient(135deg, #238636, #166534)";
+            statusText.textContent = "AUTORIZADO PARA LANZAMIENTO";
+            statusText.style.color = "#86efac";
+        } else {
+            goBtn.textContent = "NO GO";
+            goBtn.style.background = "linear-gradient(135deg, #da3633, #b91c1c)";
+            statusText.textContent = "Lanzamiento NO autorizado";
+            statusText.style.color = "#fca5a5";
+        }
+    });
+
+    goBtn.addEventListener('click', async () => {
+        if (currentGo === null) return alert("Esperando conexión con el centro de control...");
+        try {
+            await updateDoc(doc(db, 'telemetria', 'ControlCenter'), {
+                cliente: !currentGo,
+                clienteTimestamp: serverTimestamp(),
+                clienteNombre: clientName || "Cliente Web"
+            });
+        } catch (err) {
+            console.error(err);
+            alert("Error al enviar autorización");
+        }
+    });
+</script>
+
+<script>
+    // p5.js sketch para las animaciones de órbita
+    new p5(function(p) {
+        p.setup = function() {
+            const container = document.getElementById('orbitCanvasContainer');
+            const canvas = p.createCanvas(container.offsetWidth, 280);
+            canvas.parent('orbitCanvasContainer');
+            canvas.id('orbitCanvas');
+            p.pixelDensity(2);
+        };
+
+        p.draw = function() {
+            p.clear();
+
+            if (!window.datosCargados) {
+                p.fill(230, 237, 243);
+                p.textAlign(p.CENTER, p.CENTER);
+                p.textSize(16);
+                p.text("Cargando datos orbitales...", p.width / 2, p.height / 2);
+                return;
+            }
+
+            // Suavizado
+            window.perigeoVisual = p.lerp(window.perigeoVisual, window.perigeo, 0.1);
+            window.apogeoVisual = p.lerp(window.apogeoVisual, window.apogeo, 0.1);
+
+            // Dibujar arcos dinámicos
+            drawDynamicTelemetryArc(p.width * 0.3, p.height / 2, 80, "PERIGEO", window.perigeoVisual, window.perigeoMax, "km");
+            drawDynamicTelemetryArc(p.width * 0.7, p.height / 2, 80, "APOGEO", window.apogeoVisual, window.apogeoMax, "km");
+        };
+
+        function drawDynamicTelemetryArc(x, y, radius, label, value, maxValue, unit = "") {
+            let porcentaje = p.constrain(value / maxValue, 0, 1);
+            let startAngle = 3 * p.PI / 4;
+            let fullAngle = p.TWO_PI - startAngle;
+            let endAngle = startAngle + fullAngle * porcentaje;
+
+            p.noFill();
+            p.strokeWeight(5);
+
+            // Arco de fondo
+            p.stroke(230, 237, 243, 100);
+            p.arc(x, y, radius * 2, radius * 2, startAngle, startAngle + fullAngle);
+
+            // Arco de progreso (blanco)
+            p.stroke(255, 255, 255, 200);
+            p.arc(x, y, radius * 2, radius * 2, startAngle, endAngle);
+
+            // Círculo decorativo
+            p.stroke(230, 237, 243, 100);
+            p.strokeWeight(1);
+            p.circle(x, y, radius * 1.8);
+
+            // Texto
+            p.textAlign(p.CENTER, p.CENTER);
+            p.fill(230, 237, 243);
+            p.noStroke();
+            p.textSize(12);
+            p.textStyle(p.BOLD);
+            p.text(label, x, y - radius / 2);
+
+            let valor = value.toFixed(0);
+            p.textSize(30);
+            p.text(valor, x, y);
+            p.textSize(15);
+            p.text(unit, x, y + 30);
+        }
+
+        // Responsividad
+        p.windowResized = function() {
+            const container = document.getElementById('orbitCanvasContainer');
+            if (container) {
+                p.resizeCanvas(container.offsetWidth, 280);
+            }
+        };
+    });
+</script>
+</body>
+</html>

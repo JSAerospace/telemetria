@@ -1,0 +1,86 @@
+{
+    "entries": [
+        {
+            "value": "time",
+            "$type": "kOS.Safe.Encapsulation.StringValue"
+        },
+        {
+            "value": 146497.1,
+            "$type": "kOS.Safe.Encapsulation.ScalarDoubleValue"
+        },
+        {
+            "value": "mode",
+            "$type": "kOS.Safe.Encapsulation.StringValue"
+        },
+        {
+            "value": 2,
+            "$type": "kOS.Safe.Encapsulation.ScalarIntValue"
+        },
+        {
+            "value": "alt",
+            "$type": "kOS.Safe.Encapsulation.StringValue"
+        },
+        {
+            "value": 59628,
+            "$type": "kOS.Safe.Encapsulation.ScalarIntValue"
+        },
+        {
+            "value": "apo",
+            "$type": "kOS.Safe.Encapsulation.StringValue"
+        },
+        {
+            "value": 69780,
+            "$type": "kOS.Safe.Encapsulation.ScalarIntValue"
+        },
+        {
+            "value": "per",
+            "$type": "kOS.Safe.Encapsulation.StringValue"
+        },
+        {
+            "value": -556821,
+            "$type": "kOS.Safe.Encapsulation.ScalarIntValue"
+        },
+        {
+            "value": "vel",
+            "$type": "kOS.Safe.Encapsulation.StringValue"
+        },
+        {
+            "value": 725,
+            "$type": "kOS.Safe.Encapsulation.ScalarIntValue"
+        },
+        {
+            "value": "dv",
+            "$type": "kOS.Safe.Encapsulation.StringValue"
+        },
+        {
+            "value": 0,
+            "$type": "kOS.Safe.Encapsulation.ScalarIntValue"
+        },
+        {
+            "value": "engStates",
+            "$type": "kOS.Safe.Encapsulation.StringValue"
+        },
+        {
+            "entries": [
+                {
+                    "value": "S1",
+                    "$type": "kOS.Safe.Encapsulation.StringValue"
+                },
+                {
+                    "value": 0,
+                    "$type": "kOS.Safe.Encapsulation.ScalarIntValue"
+                }
+            ],
+            "$type": "kOS.Safe.Encapsulation.Lexicon"
+        },
+        {
+            "value": "status",
+            "$type": "kOS.Safe.Encapsulation.StringValue"
+        },
+        {
+            "value": "FLYING",
+            "$type": "kOS.Safe.Encapsulation.StringValue"
+        }
+    ],
+    "$type": "kOS.Safe.Encapsulation.Lexicon"
+}

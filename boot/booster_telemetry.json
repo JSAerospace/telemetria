@@ -1,0 +1,6 @@
+{
+  "t_minus": 10,
+  "countdown_active": true,
+  "countdown_hold": false,
+  "mission_state": "PRELAUNCH"
+}

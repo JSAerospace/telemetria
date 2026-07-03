@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SISTEMA DE ATERRIZAJE MUNAR - JS AEROSPACE</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Roboto+Mono:wght@400;700&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #050505;
+            --panel-bg: rgba(20, 20, 20, 0.85);
+            --border-color: #333;
+            --accent-color: #b0b0b0;
+            /* Lunar gray */
+            --warning-color: #ff3e3e;
+            --success-color: #44ff44;
+            --text-color: #e0e0e0;
+            --info-color: #00d4ff;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: 'Roboto Mono', monospace;
+            margin: 0;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+
+        header {
+            background: linear-gradient(180deg, #111 0%, transparent 100%);
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .logo {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.2rem;
+            letter-spacing: 2px;
+            color: var(--accent-color);
+        }
+
+        .mission-id {
+            color: var(--info-color);
+            font-weight: bold;
+        }
+
+        main {
+            display: grid;
+            grid-template-columns: 1fr 2fr 1fr;
+            gap: 20px;
+            padding: 20px;
+            flex-grow: 1;
+        }
+
+        .panel {
+            background: var(--panel-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .panel-header {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.8rem;
+            color: var(--accent-color);
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 5px;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+        }
+
+        .metric {
+            margin-bottom: 15px;
+        }
+
+        .metric-label {
+            font-size: 0.7rem;
+            color: #888;
+            margin-bottom: 5px;
+        }
+
+        .metric-value {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: var(--text-color);
+        }
+
+        .metric-unit {
+            font-size: 0.8rem;
+            color: #666;
+            margin-left: 5px;
+        }
+
+        /* Central Landing Interface */
+        .landing-display {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            background: radial-gradient(circle at center, #111 0%, #000 100%);
+        }
+
+        .radar-alt-box {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .radar-value {
+            font-size: 5rem;
+            font-family: 'Orbitron', sans-serif;
+            color: var(--info-color);
+            text-shadow: 0 0 20px rgba(0, 212, 255, 0.3);
+        }
+
+        .radar-label {
+            font-size: 1rem;
+            color: var(--accent-color);
+        }
+
+        .velocity-vectors {
+            display: flex;
+            gap: 50px;
+            margin-top: 40px;
+        }
+
+        .v-vector {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .v-value {
+            font-size: 2.5rem;
+        }
+
+        /* Engine Display - Circular (igual que S2 en index.html) */
+        .engine-display {
+            margin-top: 15px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 50%;
+            width: 150px;
+            height: 150px;
+            margin-left: auto;
+            margin-right: auto;
+            position: relative;
+            border: 1px dashed rgba(255, 255, 255, 0.15);
+        }
+
+        .engine-node {
+            position: absolute;
+            border-radius: 50%;
+            border: 4px solid #333;
+            background: #111;
+            box-shadow: inset 0 0 8px #000;
+            transition: all 0.3s;
+            width: 90px;
+            height: 90px;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .engine-node.active {
+            background: var(--success-color);
+            border-color: var(--success-color);
+            box-shadow: 0 0 20px rgba(68, 255, 68, 0.5), inset 0 0 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .fuel-bar {
+            height: 10px;
+            background: #222;
+            width: 100%;
+            margin-top: 5px;
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        .fuel-fill {
+            height: 100%;
+            background: var(--info-color);
+            transition: width 0.3s ease;
+        }
+
+        .status-badge {
+            padding: 5px 10px;
+            border-radius: 3px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+
+        .go {
+            background: var(--success-color);
+            color: #000;
+        }
+
+        .no-go {
+            background: var(--warning-color);
+            color: #fff;
+        }
+
+        .controls {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            background: transparent;
+            border: 1px solid var(--accent-color);
+            color: var(--accent-color);
+            padding: 8px 15px;
+            cursor: pointer;
+            text-decoration: none;
+            font-size: 0.8rem;
+        }
+
+        .btn:hover {
+            background: var(--accent-color);
+            color: #000;
+        }
+
+        #slope-display {
+            color: var(--warning-color);
+        }
+
+        /* --- AUTH OVERLAY --- */
+        .overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(5, 10, 15, 0.98);
+            backdrop-filter: blur(15px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.5s ease;
+        }
+
+        .overlay.visible {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .login-card {
+            background: rgba(10, 20, 30, 0.85);
+            border: 1px solid var(--accent-color);
+            padding: 40px;
+            width: 90%;
+            max-width: 450px;
+            text-align: center;
+            box-shadow: 0 0 30px rgba(0, 243, 255, 0.2);
+            clip-path: polygon(0 0, 100% 0, 100% calc(100% - 20px), calc(100% - 20px) 100%, 0 100%);
+        }
+
+        .login-card h2 {
+            font-family: 'Orbitron', sans-serif;
+            color: var(--accent-color);
+            margin-bottom: 20px;
+            letter-spacing: 2px;
+        }
+
+        .login-input {
+            width: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid #333;
+            color: #fff;
+            padding: 15px;
+            margin-bottom: 20px;
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 1.1rem;
+            outline: none;
+        }
+
+        .login-input:focus {
+            border-color: var(--accent-color);
+        }
+
+        .login-btn {
+            width: 100%;
+            background: var(--accent-color);
+            color: #000;
+            border: none;
+            padding: 15px;
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .login-btn:hover {
+            box-shadow: 0 0 20px var(--accent-color);
+            transform: scale(1.02);
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="login-overlay" class="overlay">
+        <div class="login-card">
+            <h2>CONTROL DE DESCENSO</h2>
+            <p style="font-size: 0.9rem; opacity: 0.7; margin-bottom: 25px;">Ingresa el código de la misión para
+                conectar con la telemetría del lander.</p>
+            <input type="text" id="mission-id-input" class="login-input" placeholder="ID DE MISIÓN (ej. LU-101)"
+                autocomplete="off">
+            <button class="login-btn" onclick="startMetricSync()">ESTABLECER CONEXIÓN</button>
+        </div>
+    </div>
+
+    <header>
+        <div style="display: flex; align-items: center; gap: 20px;">
+            <button class="btn"
+                style="background: rgba(0, 243, 255, 0.1); border: 1px solid var(--accent-color); color: var(--accent-color); font-family: 'Orbitron', sans-serif; font-size: 0.7rem; padding: 5px 15px; cursor: pointer; text-transform: uppercase;"
+                onclick="window.location.href='lander.html'">CAMBIAR
+                MISIÓN</button>
+            <div class="logo">Endurance: Landing Control</div>
+        </div>
+        <div id="mission-display">MISIÓN: <span class="mission-id" id="mission-tag">---</span></div>
+        <div id="readiness">ESTADO: <span class="status-badge" id="go-tag">OFFLINE</span></div>
+    </header>
+
+    <main>
+        <!-- Panel Izquierdo: Telemetría General -->
+        <div class="panel">
+            <div class="panel-header">Telemetría de Aproximación</div>
+            <div class="metric">
+                <div class="metric-label">Altitud Orbital</div>
+                <div class="metric-value" id="alt-val">0</div><span class="metric-unit">m</span>
+            </div>
+            <div class="metric">
+                <div class="metric-label">Apoapsis</div>
+                <div class="metric-value" id="apo-val">0</div><span class="metric-unit">km</span>
+            </div>
+            <div class="metric">
+                <div class="metric-label">Periapsis</div>
+                <div class="metric-value" id="per-val">0</div><span class="metric-unit">km</span>
+            </div>
+            <div class="metric">
+                <div class="metric-label">Combustible (LF + Ox)</div>
+                <div id="fuel-pct">0%</div>
+                <div class="fuel-bar">
+                    <div class="fuel-fill" id="fuel-bar-fill" style="width: 0%;"></div>
+                </div>
+            </div>
+            <div class="metric">
+                <div class="metric-label">Monopropelente (RCS)</div>
+                <div id="mono-pct">0%</div>
+                <div class="fuel-bar">
+                    <div class="fuel-fill" id="mono-bar-fill" style="width: 0%; background: #ffae00;"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Panel Central: Radar y Descenso -->
+        <div class="panel landing-display">
+            <div class="radar-alt-box">
+                <div class="radar-label">ALTITUD RADAR</div>
+                <div class="radar-value" id="radar-val">----</div>
+                <div class="radar-label">METROS SOBRE TERRENO</div>
+            </div>
+
+            <div class="velocity-vectors">
+                <div class="v-vector">
+                    <div class="metric-label">V. VERTICAL</div>
+                    <div class="v-value" id="vs-val">0.0</div>
+                    <div class="metric-unit">m/s</div>
+                </div>
+                <div class="v-vector">
+                    <div class="metric-label">V. TERRENO</div>
+                    <div class="v-value" id="gs-val">0.0</div>
+                    <div class="metric-unit">m/s</div>
+                </div>
+            </div>
+
+            <div class="radar-alt-box" style="margin-top: 40px;">
+                <div class="radar-label">INCLINACIÓN LANDER</div>
+                <div class="v-value" id="tilt-val">0.0°</div>
+            </div>
+
+            <div class="controls">
+                <a href="index.html" class="btn">CENTRO DE MISION</a>
+            </div>
+        </div>
+
+        <!-- Panel Derecho: Estado de Motores y Propulsión -->
+        <div class="panel">
+            <div class="panel-header">Propulsión y Motores</div>
+            <div class="metric">
+                <div class="metric-label">TWR ACTUAL</div>
+                <div class="metric-value" id="twr-val">0.00</div>
+            </div>
+            <div class="metric">
+                <div class="metric-label">ACELERACIÓN (G)</div>
+                <div class="metric-value" id="g-val">0.0</div>
+            </div>
+            <div class="panel-header" style="margin-top: 20px;">Potencia Motor (Throttle)</div>
+            <div id="thr-pct" style="font-size: 0.9rem; color: #888; margin-bottom: 4px;">0%</div>
+            <div class="fuel-bar">
+                <div class="fuel-fill" id="thr-bar-fill" style="width: 0%; background: var(--success-color);"></div>
+            </div>
+            <div class="panel-header" style="margin-top: 20px;">Estado de Ignición</div>
+            <div class="engine-display">
+                <div class="engine-node" id="engine-L1"></div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+
+    <script>
+        // --- HELPER SEGURO DE EXTRACCIÓN DE DATOS ---
+        function getVal(obj, ...keys) {
+            if (!obj) return undefined;
+            for (let k of keys) {
+                if (obj[k] !== undefined) return obj[k];
+                if (obj[k.toUpperCase()] !== undefined) return obj[k.toUpperCase()];
+                if (obj[k.toLowerCase()] !== undefined) return obj[k.toLowerCase()];
+            }
+            return undefined;
+        }
+
+        // --- PARSEADOR ROBUSTO DE LEXICONS KOS ---
+        function parseKosJson(data) {
+            if (!data || typeof data !== 'object') return data;
+            if (data.entries && Array.isArray(data.entries)) {
+                const result = {};
+                const ent = data.entries;
+                if (ent.length === 0) return result;
+                const first = ent[0];
+                const isTypeA = (first && typeof first === 'object' && first.key !== undefined);
+                try {
+                    if (isTypeA) {
+                        for (let entry of ent) {
+                            try {
+                                let k = entry.key?.value ?? entry.key;
+                                let v = entry.value?.value ?? entry.value;
+                                if (v && typeof v === 'object') v = parseKosJson(v);
+                                if (k != null) result[String(k).trim()] = v;
+                            } catch (e) { }
+                        }
+                    } else {
+                        for (let i = 0; i < ent.length - 1; i += 2) {
+                            try {
+                                let kObj = ent[i];
+                                let vObj = ent[i + 1];
+                                let k = kObj?.value ?? kObj;
+                                let v = vObj?.value ?? vObj;
+                                if (v && typeof v === 'object') v = parseKosJson(v);
+                                if (k != null) result[String(k).trim()] = v;
+                            } catch (e) { }
+                        }
+                    }
+                } catch (e) { }
+                return result;
+            }
+            if (data.values && Array.isArray(data.values)) {
+                return data.values.map(item => parseKosJson(item?.value ?? item));
+            }
+            const processed = {};
+            for (let k in data) {
+                if (k === '$type') continue;
+                processed[k] = parseKosJson(data[k]);
+            }
+            return processed;
+        }
+
+        // CONFIGURACIÓN DE FIREBASE
+        const firebaseConfig = {
+            databaseURL: "https://control-de-mision-js-default-rtdb.firebaseio.com/"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+
+        // Obtener ID de misión desde la URL
+        const urlParams = new URLSearchParams(window.location.search);
+        let missionId = urlParams.get('id') || urlParams.get('m') || urlParams.get('mission');
+        let clientName = urlParams.get('name') || "J.S. Aerospace"; // Valor por defecto igual que index
+
+        // ELEMENTOS UI
+        const radarEl = document.getElementById('radar-val');
+        const vsEl = document.getElementById('vs-val');
+        const gsEl = document.getElementById('gs-val');
+        const altEl = document.getElementById('alt-val');
+        const apoEl = document.getElementById('apo-val');
+        const perEl = document.getElementById('per-val');
+        const fuelPctEl = document.getElementById('fuel-pct');
+        const fuelBarEl = document.getElementById('fuel-bar-fill');
+        const monoPctEl = document.getElementById('mono-pct');
+        const monoBarEl = document.getElementById('mono-bar-fill');
+        const thrPctEl = document.getElementById('thr-pct');
+        const thrBarEl = document.getElementById('thr-bar-fill');
+        const twrEl = document.getElementById('twr-val');
+        const gEl = document.getElementById('g-val');
+        const tiltEl = document.getElementById('tilt-val');
+        const goTag = document.getElementById('go-tag');
+
+        // --- SISTEMA DE AUTENTICACIÓN ---
+        window.startMetricSync = function () {
+            const idInput = document.getElementById('mission-id-input').value.trim().toUpperCase();
+            const btn = document.querySelector('.login-btn');
+
+            if (!idInput) { alert("Se requiere ID de misión para acceder al lander."); return; }
+
+            btn.innerText = "VERIFICANDO...";
+            btn.disabled = true;
+
+            // Verificar si la misión existe en Firebase
+            db.ref(`missions/${idInput}/global/mission_name`).once('value').then((snapshot) => {
+                if (!snapshot.exists()) {
+                    alert("ERROR: La ID de misión '" + idInput + "' no existe o no ha sido activada.");
+                    btn.innerText = "ESTABLECER CONEXIÓN";
+                    btn.disabled = false;
+                    return;
+                }
+
+                missionId = idInput;
+                document.getElementById('mission-tag').innerText = missionId;
+
+                // Ocultar modal
+                document.getElementById('login-overlay').classList.remove('visible');
+                history.pushState(null, '', `?id=${missionId}&name=${encodeURIComponent(clientName)}`); // Persistir en la URL
+
+                startListening();
+            }).catch((error) => {
+                console.error("Error de validación:", error);
+                alert("Error al conectar con la base de datos.");
+                btn.innerText = "ESTABLECER CONEXIÓN";
+                btn.disabled = false;
+            });
+        };
+
+        if (!missionId) {
+            document.getElementById('login-overlay').classList.add('visible');
+        } else {
+            document.getElementById('mission-tag').innerText = missionId;
+            setTimeout(startListening, 100);
+        }
+
+        // ESCUCHA DE TELEMETRÍA (LANDER)
+        function startListening() {
+            db.ref(`missions/${missionId}/lander`).on('value', (snapshot) => {
+                const rawData = snapshot.val();
+                if (!rawData) return;
+                const data = parseKosJson(rawData);
+
+                // Actualizar métricas principales
+                const fmt = (num) => Math.round(num || 0).toLocaleString('es-AR');
+
+                radarEl.innerText = fmt(getVal(data, "alt_radar", "ALT_RADAR"));
+                vsEl.innerText = (getVal(data, "vs", "VS") || 0).toFixed(1);
+                gsEl.innerText = fmt(getVal(data, "vel", "VEL"));
+                altEl.innerText = fmt(getVal(data, "alt", "ALT"));
+                apoEl.innerText = (Math.round(getVal(data, "apo", "APO") || 0) / 1000).toFixed(1);
+                perEl.innerText = (Math.round(getVal(data, "per", "PER") || 0) / 1000).toFixed(1);
+
+                const fuel = getVal(data, "fuelpct", "FUELPCT", "fuel") || 0;
+                fuelPctEl.innerText = fuel + "%";
+                fuelBarEl.style.width = Math.min(fuel, 100) + "%";
+
+                const mono = getVal(data, "monopct", "MONOPCT") || 0;
+                monoPctEl.innerText = mono + "%";
+                monoBarEl.style.width = Math.min(mono, 100) + "%";
+
+                const thr = getVal(data, "throttle", "THROTTLE") || 0;
+                thrPctEl.innerText = thr.toFixed(1) + "%";
+                thrBarEl.style.width = Math.min(thr, 100) + "%";
+
+                twrEl.innerText = (getVal(data, "twr", "TWR") || 0).toFixed(2);
+                gEl.innerText = (getVal(data, "g", "G") || 0).toFixed(1);
+                tiltEl.innerText = (getVal(data, "tilt", "TILT") || 0).toFixed(1) + "°";
+
+                const altRadar = getVal(data, "alt_radar", "ALT_RADAR") || 0;
+                const vs = getVal(data, "vs", "VS") || 0;
+
+                // Alertas visuales
+                if (altRadar < 500 && vs < -5) {
+                    radarEl.style.color = "var(--warning-color)";
+                } else {
+                    radarEl.style.color = "var(--info-color)";
+                }
+
+                // Motor L1 (circular) - Lógica robusta: ON si cualquier motor está activo OR throttle > 1%
+                const engStates = getVal(data, "engstates", "engStates", "ENGSTATES");
+                const l1Node = document.getElementById('engine-L1');
+                const throttle = getVal(data, "throttle", "THROTTLE") || 0;
+
+                if (l1Node) {
+                    let anyEngineActive = false;
+                    if (engStates && typeof engStates === 'object') {
+                        anyEngineActive = Object.values(engStates).some(s => s == 1 || s === true);
+                    }
+
+                    // Si hay empuje (throttle > 1%) o algún motor dice estar activo
+                    if (anyEngineActive || throttle > 1) {
+                        l1Node.classList.add('active');
+                    } else {
+                        l1Node.classList.remove('active');
+                    }
+                }
+            });
+
+            // ESCUCHA GLOBAL (GO/NO-GO)
+            db.ref(`missions/${missionId}/global`).on('value', (snapshot) => {
+                const global = snapshot.val();
+                if (!global) return;
+
+                if (global.mission_go) {
+                    goTag.innerText = "MISSION GO";
+                    goTag.className = "status-badge go";
+                } else {
+                    goTag.innerText = "MISSION NO-GO";
+                    goTag.className = "status-badge no-go";
+                }
+            });
+        }
+    </script>
+</body>
+
+</html>

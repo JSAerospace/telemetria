@@ -1,0 +1,118 @@
+{
+    "entries": [
+        {
+            "value": "time",
+            "$type": "kOS.Safe.Encapsulation.StringValue"
+        },
+        {
+            "value": 58531575,
+            "$type": "kOS.Safe.Encapsulation.ScalarIntValue"
+        },
+        {
+            "value": "alt",
+            "$type": "kOS.Safe.Encapsulation.StringValue"
+        },
+        {
+            "value": 584,
+            "$type": "kOS.Safe.Encapsulation.ScalarIntValue"
+        },
+        {
+            "value": "alt_radar",
+            "$type": "kOS.Safe.Encapsulation.StringValue"
+        },
+        {
+            "value": 2.8,
+            "$type": "kOS.Safe.Encapsulation.ScalarDoubleValue"
+        },
+        {
+            "value": "vs",
+            "$type": "kOS.Safe.Encapsulation.StringValue"
+        },
+        {
+            "value": 0,
+            "$type": "kOS.Safe.Encapsulation.ScalarIntValue"
+        },
+        {
+            "value": "vel",
+            "$type": "kOS.Safe.Encapsulation.StringValue"
+        },
+        {
+            "value": 0,
+            "$type": "kOS.Safe.Encapsulation.ScalarIntValue"
+        },
+        {
+            "value": "apo",
+            "$type": "kOS.Safe.Encapsulation.StringValue"
+        },
+        {
+            "value": 585,
+            "$type": "kOS.Safe.Encapsulation.ScalarIntValue"
+        },
+        {
+            "value": "per",
+            "$type": "kOS.Safe.Encapsulation.StringValue"
+        },
+        {
+            "value": -598445,
+            "$type": "kOS.Safe.Encapsulation.ScalarIntValue"
+        },
+        {
+            "value": "twr",
+            "$type": "kOS.Safe.Encapsulation.StringValue"
+        },
+        {
+            "value": 0,
+            "$type": "kOS.Safe.Encapsulation.ScalarIntValue"
+        },
+        {
+            "value": "g",
+            "$type": "kOS.Safe.Encapsulation.StringValue"
+        },
+        {
+            "value": 0,
+            "$type": "kOS.Safe.Encapsulation.ScalarIntValue"
+        },
+        {
+            "value": "fuelpct",
+            "$type": "kOS.Safe.Encapsulation.StringValue"
+        },
+        {
+            "value": 0,
+            "$type": "kOS.Safe.Encapsulation.ScalarIntValue"
+        },
+        {
+            "value": "slope",
+            "$type": "kOS.Safe.Encapsulation.StringValue"
+        },
+        {
+            "value": 0,
+            "$type": "kOS.Safe.Encapsulation.ScalarIntValue"
+        },
+        {
+            "value": "engstates",
+            "$type": "kOS.Safe.Encapsulation.StringValue"
+        },
+        {
+            "entries": [
+                {
+                    "value": "L1",
+                    "$type": "kOS.Safe.Encapsulation.StringValue"
+                },
+                {
+                    "value": 0,
+                    "$type": "kOS.Safe.Encapsulation.ScalarIntValue"
+                }
+            ],
+            "$type": "kOS.Safe.Encapsulation.Lexicon"
+        },
+        {
+            "value": "status",
+            "$type": "kOS.Safe.Encapsulation.StringValue"
+        },
+        {
+            "value": "PRELAUNCH",
+            "$type": "kOS.Safe.Encapsulation.StringValue"
+        }
+    ],
+    "$type": "kOS.Safe.Encapsulation.Lexicon"
+}

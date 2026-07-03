@@ -1,0 +1,2470 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>J.S.Aerospace | Misiones</title>
+    <link rel="icon" type="image/png" href="LOGO_JTT.png">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&family=Rajdhani:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #00f3ff;
+            --neon-green: #00ff6a;
+            --neon-red: #ff3333;
+            --neon-orange: #ff6b35;
+            --bg-dark: #050510;
+            --font-heading: 'Orbitron', sans-serif;
+            --font-body: 'Rajdhani', sans-serif;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            font-family: var(--font-body);
+            min-height: 100vh;
+            width: 100%;
+            overflow-y: auto !important;
+            height: auto !important;
+        }
+
+        /* ===== ENTRY TRANSITION ===== */
+        .page-loader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #000;
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 0.6s ease, visibility 0.6s ease;
+        }
+
+        .page-loader.hidden {
+            opacity: 0;
+            visibility: hidden;
+        }
+
+        .loader-content {
+            text-align: center;
+        }
+
+        .loader-rocket {
+            font-size: 3rem;
+            color: var(--neon-red);
+            animation: rocketPulse 1s ease-in-out infinite;
+        }
+
+        @keyframes rocketPulse {
+
+            0%,
+            100% {
+                transform: translateY(0) scale(1);
+                text-shadow: 0 0 20px var(--neon-red);
+            }
+
+            50% {
+                transform: translateY(-10px) scale(1.1);
+                text-shadow: 0 0 40px var(--neon-red), 0 20px 30px var(--neon-orange);
+            }
+        }
+
+        /* Navbar entry animation */
+
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            text-decoration: none;
+        }
+
+        .logo img {
+            height: 32px;
+            width: auto;
+            object-fit: contain;
+        }
+
+        .logo-text {
+            color: #fff;
+            font-family: var(--font-heading);
+            font-size: 1.2rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .highlight {
+            color: var(--primary-color);
+        }
+
+
+
+
+        /* Accent line under navbar */
+
+
+        /* Hero Background Container */
+        .hero-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+            opacity: 0;
+            animation: fadeIn 1.5s ease forwards;
+            animation-delay: 0.3s;
+        }
+
+        @keyframes fadeIn {
+            to {
+                opacity: 1;
+            }
+        }
+
+        /* Animated space background */
+        .space-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background:
+                radial-gradient(ellipse at 20% 80%, rgba(255, 51, 51, 0.15) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 20%, rgba(255, 107, 53, 0.1) 0%, transparent 40%),
+                radial-gradient(ellipse at 50% 50%, rgba(10, 10, 30, 1) 0%, rgba(5, 5, 16, 1) 100%);
+        }
+
+        /* Stars */
+        .stars {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image:
+                radial-gradient(2px 2px at 20px 30px, white, rgba(0, 0, 0, 0)),
+                radial-gradient(2px 2px at 40px 70px, rgba(255, 255, 255, 0.8), rgba(0, 0, 0, 0)),
+                radial-gradient(1px 1px at 90px 40px, white, rgba(0, 0, 0, 0)),
+                radial-gradient(2px 2px at 160px 120px, rgba(255, 255, 255, 0.9), rgba(0, 0, 0, 0)),
+                radial-gradient(1px 1px at 230px 80px, white, rgba(0, 0, 0, 0)),
+                radial-gradient(2px 2px at 300px 150px, rgba(255, 255, 255, 0.7), rgba(0, 0, 0, 0)),
+                radial-gradient(1px 1px at 370px 50px, white, rgba(0, 0, 0, 0)),
+                radial-gradient(2px 2px at 450px 200px, rgba(255, 255, 255, 0.8), rgba(0, 0, 0, 0)),
+                radial-gradient(1px 1px at 520px 100px, white, rgba(0, 0, 0, 0)),
+                radial-gradient(2px 2px at 600px 180px, rgba(255, 255, 255, 0.6), rgba(0, 0, 0, 0));
+            background-size: 650px 250px;
+            animation: twinkle 8s ease-in-out infinite;
+        }
+
+        .stars:nth-child(2) {
+            background-position: 50px 50px;
+            animation-delay: -3s;
+            opacity: 0.6;
+        }
+
+        @keyframes twinkle {
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.5;
+            }
+        }
+
+        /* Animated grid lines */
+        .grid-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image:
+                linear-gradient(rgba(255, 51, 51, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 51, 51, 0.03) 1px, transparent 1px);
+            background-size: 80px 80px;
+            animation: gridMove 20s linear infinite;
+        }
+
+        @keyframes gridMove {
+            0% {
+                transform: translateY(0);
+            }
+
+            100% {
+                transform: translateY(80px);
+            }
+        }
+
+        /* Glowing orbs */
+        .glow-orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(60px);
+            opacity: 0;
+            animation: float 10s ease-in-out infinite, orbAppear 1s ease forwards;
+        }
+
+        .glow-orb.red {
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(255, 51, 51, 0.6) 0%, transparent 70%);
+            bottom: -100px;
+            left: -100px;
+            animation-delay: 0.5s, 0.5s;
+        }
+
+        .glow-orb.orange {
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, rgba(255, 107, 53, 0.5) 0%, transparent 70%);
+            top: 20%;
+            right: -50px;
+            animation-delay: 0.7s, 0.7s;
+        }
+
+        .glow-orb.purple {
+            width: 250px;
+            height: 250px;
+            background: radial-gradient(circle, rgba(120, 50, 200, 0.3) 0%, transparent 70%);
+            top: 60%;
+            left: 30%;
+            animation-delay: 0.9s, 0.9s;
+        }
+
+        @keyframes orbAppear {
+            to {
+                opacity: 0.4;
+            }
+        }
+
+        @keyframes float {
+
+            0%,
+            100% {
+                transform: translate(0, 0) scale(1);
+            }
+
+            33% {
+                transform: translate(30px, -30px) scale(1.1);
+            }
+
+            66% {
+                transform: translate(-20px, 20px) scale(0.9);
+            }
+        }
+
+        /* Rocket trail particles */
+        .particle-container {
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100%;
+            height: 60%;
+            overflow: hidden;
+            pointer-events: none;
+        }
+
+        .particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: var(--neon-orange);
+            border-radius: 50%;
+            box-shadow: 0 0 10px var(--neon-orange), 0 0 20px var(--neon-red);
+            animation: rise 4s ease-out infinite;
+        }
+
+        .particle:nth-child(1) {
+            left: 20%;
+            animation-delay: 0s;
+        }
+
+        .particle:nth-child(2) {
+            left: 35%;
+            animation-delay: 0.5s;
+        }
+
+        .particle:nth-child(3) {
+            left: 50%;
+            animation-delay: 1s;
+        }
+
+        .particle:nth-child(4) {
+            left: 65%;
+            animation-delay: 1.5s;
+        }
+
+        .particle:nth-child(5) {
+            left: 80%;
+            animation-delay: 2s;
+        }
+
+        .particle:nth-child(6) {
+            left: 25%;
+            animation-delay: 2.5s;
+        }
+
+        .particle:nth-child(7) {
+            left: 45%;
+            animation-delay: 3s;
+        }
+
+        .particle:nth-child(8) {
+            left: 70%;
+            animation-delay: 3.5s;
+        }
+
+        @keyframes rise {
+            0% {
+                bottom: -10px;
+                opacity: 1;
+                transform: scale(1);
+            }
+
+            100% {
+                bottom: 100%;
+                opacity: 0;
+                transform: scale(0.3);
+            }
+        }
+
+        /* Main content area */
+        .main-content {
+            padding-top: 100px;
+            min-height: 100vh;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Exit transition overlay */
+        .exit-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #000;
+            z-index: 9998;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.5s ease;
+        }
+
+        .exit-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        /* Exit animations */
+        body.exiting .navbar {
+            animation: slideUp 0.4s ease forwards;
+        }
+
+        body.exiting .hero-background {
+            animation: fadeOut 0.5s ease forwards;
+        }
+
+        @keyframes slideUp {
+            to {
+                transform: translateY(-100%);
+                opacity: 0;
+            }
+        }
+
+        @keyframes fadeOut {
+            to {
+                opacity: 0;
+            }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .navbar {
+                padding: 15px 20px;
+            }
+
+            .logo {
+                font-size: 1.2rem;
+            }
+
+            .nav-links {
+                gap: 15px;
+            }
+
+            .nav-links a {
+                font-size: 0.8rem;
+            }
+        }
+
+        /* Profile Modal Specifics */
+        .profile-section {
+            margin-bottom: 25px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .profile-section:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+
+        .profile-section h3 {
+            font-family: var(--font-heading);
+            color: var(--primary-color);
+            font-size: 1.1rem;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .btn-update {
+            background: linear-gradient(135deg, var(--primary-color), var(--neon-green));
+            color: #000;
+        }
+
+        .btn-update:hover {
+            box-shadow: 0 10px 30px rgba(0, 255, 106, 0.3);
+        }
+
+        .btn-logout {
+            background: rgba(255, 51, 51, 0.1);
+            border: 1px solid var(--neon-red);
+            color: var(--neon-red);
+            width: 100%;
+            padding: 12px;
+            border-radius: 10px;
+            font-family: var(--font-heading);
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 10px;
+        }
+
+        .btn-logout:hover {
+            background: var(--neon-red);
+            color: #000;
+        }
+
+        /* Missions specific styles */
+        .missions-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            display: grid;
+            gap: 30px;
+        }
+
+        .section-title {
+            color: white;
+            font-family: var(--font-heading);
+            font-size: 2.5rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 40px;
+            text-align: center;
+            text-shadow: 0 0 20px rgba(0, 243, 255, 0.3);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 50px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 20px;
+            border: 1px dashed rgba(255, 255, 255, 0.1);
+        }
+
+        .empty-state i {
+            font-size: 4rem;
+            color: var(--neon-blue);
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+
+        /* Stats Panel Compact */
+        .stats-panel {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 12px 15px;
+            text-align: center;
+            backdrop-filter: blur(10px);
+            transition: transform 0.3s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-3px);
+            border-color: var(--primary-color);
+        }
+
+        .stat-value {
+            display: block;
+            font-family: var(--font-heading);
+            font-size: 1.6rem;
+            font-weight: 900;
+            color: #fff;
+            margin-bottom: 2px;
+        }
+
+        .stat-label {
+            font-family: var(--font-heading);
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .stat-card.success .stat-value {
+            color: var(--neon-green);
+            text-shadow: 0 0 10px rgba(0, 255, 106, 0.3);
+        }
+
+        .stat-card.failed .stat-value {
+            color: var(--neon-red);
+            text-shadow: 0 0 10px rgba(255, 51, 51, 0.3);
+        }
+
+        .stat-card.total .stat-value {
+            color: var(--primary-color);
+            text-shadow: 0 0 10px rgba(0, 243, 255, 0.3);
+        }
+
+        /* Filter Bar */
+        .filter-bar {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.7);
+            padding: 10px 25px;
+            border-radius: 30px;
+            font-family: var(--font-heading);
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .filter-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            border-color: var(--primary-color);
+        }
+
+        .filter-btn.active {
+            background: var(--primary-color);
+            color: #000;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 20px rgba(0, 243, 255, 0.4);
+        }
+
+        .missions-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 30px;
+            padding: 40px 0;
+            z-index: 2;
+            position: relative;
+        }
+
+        .admin-actions {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            z-index: 10;
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-edit,
+        .btn-delete {
+            background: rgba(0, 0, 0, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #fff;
+            width: 35px;
+            height: 35px;
+            border-radius: 5px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .btn-edit:hover {
+            background: var(--primary-color);
+            color: #000;
+        }
+
+        .btn-delete:hover {
+            background: var(--neon-red);
+            color: #fff;
+        }
+
+
+        /* Mission Card Style (Matched to Image) */
+        .mission-card {
+            background: rgba(15, 15, 30, 0.9);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            overflow: hidden;
+            position: relative;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+        }
+
+
+        .mission-card:hover {
+            transform: translateY(-10px);
+            border-color: var(--primary-color);
+            box-shadow: 0 20px 50px rgba(0, 243, 255, 0.2);
+        }
+
+        .card-image-container {
+            position: relative;
+            width: 100%;
+            height: 220px;
+            overflow: hidden;
+        }
+
+        .card-image-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+
+        .mission-card:hover .mission-image-container {
+            opacity: 0.6;
+        }
+
+        .mission-image-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .mission-content-wrapper {
+            position: relative;
+            z-index: 1;
+            padding: 25px;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .mission-date-overlay {
+            margin-bottom: 20px;
+        }
+
+        .m-day {
+            font-family: var(--font-heading);
+            font-size: 3rem;
+            font-weight: 900;
+            line-height: 1;
+            color: #fff;
+            display: block;
+        }
+
+        .m-month {
+            font-family: var(--font-heading);
+            font-size: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .mission-card h2 {
+            font-family: var(--font-heading);
+            font-size: 1.8rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 20px;
+            color: #fff;
+            line-height: 1.2;
+        }
+
+        .status-pill {
+            background: rgba(0, 255, 106, 0.2);
+            border: 1px solid var(--neon-green);
+            color: var(--neon-green);
+            padding: 8px 15px;
+            border-radius: 5px;
+            font-family: var(--font-heading);
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 20px;
+            display: inline-block;
+            width: 100%;
+            text-align: center;
+        }
+
+        .status-pill.upcoming {
+            background: rgba(0, 243, 255, 0.2);
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+        }
+
+        .status-pill.failed {
+            background: rgba(255, 51, 51, 0.2);
+            border-color: var(--neon-red);
+            color: var(--neon-red);
+        }
+
+        .mission-time-zone {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: auto;
+        }
+
+        .m-time {
+            font-family: var(--font-heading);
+            font-size: 1.2rem;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .timezone-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: #fff;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .timezone-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        /* Countdown Timer Styles */
+        .countdown-container {
+            margin-bottom: 20px;
+            background: rgba(0, 243, 255, 0.1);
+            border: 1px solid rgba(0, 243, 255, 0.3);
+            border-radius: 12px;
+            padding: 15px;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 0 15px rgba(0, 243, 255, 0.1);
+        }
+
+        .countdown-unit {
+            text-align: center;
+        }
+
+        .countdown-value {
+            display: block;
+            font-family: var(--font-heading);
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            text-shadow: 0 0 10px rgba(0, 243, 255, 0.5);
+            line-height: 1;
+        }
+
+        .countdown-label {
+            display: block;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            color: rgba(255, 255, 255, 0.6);
+            margin-top: 4px;
+            letter-spacing: 1px;
+        }
+
+        .countdown-separator {
+            color: var(--primary-color);
+            font-size: 1.2rem;
+            font-weight: 900;
+            opacity: 0.5;
+            margin-bottom: 12px;
+        }
+
+
+
+
+        .mission-details-footer {
+            margin-top: 30px;
+            font-size: 0.95rem;
+        }
+
+        .detail-item {
+            margin-bottom: 8px;
+            color: rgba(255, 255, 255, 0.8);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .detail-item i {
+            width: 20px;
+            color: var(--neon-red);
+        }
+
+        .detail-item span {
+            font-weight: 600;
+            color: #fff;
+        }
+
+        /* Admin Controls on Card */
+        .admin-controls {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            display: none;
+            /* Shown via is-admin */
+            gap: 10px;
+            z-index: 10;
+        }
+
+        body.is-admin .admin-controls {
+            display: flex;
+        }
+
+        .admin-btn {
+            width: 35px;
+            height: 35px;
+            border-radius: 5px;
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            color: #fff;
+        }
+
+        .edit-btn {
+            background: rgba(50, 50, 50, 0.8);
+        }
+
+        .edit-btn:hover {
+            background: #333;
+            transform: scale(1.1);
+        }
+
+        .delete-btn {
+            background: rgba(255, 51, 51, 0.8);
+        }
+
+        .delete-btn:hover {
+            background: var(--neon-red);
+            transform: scale(1.1);
+        }
+
+        /* FAB Button */
+        .add-mission-btn {
+            position: fixed;
+            bottom: 40px;
+            right: 40px;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: var(--primary-color);
+            color: #000;
+            display: none;
+            /* Shown via JS for Esstor */
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            cursor: pointer;
+            box-shadow: 0 0 20px rgba(0, 243, 255, 0.4);
+            border: none;
+            z-index: 1000;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .add-mission-btn:hover {
+            transform: scale(1.1) rotate(90deg);
+            box-shadow: 0 0 30px rgba(0, 243, 255, 0.6);
+        }
+
+        /* Carousel in cards (optional but supported) */
+        .carousel-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+        }
+
+        .carousel-slide {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+            object-fit: cover;
+        }
+
+        .carousel-slide.active {
+            opacity: 0.4;
+        }
+
+        .mission-card:hover .carousel-slide.active {
+            opacity: 0.6;
+        }
+
+        .carousel-btn {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(0, 0, 0, 0.5);
+            color: white;
+            border: none;
+            padding: 8px;
+            cursor: pointer;
+            z-index: 5;
+            border-radius: 50%;
+            display: none;
+        }
+
+        .mission-card:hover .carousel-btn {
+            display: block;
+        }
+
+        .carousel-btn.prev {
+            left: 10px;
+        }
+
+        .carousel-btn.next {
+            right: 10px;
+        }
+
+        /* Form Row for Modal */
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        textarea {
+            width: 100%;
+            padding: 12px 15px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            color: #fff;
+            font-family: var(--font-body);
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        @keyframes fadeInDown {
+            0% {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Modal Improvements */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            backdrop-filter: blur(10px);
+            z-index: 2000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            padding: 20px;
+        }
+
+        .login-modal {
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+            scrollbar-width: thin;
+            scrollbar-color: var(--primary-color) rgba(255, 255, 255, 0.05);
+            background: rgba(10, 10, 20, 0.95);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 40px;
+            border-radius: 20px;
+            width: 100%;
+            max-width: 400px;
+            transform: scale(0.9);
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5), 0 0 30px rgba(0, 243, 255, 0.1);
+        }
+
+        .login-modal::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .login-modal::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .login-modal::-webkit-scrollbar-thumb {
+            background-color: var(--primary-color);
+            border-radius: 10px;
+        }
+
+        /* Gallery Styling */
+        .details-gallery {
+            position: relative;
+            height: 300px;
+            background: #000;
+            overflow: hidden;
+        }
+
+        .gallery-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .gallery-img.active {
+            display: block;
+        }
+
+        .gallery-nav {
+            position: absolute;
+            top: 50%;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            padding: 0 15px;
+            transform: translateY(-50%);
+            z-index: 5;
+            pointer-events: none;
+        }
+
+        .gallery-btn {
+            background: rgba(0, 0, 0, 0.5);
+            color: #fff;
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            pointer-events: auto;
+            transition: all 0.2s;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .gallery-btn:hover {
+            background: var(--primary-color);
+            color: #000;
+        }
+
+        .gallery-dots {
+            position: absolute;
+            bottom: 15px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 8px;
+            z-index: 5;
+        }
+
+        .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            cursor: pointer;
+        }
+
+        .dot.active {
+            background: var(--primary-color);
+            width: 20px;
+            border-radius: 4px;
+        }
+
+        /* Pulsing status for In Flight */
+        @keyframes pulse-blue {
+            0% {
+                box-shadow: 0 0 0 0 rgba(0, 212, 255, 0.4);
+            }
+
+            70% {
+                box-shadow: 0 0 0 10px rgba(0, 212, 255, 0);
+            }
+
+            100% {
+                box-shadow: 0 0 0 0 rgba(0, 212, 255, 0);
+            }
+        }
+
+        .status-badge.in_flight {
+            animation: pulse-blue 2s infinite;
+            background: var(--neon-blue) !important;
+            color: #000 !important;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal-overlay.active .login-modal {
+            transform: scale(1);
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            background: none;
+            border: none;
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+
+        .close-modal:hover {
+            color: #fff;
+        }
+
+        .modal-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .modal-header h2 {
+            font-family: var(--font-heading);
+            color: #fff;
+            margin-bottom: 10px;
+            font-size: 2rem;
+        }
+
+        .modal-header p {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.9rem;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px 15px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            color: #fff;
+            font-family: var(--font-body);
+            transition: all 0.3s;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            background: rgba(255, 255, 255, 0.1);
+            box-shadow: 0 0 15px rgba(0, 243, 255, 0.1);
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 12px;
+            background: var(--primary-color);
+            border: none;
+            border-radius: 10px;
+            color: #000;
+            font-weight: 700;
+            font-family: var(--font-heading);
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 10px;
+        }
+
+        .login-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0, 243, 255, 0.3);
+        }
+
+        .login-btn:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .divider {
+            text-align: center;
+            margin: 25px 0;
+            position: relative;
+        }
+
+        .divider::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            width: 100%;
+            height: 1px;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .divider span {
+            background: rgba(10, 10, 20, 0.95);
+            padding: 0 15px;
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 0.8rem;
+            position: relative;
+        }
+
+        .social-login {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .social-btn {
+            flex: 1;
+            padding: 10px;
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.05);
+            color: #fff;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            font-family: var(--font-body);
+        }
+
+        .social-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .toggle-auth {
+            text-align: center;
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .toggle-auth a {
+            color: var(--primary-color);
+            text-decoration: none;
+            font-weight: 600;
+            margin-left: 5px;
+        }
+
+        .toggle-auth a:hover {
+            text-decoration: underline;
+        }
+
+        .auth-message {
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            font-size: 0.9rem;
+            display: none;
+        }
+
+        .auth-message.error {
+            background: rgba(255, 51, 51, 0.1);
+            border: 1px solid rgba(255, 51, 51, 0.3);
+            color: var(--neon-red);
+        }
+
+        .auth-message.success {
+            background: rgba(0, 255, 106, 0.1);
+            border: 1px solid rgba(0, 255, 106, 0.3);
+            color: var(--neon-green);
+        }
+
+
+
+        .user-avatar {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Page Loader -->
+    <div class="page-loader" id="pageLoader">
+        <div class="loader-content">
+            <div class="logo" style="margin-bottom: 20px;">
+                <img src="LOGO_JTT.png" alt="J.S.Aerospace Logo">
+                <div class="logo-text">J.S.<span class="highlight">AEROSPACE</span></div>
+            </div>
+            <div class="loader-rocket">
+                <i class="fas fa-rocket"></i>
+            </div>
+        </div>
+    </div>
+
+    <!-- Exit Transition Overlay -->
+    <div class="exit-overlay" id="exitOverlay"></div>
+
+    <nav class="navbar">
+        <a href="index.html" class="logo">
+            <img src="LOGO_JTT.png" alt="J.S.Aerospace Logo">
+            <div class="logo-text">J.S.<span class="highlight">AEROSPACE</span></div>
+        </a>
+        <ul class="nav-links">
+            <li><a href="#" class="transition-link" data-href="index.html#home">Inicio</a></li>
+            <li><a href="#" class="transition-link active" data-href="misiones.html">Misiones</a></li>
+            <li><a href="#" class="transition-link" data-href="cohetes.html">Cohetes</a></li>
+            <li><a href="#" class="transition-link" data-href="calendario.html">CALENDARIO</a></li>
+            <li><a href="#" class="transition-link" data-href="geonet.html">GEONET</a></li>
+            <li>
+                <button class="auth-btn" id="contactBtn">
+                    <i class="fas fa-comment"></i>
+                    <span>Contacto</span>
+                </button>
+            </li>
+            <li>
+                <button class="auth-btn" id="authBtn">
+                    <i class="fas fa-user"></i>
+                    <span id="authBtnText">Iniciar Sesión</span>
+                </button>
+            </li>
+        </ul>
+    </nav>
+
+    <!-- Login Modal -->
+    <div class="modal-overlay" id="loginModal">
+        <div class="login-modal">
+            <button class="close-modal" id="closeModal">&times;</button>
+            <div class="modal-header">
+                <h2 id="modalTitle">Iniciar Sesión</h2>
+                <p id="modalSubtitle">Accede a tu cuenta de J.S.Aerospace</p>
+            </div>
+
+            <div class="auth-message" id="authMessage"></div>
+
+            <form id="authForm">
+                <div class="form-group" id="nameGroup" style="display: none;">
+                    <label for="userName">Nombre</label>
+                    <input type="text" id="userName" placeholder="Tu nombre">
+                </div>
+                <div class="form-group">
+                    <label for="userEmail">Email</label>
+                    <input type="email" id="userEmail" placeholder="tu@email.com" required>
+                </div>
+                <div class="form-group">
+                    <label for="userPassword">Contraseña</label>
+                    <input type="password" id="userPassword" placeholder="••••••••" required>
+                </div>
+                <button type="submit" class="login-btn" id="submitBtn">Entrar</button>
+            </form>
+
+            <div class="divider"><span>o continuar con</span></div>
+
+            <div class="social-login">
+                <button class="social-btn google" id="googleLogin">
+                    <i class="fab fa-google"></i>
+                    <span>Google</span>
+                </button>
+            </div>
+
+            <div class="toggle-auth">
+                <span id="toggleText">¿No tienes cuenta?</span>
+                <a href="#" id="toggleLink">Regístrate</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Profile Modal -->
+    <div class="modal-overlay" id="profileModal">
+        <div class="login-modal">
+            <button class="close-modal" id="closeProfileModal">&times;</button>
+            <div class="modal-header">
+                <h2>Tu Perfil</h2>
+                <p>Gestiona tu cuenta</p>
+            </div>
+
+            <div class="auth-message" id="profileMessage"></div>
+
+            <div class="profile-section">
+                <h3><i class="fas fa-user-edit"></i> Datos Personales</h3>
+                <div class="form-group">
+                    <label for="profileName">Nombre Visible</label>
+                    <input type="text" id="profileName" placeholder="Tu nombre">
+                </div>
+                <button class="login-btn btn-update" id="updateNameBtn">Actualizar Nombre</button>
+            </div>
+
+            <div class="profile-section">
+                <h3><i class="fas fa-lock"></i> Seguridad</h3>
+                <div class="form-group">
+                    <label for="newPassword">Nueva Contraseña</label>
+                    <input type="password" id="newPassword" placeholder="••••••••">
+                </div>
+                <button class="login-btn btn-update" id="updatePassBtn">Cambiar Contraseña</button>
+            </div>
+
+            <div class="profile-section">
+                <button class="btn-logout" id="logoutBtn">
+                    <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Animated Background -->
+    <div class="hero-background">
+        <div class="space-layer"></div>
+        <div class="stars"></div>
+        <div class="stars"></div>
+        <div class="grid-overlay"></div>
+        <div class="glow-orb red"></div>
+        <div class="glow-orb orange"></div>
+        <div class="glow-orb purple"></div>
+        <div class="particle-container">
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="missions-container">
+            <h1 class="section-title">Misiones Activas</h1>
+
+            <!-- Statistics Panel -->
+            <div class="stats-panel">
+                <div class="stat-card total">
+                    <span class="stat-value" id="totalLaunches">0</span>
+                    <span class="stat-label">Total Lanzamientos</span>
+                </div>
+                <div class="stat-card success">
+                    <span class="stat-value" id="successCount">0</span>
+                    <span class="stat-label">Éxitos</span>
+                </div>
+                <div class="stat-card failed">
+                    <span class="stat-value" id="failedCount">0</span>
+                    <span class="stat-label">Fallos</span>
+                </div>
+                <div class="stat-card ratio">
+                    <span class="stat-value" id="successRatio">0%</span>
+                    <span class="stat-label">Ratio de Éxito</span>
+                </div>
+            </div>
+
+            <!-- Filter Bar -->
+            <div class="filter-tabs">
+                <button class="filter-btn active" data-filter="all">Todos</button>
+                <button class="filter-btn" data-filter="success">Éxito</button>
+                <button class="filter-btn" data-filter="in_flight">En Vuelo</button>
+                <button class="filter-btn" data-filter="upcoming">Próximos</button>
+                <button class="filter-btn" data-filter="failed">Fallidos</button>
+            </div>
+
+            <div id="missionsGrid" class="missions-grid">
+                <!-- Missions will be loaded here -->
+            </div>
+
+            <div class="empty-state" id="emptyState" style="display: none;">
+                <i class="fas fa-satellite-dish"></i>
+                <h2>No hay misiones programadas</h2>
+                <p>El calendario de lanzamientos se actualizará pronto. Permanece atento.</p>
+            </div>
+        </div>
+    </main>
+
+    <!-- FAB Add Mission -->
+    <button class="add-mission-btn" id="addMissionBtn" title="Añadir Misión">
+        <i class="fas fa-plus"></i>
+    </button>
+
+    <!-- Mission Management Modal -->
+    <div class="modal-overlay" id="missionModal">
+        <div class="login-modal" style="max-width: 600px;">
+            <button class="close-modal" id="closeMissionModal">&times;</button>
+            <div class="modal-header">
+                <h2 id="missionModalTitle">Nueva Misión</h2>
+                <p id="missionModalSubtitle">Configura los detalles del lanzamiento</p>
+            </div>
+
+            <div class="auth-message" id="missionMessage"></div>
+
+            <form id="missionForm">
+                <input type="hidden" id="editingMissionId">
+
+                <div class="form-group">
+                    <label for="mTitle">Nombre de la Misión</label>
+                    <input type="text" id="mTitle" placeholder="Ej: V O R T I C • GEONET SHELL1--1" required>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="mDate">Fecha</label>
+                        <input type="date" id="mDate" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="mTime">Hora (UTC)</label>
+                        <input type="time" id="mTime" required>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="mStatus">Estado</label>
+                        <select id="mStatus"
+                            style="width: 100%; padding: 12px; background: #1a1a2e; border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; color: #fff;">
+                            <option value="success">ÉXITO</option>
+                            <option value="upcoming">PRÓXIMO</option>
+                            <option value="in_flight">EN VUELO</option>
+                            <option value="failed">FALLIDO</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="mLocation">Ubicación</label>
+                        <input type="text" id="mLocation" placeholder="Ej: LC-36A de Cabo Cañaveral" required>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="mProvider">Proveedor</label>
+                        <input type="text" id="mProvider" placeholder="Ej: EsZunSpace" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="mVehicle">Vehículo</label>
+                        <input type="text" id="mVehicle" placeholder="Ej: V O R T I C" required>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="mPayload">Carga (Payload)</label>
+                        <input type="text" id="mPayload" placeholder="Ej: Satélite GeoNet L1">
+                    </div>
+                    <div class="form-group">
+                        <label for="mDestination">Destino</label>
+                        <input type="text" id="mDestination" placeholder="Ej: LEO, Luna, Laythe">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="mBooster">Propulsor (Booster)</label>
+                    <input type="text" id="mBooster" placeholder="Ej: B1060.15">
+                </div>
+
+                <div class="form-row" style="align-items: center; gap: 20px; margin-bottom: 15px;">
+                    <div class="form-group"
+                        style="display: flex; flex-direction: row; align-items: center; gap: 10px; margin-bottom: 0;">
+                        <input type="checkbox" id="mIsManned"
+                            style="width: 20px; height: 20px; cursor: pointer; accent-color: var(--neon-red);">
+                        <label for="mIsManned"
+                            style="margin-bottom: 0; cursor: pointer; color: #fff;">¿Tripulada?</label>
+                    </div>
+                    <div class="form-group" style="flex: 1; display: none;" id="crewGroup">
+                        <label for="mCrew">Tripulación</label>
+                        <input type="text" id="mCrew" placeholder="Ej: Jebediah, Bill, Bob">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="mDescription">Descripción de la Misión</label>
+                    <textarea id="mDescription" placeholder="Detalles sobre el objetivo de la misión..."
+                        style="width: 100%; padding: 12px; background: #1a1a2e; border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; color: #fff; height: 80px;"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="mLanding">Sitio de Aterrizaje</label>
+                    <input type="text" id="mLanding" placeholder="Ej: EsZunBoat">
+                </div>
+                <div class="form-group">
+                    <label for="mImages">Imágenes (Una por línea)</label>
+                    <textarea id="mImages" placeholder="https://ejemplo.com/imagen.jpg"
+                        style="width: 100%; padding: 12px; background: #1a1a2e; border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; color: #fff; height: 80px;"></textarea>
+                </div>
+
+                <div class="form-row" style="gap: 20px; margin-bottom: 20px;">
+                    <div class="form-group"
+                        style="display: flex; flex-direction: row; align-items: center; gap: 10px; margin-bottom: 0;">
+                        <input type="checkbox" id="mShowCountdown" checked
+                            style="width: 20px; height: 20px; cursor: pointer; accent-color: var(--neon-orange);">
+                        <label for="mShowCountdown"
+                            style="margin-bottom: 0; cursor: pointer; color: #fff; font-size: 0.9rem;">Mostrar Cuenta
+                            Regresiva</label>
+                    </div>
+                </div>
+
+                <button type="submit" class="login-btn" id="saveMissionBtn">Guardar Misión</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Mission Details Modal (Public View) -->
+    <div class="modal-overlay" id="missionDetailsModal">
+        <div class="login-modal"
+            style="max-width: 800px; padding: 0; overflow: hidden; border: 1px solid rgba(0,212,255,0.1); background: #0b0b1a;">
+            <button class="close-modal" id="closeDetailsModal"
+                style="top: 15px; right: 15px; z-index: 10;">&times;</button>
+
+            <div class="details-gallery" id="detailsGallery">
+                <div id="galleryTracks" style="width: 100%; height: 100%;">
+                    <!-- Imgs injected by JS -->
+                </div>
+                <div class="gallery-nav" id="galleryNav" style="display: none;">
+                    <button class="gallery-btn" id="prevGallery"><i class="fas fa-chevron-left"></i></button>
+                    <button class="gallery-btn" id="nextGallery"><i class="fas fa-chevron-right"></i></button>
+                </div>
+                <div class="gallery-dots" id="galleryDots"></div>
+
+                <div
+                    style="position: absolute; bottom: 0; left: 0; right: 0; height: 150px; background: linear-gradient(to top, #0b0b1a, transparent); pointer-events: none;">
+                </div>
+                <div style="position: absolute; bottom: 20px; left: 30px; z-index: 6;">
+                    <span id="detailsStatusBadge"
+                        style="padding: 5px 12px; border-radius: 4px; font-weight: bold; font-size: 0.75rem; text-transform: uppercase;"></span>
+                    <h2 id="detailsTitle"
+                        style="font-family: 'Orbitron', sans-serif; font-size: 1.8rem; margin: 10px 0 0 0; color: #fff; text-shadow: 0 2px 10px rgba(0,0,0,0.8);">
+                    </h2>
+                </div>
+            </div>
+
+            <div style="padding: 30px; display: grid; grid-template-columns: 1fr 220px; gap: 30px;">
+                <div class="details-main">
+                    <div id="detailsDescriptionContainer" style="margin-bottom: 25px;">
+                        <h3
+                            style="color: var(--neon-orange); font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px;">
+                            Descripción</h3>
+                        <p id="detailsDescription"
+                            style="color: rgba(255,255,255,0.8); line-height: 1.6; font-size: 0.95rem;"></p>
+                    </div>
+
+                    <div id="detailsCargaContainer" style="margin-bottom: 25px;">
+                        <h3
+                            style="color: var(--neon-blue); font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 15px;">
+                            Información de Carga</h3>
+                        <div
+                            style="display: flex; gap: 20px; background: rgba(255,255,255,0.03); padding: 15px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.05);">
+                            <div style="flex: 1;">
+                                <small style="color: rgba(255,255,255,0.4); display: block; margin-bottom: 4px;">CARGA
+                                    ÚTIL</small>
+                                <span id="detailsPayload" style="color: #fff; font-weight: 500;"></span>
+                            </div>
+                            <div style="flex: 1;">
+                                <small
+                                    style="color: rgba(255,255,255,0.4); display: block; margin-bottom: 4px;">DESTINO</small>
+                                <span id="detailsDestination" style="color: #fff; font-weight: 500;"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="detailsCrewContainer" style="display: none; margin-bottom: 25px;">
+                        <h3
+                            style="color: var(--neon-red); font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px;">
+                            Tripulación</h3>
+                        <div
+                            style="display: flex; align-items: center; gap: 15px; background: rgba(255,51,51,0.05); padding: 15px; border-radius: 8px; border: 1px solid rgba(255,51,51,0.1);">
+                            <i class="fas fa-user-astronaut" style="color: var(--neon-red); font-size: 1.5rem;"></i>
+                            <span id="detailsCrew" style="color: #fff; font-weight: 500;"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="details-sidebar" style="border-left: 1px solid rgba(255,255,255,0.05); padding-left: 30px;">
+                    <div style="margin-bottom: 20px;">
+                        <small style="color: rgba(255,255,255,0.4); display: block; margin-bottom: 4px;">FECHA Y
+                            HORA</small>
+                        <span id="detailsDateTime"
+                            style="color: #fff; font-weight: 500; display: block; margin-bottom: 4px;"></span>
+                        <small id="detailsTimeType" style="color: rgba(0,212,255,0.6);"></small>
+                    </div>
+
+                    <div style="margin-bottom: 20px;">
+                        <small
+                            style="color: rgba(255,255,255,0.4); display: block; margin-bottom: 4px;">VEHÍCULO</small>
+                        <span id="detailsVehicle" style="color: #fff; font-weight: 500; display: block;"></span>
+                        <small id="detailsBooster" style="color: rgba(255,255,255,0.5);"></small>
+                    </div>
+
+                    <div style="margin-bottom: 20px;">
+                        <small
+                            style="color: rgba(255,255,255,0.4); display: block; margin-bottom: 4px;">PROVEEDOR</small>
+                        <span id="detailsProvider" style="color: #fff; font-weight: 500;"></span>
+                    </div>
+
+                    <div style="margin-bottom: 20px;">
+                        <small style="color: rgba(255,255,255,0.4); display: block; margin-bottom: 4px;">LUGAR DE
+                            LANZAMIENTO</small>
+                        <span id="detailsLocation" style="color: #fff; font-weight: 500; font-size: 0.9rem;"></span>
+                    </div>
+
+                    <div id="detailsLandingContainer" style="margin-bottom: 20px; display: none;">
+                        <small
+                            style="color: rgba(255,255,255,0.4); display: block; margin-bottom: 4px;">ATERRIZAJE</small>
+                        <span id="detailsLanding" style="color: #fff; font-weight: 500;"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Contact Modal -->
+    <div class="modal-overlay" id="contactModal">
+        <div class="login-modal" id="contactModalContent"
+            style="display: flex; flex-direction: column; height: 80vh; max-height: 600px; padding: 20px;">
+            <button class="close-modal" id="closeContactModal">&times;</button>
+
+            <!-- Header -->
+            <div class="contact-header"
+                style="display: flex; align-items: center; border-bottom: 1px solid rgba(255, 255, 255, 0.1); padding-bottom: 15px; margin-bottom: 15px;">
+                <div
+                    style="background: var(--neon-red); color: #000; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-family: var(--font-heading); margin-right: 15px;">
+                    AG
+                </div>
+                <div>
+                    <h2 style="font-family: var(--font-heading); color: #fff; font-size: 1.2rem; margin: 0;">Agus</h2>
+                    <p style="color: var(--neon-red); font-size: 0.85rem; margin: 0;">CEO de J.S. Aerospace</p>
+                </div>
+                <button id="chat-back-btn"
+                    style="display: none; margin-left: auto; background: none; border: 1px solid rgba(255,255,255,0.2); color: #fff; cursor: pointer; padding: 5px 10px; border-radius: 5px;">Volver</button>
+            </div>
+
+            <!-- Area de lista de conversaciones (Solo Admin) -->
+            <div id="contact-conversations" style="display: none; flex: 1; overflow-y: auto;">
+                <h3 style="color: rgba(255,255,255,0.7); font-size: 0.9rem; margin-bottom: 10px;">Conversaciones</h3>
+                <div id="conversations-list"></div>
+            </div>
+
+            <!-- Login required view -->
+            <div id="contact-login-required"
+                style="text-align: center; flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center;">
+                <i class="fas fa-lock" style="font-size: 3rem; color: rgba(255,51,51,0.5); margin-bottom: 15px;"></i>
+                <h3 style="color: #fff; margin-bottom: 10px;">Inicia sesión para chatear</h3>
+                <p style="color: rgba(255,255,255,0.6); font-size: 0.9rem; margin-bottom: 20px;">Necesitas una cuenta
+                    para contactar con el CEO.</p>
+                <button class="btn btn-red" id="contactLoginBtn" style="padding: 10px 20px;">Iniciar Sesión</button>
+            </div>
+
+            <!-- Area de Chat -->
+            <div id="contact-chat-area" style="display: none; flex: 1; flex-direction: column; min-height: 0;">
+                <div id="chat-messages"
+                    style="flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; padding-right: 5px; margin-bottom: 15px;">
+                    <!-- Mensajes irán aquí -->
+                </div>
+                <form id="chat-form" style="display: flex; gap: 10px; margin-top: auto;">
+                    <input type="text" id="chat-input" placeholder="Escribe tu mensaje..."
+                        style="flex: 1; padding: 12px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 5px; color: #fff; outline: none;"
+                        autocomplete="off">
+                    <button type="submit"
+                        style="background: var(--neon-red); border: none; border-radius: 5px; width: 45px; color: #000; cursor: pointer; display: flex; align-items: center; justify-content: center;">
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut, updateProfile, updatePassword } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+        import { getDatabase, ref, set, get, update, push, onValue, onChildAdded, remove } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyC6eDNK7CLl_aXEYkwFV97k-2A1axzRAKg",
+            authDomain: "j-saerospace.firebaseapp.com",
+            projectId: "j-saerospace",
+            storageBucket: "j-saerospace.firebasestorage.app",
+            messagingSenderId: "496032189875",
+            appId: "1:496032189875:web:69c591002b8131ed1c0fc6",
+            measurementId: "G-YXWPQWVGDZ",
+            databaseURL: "https://j-saerospace-default-rtdb.firebaseio.com"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const database = getDatabase(app);
+        const googleProvider = new GoogleAuthProvider();
+
+        // DOM Elements - Utils
+        const safeGet = (id) => document.getElementById(id);
+        const setupModal = (btnId, modalId, closeId) => {
+            const btn = safeGet(btnId);
+            const modal = safeGet(modalId);
+            const close = safeGet(closeId);
+            if (btn && modal) btn.onclick = () => {
+                if (modalId === 'contactModal') updateChatView();
+                modal.classList.add('active');
+            };
+            if (close && modal) close.onclick = () => modal.classList.remove('active');
+        };
+
+        // --- GLOBAL STATE ---
+        let currentUser = null;
+        let isAdmin = false;
+        let isLoginMode = true;
+        let activeChatUid = null;
+        let chatListeners = [];
+        let rawMissionsData = {};
+        let currentFilter = 'all';
+
+        // --- DOM ELEMENTS ---
+        const authBtn = safeGet('authBtn');
+        const loginModal = safeGet('loginModal');
+        const profileModal = safeGet('profileModal');
+        const contactModal = safeGet('contactModal');
+        const authForm = safeGet('authForm');
+        const authMessage = safeGet('authMessage');
+        const toggleLink = safeGet('toggleLink');
+        const modalTitle = safeGet('modalTitle');
+        const submitBtn = safeGet('submitBtn');
+        const nameGroup = safeGet('nameGroup');
+        const addMissionBtn = safeGet('addMissionBtn');
+        const missionModal = safeGet('missionModal');
+        const missionForm = safeGet('missionForm');
+        const missionsGrid = safeGet('missionsGrid');
+        const emptyState = safeGet('emptyState');
+
+        // --- CONSTANTS ---
+        const STATUS_MAP = {
+            'success': 'COMPLETADA',
+            'upcoming': 'PRÓXIMA',
+            'failed': 'FALLIDA',
+            'in_flight': 'EN VUELO'
+        };
+
+        const STATUS_COLORS = {
+            'success': 'var(--neon-green)',
+            'upcoming': 'var(--neon-orange)',
+            'failed': 'var(--neon-red)',
+            'in_flight': 'var(--neon-blue)'
+        };
+
+        // --- AUTH LOGIC ---
+        onAuthStateChanged(auth, async (user) => {
+            currentUser = user;
+            if (user) {
+                isAdmin = (user.email === 'olanoagus@gmail.com');
+                if (authBtn) {
+                    authBtn.classList.add('logged-in');
+                    authBtn.innerHTML = `
+                        <img src="${user.photoURL || 'https://via.placeholder.com/32'}" class="user-avatar" alt="Avatar">
+                        <span>${user.displayName || user.email.split('@')[0]}</span>
+                    `;
+                }
+                if (addMissionBtn) addMissionBtn.style.display = isAdmin ? 'flex' : 'none';
+                saveUserToDatabase(user);
+            } else {
+                isAdmin = false;
+                if (authBtn) {
+                    authBtn.classList.remove('logged-in');
+                    authBtn.innerHTML = `<i class="fas fa-user"></i><span id="authBtnText">Iniciar Sesión</span>`;
+                }
+                if (addMissionBtn) addMissionBtn.style.display = 'none';
+            }
+            updateChatView();
+        });
+
+        async function saveUserToDatabase(user) {
+            const userRef = ref(database, 'users/' + user.uid);
+            await update(userRef, {
+                lastLogin: new Date().toISOString(),
+                displayName: user.displayName || null,
+                photoURL: user.photoURL || null
+            });
+        }
+
+        if (authBtn) authBtn.onclick = () => {
+            if (currentUser) profileModal?.classList.add('active');
+            else loginModal?.classList.add('active');
+        };
+
+        setupModal(null, 'loginModal', 'closeModal');
+        const closeM = safeGet('closeModal'); if (closeM) closeM.onclick = () => loginModal?.classList.remove('active');
+        const closeP = safeGet('closeProfileModal'); if (closeP) closeP.onclick = () => profileModal?.classList.remove('active');
+        setupModal('contactBtn', 'contactModal', 'closeContactModal');
+
+        if (toggleLink) toggleLink.onclick = (e) => {
+            e.preventDefault();
+            isLoginMode = !isLoginMode;
+            if (modalTitle) modalTitle.textContent = isLoginMode ? 'Iniciar Sesión' : 'Registrarse';
+            if (submitBtn) submitBtn.textContent = isLoginMode ? 'Entrar' : 'Crear Cuenta';
+            if (nameGroup) nameGroup.style.display = isLoginMode ? 'none' : 'block';
+        };
+
+        if (authForm) authForm.onsubmit = async (e) => {
+            e.preventDefault();
+            const email = safeGet('userEmail')?.value;
+            const password = safeGet('userPassword')?.value;
+            const name = safeGet('userName')?.value;
+            try {
+                if (isLoginMode) await signInWithEmailAndPassword(auth, email, password);
+                else {
+                    const cred = await createUserWithEmailAndPassword(auth, email, password);
+                    await updateProfile(cred.user, { displayName: name });
+                }
+                loginModal?.classList.remove('active');
+            } catch (err) {
+                if (authMessage) { authMessage.textContent = err.message; authMessage.className = 'auth-message error'; }
+            }
+        };
+
+        const googleLoginBtn = safeGet('googleLogin');
+        if (googleLoginBtn) googleLoginBtn.onclick = async () => {
+            try { await signInWithPopup(auth, googleProvider); loginModal?.classList.remove('active'); }
+            catch (err) { if (authMessage) { authMessage.textContent = err.message; authMessage.className = 'auth-message error'; } }
+        };
+
+        const logoutB = safeGet('logoutBtn');
+        if (logoutB) logoutB.onclick = () => { signOut(auth); profileModal?.classList.remove('active'); };
+
+        // --- CHAT LOGIC ---
+        const contactLoginRequired = safeGet('contact-login-required');
+        const contactChatArea = safeGet('contact-chat-area');
+        const contactConversations = safeGet('contact-conversations');
+        const conversationsList = safeGet('conversations-list');
+        const chatMessages = safeGet('chat-messages');
+        const chatForm = safeGet('chat-form');
+        const chatInput = safeGet('chat-input');
+        const chatBackBtn = safeGet('chat-back-btn');
+
+        if (chatBackBtn) chatBackBtn.onclick = () => { activeChatUid = null; updateChatView(); };
+        const contactL = safeGet('contactLoginBtn'); if (contactL) contactL.onclick = () => { contactModal?.classList.remove('active'); loginModal?.classList.add('active'); };
+
+        function clearChatListeners() { chatListeners.forEach(un => un()); chatListeners = []; }
+
+        function updateChatView() {
+            if (!currentUser) {
+                if (contactLoginRequired) contactLoginRequired.style.display = 'flex';
+                if (contactChatArea) contactChatArea.style.display = 'none';
+                if (contactConversations) contactConversations.style.display = 'none';
+                return;
+            }
+            if (contactLoginRequired) contactLoginRequired.style.display = 'none';
+            const isAgus = isAdmin;
+            if (isAgus) {
+                if (!activeChatUid) {
+                    if (contactConversations) contactConversations.style.display = 'block';
+                    if (contactChatArea) contactChatArea.style.display = 'none';
+                    if (chatBackBtn) chatBackBtn.style.display = 'none';
+                    loadConversations();
+                } else {
+                    if (contactConversations) contactConversations.style.display = 'none';
+                    if (contactChatArea) contactChatArea.style.display = 'flex';
+                    if (chatBackBtn) chatBackBtn.style.display = 'block';
+                    loadChatMessages(activeChatUid);
+                }
+            } else {
+                if (contactConversations) contactConversations.style.display = 'none';
+                if (contactChatArea) contactChatArea.style.display = 'flex';
+                if (chatBackBtn) chatBackBtn.style.display = 'none';
+                activeChatUid = currentUser.uid;
+                loadChatMessages(currentUser.uid);
+            }
+        }
+
+        function loadConversations() {
+            clearChatListeners();
+            const unsub = onValue(ref(database, 'chats'), (snap) => {
+                if (conversationsList) {
+                    conversationsList.innerHTML = '';
+                    if (!snap.exists()) { conversationsList.innerHTML = '<p>No hay mensajes.</p>'; return; }
+                    snap.forEach(child => {
+                        const uid = child.key;
+                        const lastMsg = Object.values(child.val()).pop();
+                        const el = document.createElement('div');
+                        el.style.cssText = 'padding:10px; border-bottom:1px solid rgba(255,255,255,0.1); cursor:pointer;';
+                        el.innerHTML = `<strong>${uid.substring(0, 8)}</strong><br><small>${lastMsg.text}</small>`;
+                        el.onclick = () => { activeChatUid = uid; updateChatView(); };
+                        conversationsList.appendChild(el);
+                    });
+                }
+            });
+            chatListeners.push(unsub);
+        }
+
+        function loadChatMessages(uid) {
+            clearChatListeners();
+            if (chatMessages) {
+                chatMessages.innerHTML = '';
+                const unsub = onChildAdded(ref(database, 'chats/' + uid), (snap) => renderMessage(snap.val()));
+                chatListeners.push(unsub);
+            }
+        }
+
+        function renderMessage(msg) {
+            const isMine = (msg.senderUid === currentUser.uid);
+            const msgEl = document.createElement('div');
+            msgEl.className = `chat-msg ${isMine ? 'mine' : 'theirs'}`;
+            msgEl.style.cssText = `max-width:80%; padding:10px; border-radius:10px; margin-bottom:5px; align-self:${isMine ? 'flex-end' : 'flex-start'}; background:${isMine ? 'var(--neon-red)' : 'rgba(255,255,255,0.1)'}; color:${isMine ? '#000' : '#fff'};`;
+            msgEl.textContent = msg.text;
+            chatMessages?.appendChild(msgEl);
+            if (chatMessages) chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        if (chatForm) chatForm.onsubmit = async (e) => {
+            e.preventDefault();
+            const text = chatInput?.value.trim();
+            if (!text || !currentUser) return;
+            const threadUid = (isAdmin && activeChatUid) ? activeChatUid : currentUser.uid;
+            await push(ref(database, 'chats/' + threadUid), { text, senderUid: currentUser.uid, timestamp: Date.now() });
+            if (chatInput) chatInput.value = '';
+        };
+
+        // --- MISSIONS LOGIC ---
+        onValue(ref(database, 'missions'), (snap) => {
+            rawMissionsData = snap.val() || {};
+            updateStats(rawMissionsData);
+            renderFilteredMissions();
+        });
+
+        function updateStats(missions) {
+            const arr = Object.values(missions);
+            const comp = arr.filter(m => m.status === 'success' || m.status === 'failed');
+            const successes = arr.filter(m => m.status === 'success').length;
+            const totalL = safeGet('totalLaunches'); if (totalL) totalL.textContent = arr.length;
+            const sCount = safeGet('successCount'); if (sCount) sCount.textContent = successes;
+            const fCount = safeGet('failedCount'); if (fCount) fCount.textContent = arr.filter(m => m.status === 'failed').length;
+            const sRatio = safeGet('successRatio'); if (sRatio) sRatio.textContent = comp.length ? Math.round((successes / comp.length) * 100) + '%' : '0%';
+        }
+
+        function renderFilteredMissions() {
+            if (!missionsGrid) return;
+            missionsGrid.innerHTML = '';
+
+            // Prepare missions with their calculated timestamps
+            let missionsArr = Object.entries(rawMissionsData).map(([id, m]) => {
+                let dateObj;
+                const dStr = m.date || "";
+                const tStr = m.time || "00:00";
+                if (dStr.includes('/')) {
+                    const [d, mon, y] = dStr.split('/');
+                    dateObj = new Date(`${y}-${mon}-${d}T${tStr}:00Z`);
+                } else {
+                    dateObj = new Date(`${dStr}T${tStr}:00Z`);
+                }
+                if (isNaN(dateObj.getTime())) dateObj = new Date();
+                return { id, data: m, timestamp: dateObj.getTime(), dateObj };
+            });
+
+            // Sort by date (newest first)
+            missionsArr.sort((a, b) => b.timestamp - a.timestamp);
+
+            // Filter
+            if (currentFilter !== 'all') {
+                missionsArr = missionsArr.filter(item => item.data.status === currentFilter);
+            }
+
+            if (missionsArr.length === 0) {
+                if (emptyState) emptyState.style.display = 'block';
+                return;
+            }
+            if (emptyState) emptyState.style.display = 'none';
+
+            missionsArr.forEach(({ id, data: m, timestamp: targetTimestamp, dateObj }) => {
+                const localDate = dateObj.toLocaleDateString(undefined, { day: '2-digit', month: '2-digit', year: 'numeric' });
+                const localTime = dateObj.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit', hour12: false });
+
+                const card = document.createElement('div');
+                card.className = 'mission-card';
+                card.dataset.id = id;
+
+                let imgs = m.images || ['https://via.placeholder.com/800x600?text=Mission'];
+                if (typeof imgs === 'object' && !Array.isArray(imgs)) imgs = Object.values(imgs);
+                const cardImg = imgs[0] || 'https://via.placeholder.com/800x600?text=Mission';
+
+                const missionTitle = m.title || m.name || 'Misión Programada';
+
+                card.innerHTML = `
+                    <div class="card-image-container">
+                        <img src="${cardImg}" alt="${missionTitle}" onerror="this.src='https://via.placeholder.com/400x250?text=No+Image'">
+                        ${isAdmin ? `<div class="admin-actions">
+                            <button class="btn-edit" onclick="event.stopPropagation(); window.editMission('${id}')"><i class="fas fa-edit"></i></button>
+                            <button class="btn-delete" onclick="event.stopPropagation(); window.deleteMission('${id}')"><i class="fas fa-trash"></i></button>
+                        </div>` : ''}
+                    </div>
+                    <div class="card-content">
+                        <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:15px;">
+                            <h2 style="margin:0; flex:1;">${missionTitle}</h2>
+                        </div>
+                        <div class="card-info-row">
+                            <i class="fas fa-calendar-alt"></i>
+                            <span>${localDate} | ${localTime} <small style="opacity:0.6; margin-left:5px;">(Local)</small></span>
+                        </div>
+                        <div class="card-info-row" style="margin-bottom:0;">
+                            <i class="fas fa-map-marker-alt"></i>
+                            <span>${m.location || 'Sin ubicación'}</span>
+                        </div>
+                    </div>
+                    <div class="mission-card-footer" style="padding: 20px; margin-top:auto; border-top: 1px solid rgba(255,255,255,0.05); background: rgba(255,255,255,0.02);">
+                        ${(m.status === 'upcoming' || m.status === 'in_flight') && m.showCountdown !== false ? `
+                            <div class="active-status-container" style="background: rgba(0, 243, 255, 0.05); border: 1px solid rgba(0, 243, 255, 0.1); border-radius: 12px; padding: 15px; text-align: center;">
+                                <div style="display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 10px;">
+                                    <span class="status-indicator ${m.status === 'in_flight' ? 'pulse-active' : ''}" style="width: 8px; height: 8px; border-radius: 50%; background: ${STATUS_COLORS[m.status]}; box-shadow: 0 0 10px ${STATUS_COLORS[m.status]}; display: inline-block;"></span>
+                                    <span class="card-status-text" style="color: ${STATUS_COLORS[m.status]}; font-family: var(--font-heading); font-size: 0.7rem; letter-spacing: 2px; font-weight: 700; line-height: 1; margin: 0; padding: 0;">${(STATUS_MAP[m.status] || m.status).toUpperCase()}</span>
+                                </div>
+                                <div style="font-size:0.55rem; text-transform:uppercase; color:rgba(255,255,255,0.4); margin-bottom:4px; letter-spacing: 1px;">${m.status === 'in_flight' ? 'Tiempo en vuelo' : 'Cuenta Regresiva'}</div>
+                                <div class="countdown-container" style="font-family:var(--font-heading); font-size: 1.2rem; color:#fff; line-height: 1;" data-target="${targetTimestamp}">00:00:00</div>
+                            </div>
+                        ` : `
+                            <div class="card-status" style="display: flex; align-items: center; justify-content: center; gap: 15px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05); border-radius: 8px; padding: 12px;">
+                                <span class="status-indicator" style="width: 8px; height: 8px; border-radius: 50%; background: ${STATUS_COLORS[m.status] || 'var(--primary-color)'}; box-shadow: 0 0 10px ${STATUS_COLORS[m.status] || 'var(--primary-color)'}; display: inline-block;"></span>
+                                <span class="card-status-text" style="color: ${STATUS_COLORS[m.status] || 'var(--primary-color)'}; font-family: var(--font-heading); font-size: 0.8rem; letter-spacing: 2px; font-weight: 700; line-height: 1; margin: 0; padding: 0;">${(STATUS_MAP[m.status] || m.status).toUpperCase()}</span>
+                                ${m.status === 'success' ? `<i class="fas fa-check-circle" style="color: var(--neon-green); font-size: 0.9rem; line-height: 1; display: flex; align-items: center;"></i>` : ''}
+                                ${m.status === 'failed' ? `<i class="fas fa-times-circle" style="color: var(--neon-red); font-size: 0.9rem; line-height: 1; display: flex; align-items: center;"></i>` : ''}
+                            </div>
+                        `}
+                    </div>`;
+
+                card.onclick = () => window.viewMissionDetails(id);
+                missionsGrid.appendChild(card);
+            });
+        }
+
+        let currentGalleryIndex = 0;
+        let galleryImages = [];
+
+        window.viewMissionDetails = (id) => {
+            const m = rawMissionsData[id];
+            if (!m) return;
+
+            const modal = safeGet('missionDetailsModal');
+            // Using global STATUS_MAP and STATUS_COLORS
+
+            // Gallery setup
+            let imgs = m.images || [];
+            if (typeof imgs === 'object' && !Array.isArray(imgs)) imgs = Object.values(imgs);
+            galleryImages = imgs.length ? imgs : ['https://via.placeholder.com/800x600?text=Mission+Image'];
+            currentGalleryIndex = 0;
+
+            const tracks = safeGet('galleryTracks');
+            const dots = safeGet('galleryDots');
+            const nav = safeGet('galleryNav');
+
+            tracks.innerHTML = '';
+            dots.innerHTML = '';
+
+            galleryImages.forEach((img, idx) => {
+                const imgEl = document.createElement('img');
+                imgEl.src = img;
+                imgEl.className = `gallery-img ${idx === 0 ? 'active' : ''}`;
+                imgEl.onerror = () => { imgEl.src = 'https://via.placeholder.com/800x600?text=Imagen+no+disponible'; };
+                tracks.appendChild(imgEl);
+
+                const dot = document.createElement('div');
+                dot.className = `dot ${idx === 0 ? 'active' : ''}`;
+                dot.onclick = () => showGalleryImage(idx);
+                dots.appendChild(dot);
+            });
+
+            nav.style.display = galleryImages.length > 1 ? 'flex' : 'none';
+            dots.style.display = galleryImages.length > 1 ? 'flex' : 'none';
+
+            safeGet('detailsTitle').textContent = m.title || m.name || 'Misión Programada';
+
+            const badge = safeGet('detailsStatusBadge');
+            badge.textContent = STATUS_MAP[m.status] || m.status.toUpperCase();
+            badge.style.background = STATUS_COLORS[m.status] || 'rgba(0,212,255,0.2)';
+            badge.style.color = m.status === 'upcoming' ? '#000' : '#fff';
+
+            // Main Info
+            const descCont = safeGet('detailsDescriptionContainer');
+            if (m.description) {
+                descCont.style.display = 'block';
+                safeGet('detailsDescription').textContent = m.description;
+            } else descCont.style.display = 'none';
+
+            const cargaCont = safeGet('detailsCargaContainer');
+            if (m.payload || m.destination) {
+                cargaCont.style.display = 'block';
+                safeGet('detailsPayload').textContent = m.payload || 'No especificada';
+                safeGet('detailsDestination').textContent = m.destination || 'No especificado';
+            } else cargaCont.style.display = 'none';
+
+            const crewCont = safeGet('detailsCrewContainer');
+            if (m.isManned && m.crew) {
+                crewCont.style.display = 'block';
+                safeGet('detailsCrew').textContent = m.crew;
+            } else crewCont.style.display = 'none';
+
+            // Sidebar
+            let dateObj;
+            if ((m.date || "").includes('/')) {
+                const [d, mon, y] = m.date.split('/');
+                dateObj = new Date(`${y}-${mon}-${d}T${m.time || '00:00'}:00Z`);
+            } else dateObj = new Date(`${m.date}T${m.time || '00:00'}:00Z`);
+
+            safeGet('detailsDateTime').textContent = isNaN(dateObj.getTime()) ? (m.date + ' ' + m.time) : (dateObj.toLocaleDateString() + ' ' + dateObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false }));
+            safeGet('detailsTimeType').textContent = '(Hora Local)';
+
+            safeGet('detailsVehicle').textContent = m.vehicle || 'Vehículo J.S.A.';
+            safeGet('detailsBooster').textContent = m.booster ? `Booster: ${m.booster}` : '';
+            safeGet('detailsProvider').textContent = m.provider || 'EsZunSpace';
+            safeGet('detailsLocation').textContent = m.location || 'Sin ubicación';
+
+            const landCont = safeGet('detailsLandingContainer');
+            if (m.landing) {
+                landCont.style.display = 'block';
+                safeGet('detailsLanding').textContent = m.landing;
+            } else landCont.style.display = 'none';
+
+            modal?.classList.add('active');
+        };
+
+        function showGalleryImage(index) {
+            currentGalleryIndex = index;
+            const imgs = document.querySelectorAll('#galleryTracks .gallery-img');
+            const dots = document.querySelectorAll('#galleryDots .dot');
+
+            imgs.forEach((img, i) => img.classList.toggle('active', i === index));
+            dots.forEach((dot, i) => dot.classList.toggle('active', i === index));
+        }
+
+        safeGet('prevGallery').onclick = (e) => {
+            e.stopPropagation();
+            let newIndex = currentGalleryIndex - 1;
+            if (newIndex < 0) newIndex = galleryImages.length - 1;
+            showGalleryImage(newIndex);
+        };
+
+        safeGet('nextGallery').onclick = (e) => {
+            e.stopPropagation();
+            let newIndex = currentGalleryIndex + 1;
+            if (newIndex >= galleryImages.length) newIndex = 0;
+            showGalleryImage(newIndex);
+        };
+
+        const closeDet = safeGet('closeDetailsModal');
+        if (closeDet) closeDet.onclick = () => safeGet('missionDetailsModal')?.classList.remove('active');
+
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.onclick = () => {
+                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                currentFilter = btn.dataset.filter;
+                renderFilteredMissions();
+            };
+        });
+
+        // --- CRUD OPERATIONS ---
+        if (addMissionBtn) addMissionBtn.onclick = () => { if (missionForm) missionForm.reset(); safeGet('editingMissionId').value = ''; missionModal?.classList.add('active'); };
+        const closeMiss = safeGet('closeMissionModal'); if (closeMiss) closeMiss.onclick = () => missionModal?.classList.remove('active');
+
+        if (missionForm) missionForm.onsubmit = async (e) => {
+            e.preventDefault();
+            if (!isAdmin) return;
+            const id = safeGet('editingMissionId')?.value;
+            const imgs = safeGet('mImages')?.value.split('\n').map(s => s.trim()).filter(s => s);
+            const data = {
+                title: safeGet('mTitle').value,
+                date: safeGet('mDate').value,
+                time: safeGet('mTime').value,
+                status: safeGet('mStatus').value,
+                location: safeGet('mLocation').value,
+                provider: safeGet('mProvider').value,
+                vehicle: safeGet('mVehicle').value,
+                landing: safeGet('mLanding').value,
+                payload: safeGet('mPayload').value,
+                destination: safeGet('mDestination').value,
+                booster: safeGet('mBooster').value,
+                isManned: safeGet('mIsManned').checked,
+                crew: safeGet('mCrew').value,
+                description: safeGet('mDescription').value,
+                images: imgs.length ? imgs : ['https://via.placeholder.com/800x600?text=Mission'],
+                showCountdown: safeGet('mShowCountdown').checked,
+                updatedAt: new Date().toISOString()
+            };
+            if (id) await update(ref(database, 'missions/' + id), data);
+            else await push(ref(database, 'missions'), data);
+            missionModal?.classList.remove('active');
+        };
+
+        const crewCheck = safeGet('mIsManned');
+        if (crewCheck) crewCheck.onchange = () => safeGet('crewGroup').style.display = crewCheck.checked ? 'block' : 'none';
+
+        window.editMission = async (id) => {
+            if (!isAdmin) return;
+            const snap = await get(ref(database, 'missions/' + id));
+            if (snap.exists()) {
+                const m = snap.val();
+                safeGet('editingMissionId').value = id;
+                safeGet('mTitle').value = m.title;
+                safeGet('mDate').value = m.date;
+                safeGet('mTime').value = m.time;
+                safeGet('mStatus').value = m.status;
+                safeGet('mLocation').value = m.location;
+                safeGet('mProvider').value = m.provider;
+                safeGet('mVehicle').value = m.vehicle;
+                safeGet('mLanding').value = m.landing || '';
+                safeGet('mPayload').value = m.payload || '';
+                safeGet('mDestination').value = m.destination || '';
+                safeGet('mBooster').value = m.booster || '';
+                safeGet('mIsManned').checked = !!m.isManned;
+                safeGet('mCrew').value = m.crew || '';
+                safeGet('mDescription').value = m.description || '';
+                safeGet('crewGroup').style.display = m.isManned ? 'block' : 'none';
+                safeGet('mImages').value = (m.images || []).join('\n');
+                safeGet('mShowCountdown').checked = m.showCountdown !== false;
+                missionModal?.classList.add('active');
+            }
+        };
+
+        window.deleteMission = async (id) => { if (isAdmin && confirm('¿Eliminar esta misión?')) await remove(ref(database, 'missions/' + id)); };
+
+        // --- PAGE LOADER & TRANSITIONS ---
+        window.addEventListener('load', () => {
+            setTimeout(() => safeGet('pageLoader')?.classList.add('hidden'), 800);
+            setInterval(updateMissionCountdowns, 1000);
+        });
+
+        function updateMissionCountdowns() {
+            document.querySelectorAll('.countdown-container').forEach(el => {
+                const targetTs = parseInt(el.dataset.target);
+                if (!targetTs) return;
+
+                const card = el.closest('.mission-card');
+                const id = card?.dataset.id;
+                const m = rawMissionsData[id];
+                if (!m) return;
+
+                const now = Date.now();
+                const diff = targetTs - now; // Milliseconds
+                const absDiff = Math.abs(diff);
+
+                const totalSecs = Math.floor(absDiff / 1000);
+                const days = Math.floor(totalSecs / 86400);
+                const hrs = Math.floor((totalSecs % 86400) / 3600);
+                const mins = Math.floor((totalSecs % 3600) / 60);
+                const secs = totalSecs % 60;
+
+                const timeStr = (days > 0 ? days + "d " : "") +
+                    String(hrs).padStart(2, '0') + ":" +
+                    String(mins).padStart(2, '0') + ":" +
+                    String(secs).padStart(2, '0');
+
+                const pill = card?.querySelector('.card-status-text');
+                const indicator = card?.querySelector('.status-indicator');
+
+                if (diff > 0) {
+                    el.innerText = "T- " + timeStr;
+                    el.style.color = "var(--neon-orange)";
+                } else {
+                    el.innerText = "T+ " + timeStr;
+                    el.style.color = "var(--neon-green)";
+
+                    // Auto-transition to EN VUELO only if it was PRÓXIMA
+                    if (m.status === 'upcoming') {
+                        // For auto-update we just trigger a data refresh from Firebase 
+                        // by updating the DB. The onValue listener will handle re-rendering.
+                        if (isAdmin && id && !m._autoUpdated) {
+                            m._autoUpdated = true;
+                            update(ref(database, 'missions/' + id), { status: 'in_flight' })
+                                .catch(err => console.error("Error auto-updating mission status:", err));
+                        }
+                    }
+                }
+            });
+        }
+
+        document.querySelectorAll('.transition-link').forEach(link => {
+            link.onclick = (e) => {
+                e.preventDefault();
+                document.body.classList.add('exiting');
+                const exit = safeGet('exitOverlay');
+                if (exit) exit.classList.add('active');
+                setTimeout(() => window.location.href = link.dataset.href || link.href, 700);
+            };
+        });
+    </script>
+
+</body>
+
+</html>

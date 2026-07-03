@@ -1,0 +1,1146 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>J.S. AEROSPACE | MISSION CONTROL</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;500;700&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #050a0f;
+            --panel-bg: rgba(10, 20, 30, 0.85);
+            --neon-blue: #00f3ff;
+            --neon-amber: #ffae00;
+            --neon-green: #00ff41;
+            --neon-red: #ff003c;
+            --text-main: #e0e0e0;
+            --grid-color: rgba(0, 243, 255, 0.05);
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-dark);
+            background-image:
+                linear-gradient(var(--grid-color) 1px, transparent 1px),
+                linear-gradient(90deg, var(--grid-color) 1px, transparent 1px);
+            background-size: 40px 40px;
+            color: var(--text-main);
+            font-family: 'Rajdhani', sans-serif;
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+
+        /* --- HEADER --- */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 40px;
+            background: rgba(0, 0, 0, 0.8);
+            border-bottom: 2px solid var(--neon-blue);
+            box-shadow: 0 0 20px rgba(0, 243, 255, 0.2);
+            position: relative;
+            z-index: 10;
+        }
+
+        .header-title {
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 900;
+            font-size: 2rem;
+            margin: 0;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            color: #fff;
+            text-shadow: 0 0 10px var(--neon-blue);
+        }
+
+        .mission-timer {
+            text-align: right;
+        }
+
+        .mission-timer .label {
+            font-size: 0.8rem;
+            opacity: 0.7;
+            letter-spacing: 2px;
+        }
+
+        .mission-timer .time {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2.5rem;
+            color: var(--neon-green);
+            text-shadow: 0 0 10px rgba(0, 255, 65, 0.5);
+        }
+
+        /* --- DASHBOARD GRID --- */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            padding: 40px;
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        @media (max-width: 1200px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* --- PANELS --- */
+        .panel {
+            background: var(--panel-bg);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 25px;
+            position: relative;
+            clip-path: polygon(0 0,
+                    100% 0,
+                    100% calc(100% - 20px),
+                    calc(100% - 20px) 100%,
+                    0 100%);
+        }
+
+        /* Decorative Corners */
+        .panel::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100px;
+            height: 2px;
+            background: var(--neon-blue);
+            box-shadow: 0 0 10px var(--neon-blue);
+        }
+
+        .panel.booster::before {
+            background: var(--neon-amber);
+            box-shadow: 0 0 10px var(--neon-amber);
+        }
+
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding-bottom: 10px;
+        }
+
+        .panel-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.5rem;
+            color: var(--neon-blue);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .panel.booster .panel-title {
+            color: var(--neon-amber);
+        }
+
+        .status-badge {
+            font-family: 'Orbitron', sans-serif;
+            padding: 5px 15px;
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid #fff;
+            color: #fff;
+            font-size: 0.9rem;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        /* --- METRICS --- */
+        .metrics-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .metric-box {
+            background: rgba(255, 255, 255, 0.03);
+            padding: 15px;
+            border-left: 2px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .metric-label {
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            color: rgba(255, 255, 255, 0.6);
+            margin-bottom: 5px;
+            display: block;
+        }
+
+        .metric-value {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2rem;
+            font-weight: 700;
+            color: #fff;
+        }
+
+        .metric-unit {
+            font-size: 1rem;
+            color: rgba(255, 255, 255, 0.4);
+            margin-left: 5px;
+        }
+
+        /* --- BARS --- */
+        .bar-container {
+            margin-top: 25px;
+        }
+
+        .bar-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+        }
+
+        .progress-track {
+            height: 12px;
+            background: rgba(255, 255, 255, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--neon-blue);
+            width: 0%;
+            transition: width 0.3s ease-out;
+            box-shadow: 0 0 10px var(--neon-blue);
+            position: relative;
+        }
+
+        .panel.booster .progress-fill {
+            background: var(--neon-amber);
+            box-shadow: 0 0 10px var(--neon-amber);
+        }
+
+        /* Striped bar effect */
+        .progress-fill::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: linear-gradient(45deg, rgba(0, 0, 0, 0.2) 25%, transparent 25%,
+                    transparent 50%, rgba(0, 0, 0, 0.2) 50%,
+                    rgba(0, 0, 0, 0.2) 75%, transparent 75%, transparent);
+            background-size: 20px 20px;
+        }
+
+        /* --- ENGINE CLUSTER --- */
+        .engine-display {
+            margin-top: 30px;
+            display: flex;
+            justify-content: center;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 50%;
+            width: 250px;
+            height: 250px;
+            margin-left: auto;
+            margin-right: auto;
+            position: relative;
+            border: 1px dashed rgba(255, 255, 255, 0.2);
+        }
+
+        .engine-node {
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            border: 2px solid #333;
+            background: #111;
+            box-shadow: inset 0 0 5px #000;
+            transition: all 0.3s;
+        }
+
+        .engine-node.active {
+            background: #fff;
+            border-color: #fff;
+            box-shadow: 0 0 15px currentColor;
+        }
+
+        .panel.ship .engine-node.active {
+            color: var(--neon-blue);
+        }
+
+        .panel.booster .engine-node.active {
+            color: var(--neon-amber);
+        }
+
+        /* --- FOOTER --- */
+        .status-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0, 0, 0, 0.9);
+            padding: 10px 40px;
+            font-family: monospace;
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.8rem;
+            z-index: 100;
+        }
+
+        .blink {
+            animation: blinker 1.5s linear infinite;
+        }
+
+        @keyframes blinker {
+            50% {
+                opacity: 0;
+            }
+        }
+
+        /* --- LIFTOFF ALERT --- */
+        #liftoff-alert {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 255, 65, 0.9);
+            color: #000;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 5rem;
+            font-weight: 900;
+            padding: 20px 60px;
+            border-radius: 10px;
+            z-index: 1000;
+            display: none;
+            box-shadow: 0 0 50px rgba(0, 255, 65, 0.8);
+            pointer-events: none;
+            text-transform: uppercase;
+            letter-spacing: 10px;
+        }
+
+        .reset-btn {
+            background: rgba(255, 0, 60, 0.2);
+            border: 1px solid var(--neon-red);
+            color: var(--neon-red);
+            padding: 5px 15px;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.7rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-right: 20px;
+            text-transform: uppercase;
+        }
+
+        .reset-btn:hover {
+            background: var(--neon-red);
+            color: #fff;
+            box-shadow: 0 0 10px var(--neon-red);
+        }
+
+        /* (Previous styles preserved, adding overlay styles) */
+        .overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(5, 10, 15, 0.98);
+            backdrop-filter: blur(15px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.5s ease;
+        }
+
+        .overlay.visible {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .login-card {
+            background: var(--panel-bg);
+            border: 1px solid var(--neon-blue);
+            padding: 40px;
+            width: 90%;
+            max-width: 450px;
+            text-align: center;
+            box-shadow: 0 0 30px rgba(0, 243, 255, 0.2);
+            clip-path: polygon(0 0, 100% 0, 100% calc(100% - 20px), calc(100% - 20px) 100%, 0 100%);
+        }
+
+        .login-card h2 {
+            font-family: 'Orbitron', sans-serif;
+            color: var(--neon-blue);
+            margin-bottom: 20px;
+            letter-spacing: 2px;
+        }
+
+        .login-input {
+            width: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid #333;
+            color: #fff;
+            padding: 15px;
+            margin-bottom: 20px;
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 1.1rem;
+            outline: none;
+        }
+
+        .login-input:focus {
+            border-color: var(--neon-blue);
+        }
+
+        .login-btn {
+            width: 100%;
+            background: var(--neon-blue);
+            color: #000;
+            border: none;
+            padding: 15px;
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .login-btn:hover {
+            box-shadow: 0 0 20px var(--neon-blue);
+            transform: scale(1.02);
+        }
+
+        #client-info {
+            font-size: 0.8rem;
+            opacity: 0.6;
+            margin-top: 10px;
+            color: var(--neon-blue);
+        }
+
+        /* --- GO/NO-GO SYSTEM --- */
+        .go-no-go-container {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            padding: 15px 40px;
+            background: rgba(0, 10, 20, 0.6);
+            border-bottom: 2px solid rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(5px);
+            position: sticky;
+            top: 0;
+            z-index: 5;
+        }
+
+        .go-no-go-status {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            font-family: 'Orbitron', sans-serif;
+        }
+
+        .go-no-go-status .label {
+            font-size: 0.8rem;
+            letter-spacing: 1px;
+            opacity: 0.6;
+            color: #fff;
+        }
+
+        .status-indicator {
+            font-weight: 700;
+            padding: 4px 12px;
+            border-radius: 2px;
+            background: rgba(255, 0, 60, 0.15);
+            color: var(--neon-red);
+            border: 1px solid var(--neon-red);
+            min-width: 90px;
+            text-align: center;
+            font-size: 0.9rem;
+            letter-spacing: 2px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            text-shadow: 0 0 5px var(--neon-red);
+        }
+
+        .status-indicator.go {
+            background: rgba(0, 255, 65, 0.15);
+            color: var(--neon-green);
+            border-color: var(--neon-green);
+            box-shadow: 0 0 15px rgba(0, 255, 65, 0.2);
+            text-shadow: 0 0 5px var(--neon-green);
+        }
+
+        .status-indicator.no-go {
+            background: rgba(255, 0, 60, 0.15);
+            color: var(--neon-red);
+            border-color: var(--neon-red);
+            box-shadow: 0 0 5px rgba(255, 0, 60, 0.1);
+        }
+
+        .go-toggle-btn {
+            background: rgba(0, 243, 255, 0.05);
+            border: 1px solid var(--neon-blue);
+            color: var(--neon-blue);
+            padding: 6px 18px;
+            cursor: pointer;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.75rem;
+            font-weight: 700;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .go-toggle-btn:hover {
+            background: var(--neon-blue);
+            color: #000;
+            box-shadow: 0 0 15px rgba(0, 243, 255, 0.4);
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="login-overlay" class="overlay">
+        <div class="login-card">
+            <h2>AUTENTICACIÓN DE MISIÓN</h2>
+            <p style="font-size: 0.9rem; opacity: 0.7; margin-bottom: 25px;">Ingresa la identificación de misión para
+                sincronizar telemetría.</p>
+            <input type="text" id="client-name-input" class="login-input"
+                placeholder="NOMBRE DEL CLIENTE (ej. HALCON SPACE)">
+            <input type="text" id="mission-id-input" class="login-input" placeholder="ID DE MISIÓN (ej. HS-001)">
+            <button class="login-btn" onclick="startMetricSync()">ESTABLECER CONEXIÓN</button>
+        </div>
+    </div>
+
+    <header>
+        <div class="header-container" style="display: flex; align-items: center;">
+            <button class="reset-btn" id="btn-switch-mission"
+                style="background: rgba(0, 243, 255, 0.1); border-color: var(--neon-blue); color: var(--neon-blue);">CAMBIAR
+                MISIÓN</button>
+            <div>
+                <div class="header-title">J.S. AEROSPACE</div>
+                <div id="client-info">CONECTANDO...</div>
+            </div>
+        </div>
+        <div class="mission-timer">
+            <div class="label">TIEMPO TRANSCURRIDO (MET)</div>
+            <div class="time" id="met-display">T- 00:00:00</div>
+        </div>
+    </header>
+
+    <div
+        style="background: rgba(0,0,0,0.4); padding: 5px 40px; border-bottom: 1px solid rgba(0,243,255,0.1); font-size: 0.7rem; display: flex; justify-content: space-between; font-family: 'Orbitron', sans-serif;">
+        <div id="conn-status" style="color: #666;">DESCONECTADO</div>
+        <div>ID DE MISIÓN: <span id="data-id" style="color: var(--neon-blue);">-</span></div>
+    </div>
+
+    <div class="go-no-go-container">
+        <div class="go-no-go-status">
+            <span class="label">ESTADO DEL CLIENTE:</span>
+            <span class="status-indicator" id="client-go-indicator">NO-GO</span>
+            <button class="go-toggle-btn" id="client-go-btn" onclick="toggleClientGo()">MARCAR GO</button>
+        </div>
+        <div style="width: 2px; height: 25px; background: rgba(255,255,255,0.1);"></div>
+        <div class="go-no-go-status">
+            <span class="label">AUTORIZACIÓN DE MISIÓN:</span>
+            <span class="status-indicator" id="mission-go-indicator">NO-GO</span>
+        </div>
+    </div>
+
+    <div id="liftoff-alert">DESPEGUE</div>
+
+    <div class="dashboard-grid">
+
+        <!-- === BOOSTER PANEL === -->
+        <div class="panel booster">
+            <div class="panel-header">
+                <div class="panel-title">PROPULSOR / S1</div>
+                <div class="status-badge" id="booster-status">STANDBY</div>
+            </div>
+
+            <div class="metrics-container">
+                <div class="metric-box">
+                    <span class="metric-label">Altitud</span>
+                    <span class="metric-value" id="booster-alt">0</span>
+                    <span class="metric-unit">m</span>
+                </div>
+                <div class="metric-box">
+                    <span class="metric-label">Velocidad</span>
+                    <span class="metric-value" id="booster-vel">0</span>
+                    <span class="metric-unit">m/s</span>
+                </div>
+                <div class="metric-box">
+                    <span class="metric-label">V. Vertical</span>
+                    <span class="metric-value" id="booster-vs">0.0</span>
+                    <span class="metric-unit">m/s</span>
+                </div>
+                <div class="metric-box">
+                    <span class="metric-label">Dist. Objetivo</span>
+                    <span class="metric-value" id="booster-dist">0</span>
+                    <span class="metric-unit">m</span>
+                </div>
+            </div>
+
+            <div class="bar-container">
+                <div class="bar-label">
+                    <span>METANO / LOX (BOOSTER)</span>
+                    <span id="booster-fuel-pct">0%</span>
+                </div>
+                <div class="progress-track">
+                    <div class="progress-fill" id="booster-fuel-bar"></div>
+                </div>
+            </div>
+
+            <div class="bar-container">
+                <div class="bar-label">
+                    <span>Potencia Motor (Throttle)</span>
+                    <span id="booster-thr-pct">0%</span>
+                </div>
+                <div class="progress-track">
+                    <div class="progress-fill" id="booster-thr-bar" style="width: 0%"></div>
+                </div>
+            </div>
+
+            <div class="engine-display" id="booster-engines" data-type="booster">
+                <!-- Engines JS generated -->
+            </div>
+        </div>
+
+        <!-- === SHIP PANEL === -->
+        <div class="panel ship">
+            <div class="panel-header">
+                <div class="panel-title">ORBITADOR / S2</div>
+                <div class="status-badge" id="ship-status">STANDBY</div>
+            </div>
+
+            <div class="metrics-container">
+                <div class="metric-box">
+                    <span class="metric-label">Apoapsis</span>
+                    <span class="metric-value" id="ship-apo">0.0</span>
+                    <span class="metric-unit">km</span>
+                </div>
+                <div class="metric-box">
+                    <span class="metric-label">Periapsis</span>
+                    <span class="metric-value" id="ship-per">0.0</span>
+                    <span class="metric-unit">km</span>
+                </div>
+                <div class="metric-box">
+                    <span class="metric-label">Delta-V</span>
+                    <span class="metric-value" id="ship-dv">0</span>
+                    <span class="metric-unit">m/s</span>
+                </div>
+                <div class="metric-box">
+                    <span class="metric-label">V. Orbital</span>
+                    <span class="metric-value" id="ship-vel">0</span>
+                    <span class="metric-unit">m/s</span>
+                </div>
+                <div class="metric-box">
+                    <span class="metric-label">Altitud</span>
+                    <span class="metric-value" id="ship-alt">0</span>
+                    <span class="metric-unit">m</span>
+                </div>
+                <div class="metric-box">
+                    <span class="metric-label">Inclinación</span>
+                    <span class="metric-value" id="ship-inc">0.0</span>
+                    <span class="metric-unit">°</span>
+                </div>
+            </div>
+
+            <div class="bar-container">
+                <div class="bar-label">
+                    <span>METANOX (VACÍO)</span>
+                    <span id="ship-fuel-pct">0%</span>
+                </div>
+                <div class="progress-track">
+                    <div class="progress-fill" id="ship-fuel-bar"></div>
+                </div>
+            </div>
+
+            <div class="bar-container">
+                <div class="bar-label">
+                    <span>Potencia Motor</span>
+                    <span id="ship-thr-pct">0%</span>
+                </div>
+                <div class="progress-track">
+                    <div class="progress-fill" id="ship-thr-bar" style="width: 0%"></div>
+                </div>
+            </div>
+
+            <!-- Single Engine for S2 -->
+            <div class="engine-display" id="ship-engines" data-type="ship" style="width: 150px; height: 150px;">
+                <div id="s2-engine-main" class="engine-node"
+                    style="width: 100px; height: 100px; top: 25px; left: 25px; border-width: 5px;"></div>
+            </div>
+        </div>
+
+    </div>
+
+    </div>
+
+    <!-- Barra de estado discreta (Opcional, si el usuario la quiere ver) -->
+    <div
+        style="background: rgba(0,0,0,0.4); padding: 5px 40px; border-bottom: 1px solid rgba(0,243,255,0.1); font-size: 0.7rem; display: flex; justify-content: space-between; font-family: 'Orbitron', sans-serif;">
+        <div id="conn-status" style="color: #666;">SINCRONIZANDO...</div>
+        <div>ID: <span id="data-id" style="color: var(--neon-blue);">-</span></div>
+    </div>
+
+    <!-- FIREBASE SDK -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getDatabase, ref, onValue, set, get, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
+        // CONFIGURACION GLOBAL
+        const firebaseConfig = {
+            apiKey: "AIzaSyCiZs5Edhj2M0GIroo7thpD-fz6UOWpoZQ",
+            authDomain: "control-de-mision-js.firebaseapp.com",
+            projectId: "control-de-mision-js",
+            storageBucket: "control-de-mision-js.firebasestorage.app",
+            messagingSenderId: "771859762827",
+            appId: "1:771859762827:web:00caa47bca9e3aad5b4e8e",
+            measurementId: "G-WY3SGSG5YM",
+            databaseURL: "https://control-de-mision-js-default-rtdb.firebaseio.com/"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
+        let currentMissionID = "";
+        let clientName = "";
+        let missionStartTimestamp = null;
+        let clientGo = false;
+        let lastPacketTime = 0; // Watchdog para evitar datos viejos
+
+        // --- GESTIÓN DE MISIÓN ---
+        window.startMetricSync = async function () {
+            const idInput = document.getElementById('mission-id-input').value.trim().toUpperCase();
+            const nameInput = document.getElementById('client-name-input').value.trim();
+            const btn = document.querySelector('.login-btn');
+            const overlay = document.getElementById('login-overlay');
+
+            if (!idInput) { alert("Se requiere ID de misión."); return; }
+
+            // Estado de carga
+            btn.innerText = "VERIFICANDO...";
+            btn.disabled = true;
+
+            try {
+                // Verificar si existe la misión en Firebase (Chequeamos si tiene nombre o inicio)
+                const checkRef = ref(db, `missions/${idInput}/global/mission_name`);
+
+                const snapshot = await get(checkRef);
+
+                if (!snapshot.exists()) {
+                    alert("ERROR: La ID de misión '" + idInput + "' no existe o no ha sido activada por el administrador.");
+                    btn.innerText = "ESTABLECER CONEXIÓN";
+                    btn.disabled = false;
+                    return;
+                }
+
+                currentMissionID = idInput;
+                clientName = nameInput || "CLIENTE PRIVADO";
+
+                overlay.classList.remove('visible');
+                document.getElementById('client-info').innerText = `CLIENTE: ${clientName} | CANAL: ${currentMissionID}`;
+
+                // Sincronizar nombre del cliente con Admin
+                set(ref(db, `missions/${currentMissionID}/global/client_name`), clientName);
+
+                // Persistir en URL
+                history.pushState(null, '', `?id=${currentMissionID}&name=${encodeURIComponent(clientName)}`);
+
+                initListeners();
+            } catch (e) {
+                console.error(e);
+                alert("Error de conexión con el servidor de telemetría.");
+                btn.innerText = "ESTABLECER CONEXIÓN";
+                btn.disabled = false;
+            }
+        };
+
+        // Botón para cambiar de misión
+        document.getElementById('btn-switch-mission').onclick = () => {
+            window.location.href = "https://jsaerospace.github.io/telemetria/index.html";
+        };
+
+        // Auto-login si hay parametros en URL
+        const params = new URLSearchParams(window.location.search);
+        if (params.get('id')) {
+            document.getElementById('mission-id-input').value = params.get('id');
+            document.getElementById('client-name-input').value = params.get('name') || "";
+            setTimeout(window.startMetricSync, 100);
+        } else {
+            document.getElementById('login-overlay').classList.add('visible');
+        }
+
+        function initListeners() {
+            const metEl = document.getElementById('met-display');
+            const titleEl = document.querySelector('.header-title');
+            const alertEl = document.getElementById('liftoff-alert');
+
+            // 1. Escuchar el nombre de la misión y estado global (Identidad)
+            onValue(ref(db, `missions/${currentMissionID}/global`), (snapshot) => {
+                const data = snapshot.val();
+                if (data) {
+                    if (data.mission_name && titleEl) {
+                        titleEl.innerHTML = data.mission_name + " <span style='font-size: 0.8rem; opacity: 0.5;'>SISTEMA DE CONTROL</span>";
+                    }
+
+                    // Actualizar estado de conexión
+                    const connStatus = document.getElementById('conn-status');
+                    const dataId = document.getElementById('data-id');
+                    if (connStatus) {
+                        connStatus.innerText = "EN LÍNEA (" + currentMissionID + ")";
+                        connStatus.style.color = "#00ff41";
+                        connStatus.classList.add('blink');
+                    }
+                    if (dataId) dataId.innerText = currentMissionID;
+
+                    // Mission Start
+                    if (data.mission_start) {
+                        const newStart = Number(data.mission_start);
+                        if (missionStartTimestamp === null && (Date.now() / 1000 - newStart) < 10) {
+                            if (alertEl) {
+                                alertEl.style.display = 'block';
+                                setTimeout(() => { alertEl.style.display = 'none'; }, 4000);
+                            }
+                        }
+                        missionStartTimestamp = newStart;
+                    } else {
+                        missionStartTimestamp = null;
+                        metEl.innerText = "T- 00:00:00";
+                        metEl.style.color = "var(--text-main)";
+                    }
+
+                    // Client Go
+                    clientGo = !!data.client_go;
+                    const cIndicator = document.getElementById('client-go-indicator');
+                    const cBtn = document.getElementById('client-go-btn');
+                    if (cIndicator && cBtn) {
+                        if (clientGo) {
+                            cIndicator.innerText = "GO";
+                            cIndicator.classList.add('go');
+                            cIndicator.classList.remove('no-go');
+                            cBtn.innerText = "MARCAR NO-GO";
+                        } else {
+                            cIndicator.innerText = "NO-GO";
+                            cIndicator.classList.remove('go');
+                            cIndicator.classList.add('no-go');
+                            cBtn.innerText = "MARCAR GO";
+                        }
+                    }
+
+                    // Mission Go
+                    const mGo = !!data.mission_go;
+                    const mIndicator = document.getElementById('mission-go-indicator');
+                    if (mIndicator) {
+                        if (mGo) {
+                            mIndicator.innerText = "MISSION GO";
+                            mIndicator.classList.add('go');
+                            mIndicator.classList.remove('no-go');
+                        } else {
+                            mIndicator.innerText = "MISSION NO-GO";
+                            mIndicator.classList.remove('go');
+                            mIndicator.classList.add('no-go');
+                        }
+                    }
+                }
+            });
+
+            // --- TELEMETRÍA CORE (Escuchas directas para mayor estabilidad) ---
+            onValue(ref(db, `missions/${currentMissionID}/booster`), (snapshot) => {
+                const data = parseKosJson(snapshot.val());
+                if (data) {
+                    updateBoosterUI(data);
+                    checkLiftoff(data);
+                }
+            });
+
+            onValue(ref(db, `missions/${currentMissionID}/ship`), (snapshot) => {
+                const data = parseKosJson(snapshot.val());
+                if (data) {
+                    updateShipUI(data);
+                    checkLiftoff(data);
+                }
+            });
+        }
+
+        // --- DETECCIÓN DE DESPEGUE WEB-MANAGED ---
+        function checkLiftoff(telemetry) {
+            if (!currentMissionID || missionStartTimestamp !== null) return;
+
+            // WATCHDOG: Solo actuamos si recibimos datos seguidos (señal de que Python está vivo)
+            const now = Date.now();
+            const isActiveStream = (lastPacketTime > 0 && (now - lastPacketTime < 3000));
+            lastPacketTime = now;
+
+            if (!isActiveStream) {
+                console.log("Ignorando paquete inicial o stream inactivo...");
+                return;
+            }
+
+            const status = (getVal(telemetry, "status", "STATUS") || "").toUpperCase();
+            const engs = getVal(telemetry, "engStates", "ENGSTATES", "engines");
+
+            // REGLA SOLICITADA: Activación de motor R1
+            // Buscamos en el objeto de estados de motores (engs) si R1 está en 1
+            const r1Active = engs && (engs["R1"] === 1 || engs["r1"] === 1 || engs["R1"] === "1");
+
+            if (r1Active && status !== "PRELAUNCH") {
+                console.log("¡DESPEGUE DETECTADO POR MOTOR R1!");
+                set(ref(db, `missions/${currentMissionID}/global/mission_start`), Math.floor(Date.now() / 1000));
+            }
+        }
+
+        // 3. Loop de reloj independiente (1Hz)
+        function updateExternalClock() {
+            if (!missionStartTimestamp) return;
+
+            const now = Date.now() / 1000;
+            const diff = now - missionStartTimestamp;
+
+            if (diff < 0) {
+                document.getElementById('met-display').innerText = "T- 00:00:00";
+                return;
+            }
+
+            const hrs = Math.floor(diff / 3600);
+            const mins = Math.floor((diff % 3600) / 60);
+            const secs = Math.floor(diff % 60);
+
+            const timeStr =
+                (hrs > 0 ? hrs.toString().padStart(2, '0') + ":" : "") +
+                mins.toString().padStart(2, '0') + ":" +
+                secs.toString().padStart(2, '0');
+
+            document.getElementById('met-display').innerText = "T+ " + timeStr;
+            document.getElementById('met-display').style.color = "#00ff41";
+        }
+        setInterval(updateExternalClock, 1000);
+
+        // --- ACCIONES GO/NO-GO ---
+        window.toggleClientGo = function () {
+            if (!currentMissionID) return;
+            const newState = !clientGo;
+            set(ref(db, `missions/${currentMissionID}/global/client_go`), newState);
+        };
+
+        // --- FUNCIONES UTILITARIAS ---
+        const fmtNum = (n) => (n !== undefined && n !== null) ? Math.round(Number(n)).toLocaleString() : "0";
+        const fmtDec = (n, d = 1) => (n !== undefined && n !== null) ? Number(n).toFixed(d) : "0.0";
+
+        // --- HELPER SEGURO DE EXTRACCIÓN DE DATOS ---
+        // Busca key, KEY, Key, o key con espacios. Prioriza exacto, luego upper, luego lower.
+        function getVal(obj, ...keys) {
+            if (!obj) return undefined;
+            for (let k of keys) {
+                if (obj[k] !== undefined) return obj[k];
+                if (obj[k.toUpperCase()] !== undefined) return obj[k.toUpperCase()];
+                if (obj[k.toLowerCase()] !== undefined) return obj[k.toLowerCase()];
+            }
+            return undefined;
+        }
+
+        // --- PARSEADOR ROBUSTO DE LEXICONS KOS (VERSIÓN FINAL) ---
+        function parseKosJson(data) {
+            if (!data || typeof data !== 'object') return data;
+
+            // Caso 1: Estructura { entries: [...], $type: "Lexicon" }
+            if (data.entries && Array.isArray(data.entries)) {
+                const result = {};
+                const ent = data.entries;
+                if (ent.length === 0) return result;
+
+                // DETECCIÓN: kOS exporta pares (Type A) o lista plana (Type B)
+                // Chequeo muy laxo para evitar fallos.
+                const first = ent[0];
+                const isTypeA = (first && typeof first === 'object' && first.key !== undefined);
+
+                try {
+                    if (isTypeA) {
+                        for (let entry of ent) {
+                            try {
+                                let k = entry.key?.value ?? entry.key;
+                                let v = entry.value?.value ?? entry.value;
+                                if (v && typeof v === 'object') v = parseKosJson(v);
+                                if (k != null) result[String(k).trim()] = v;
+                            } catch (e) { }
+                        }
+                    } else {
+                        // Type B (Flat List)
+                        for (let i = 0; i < ent.length - 1; i += 2) {
+                            try {
+                                let kObj = ent[i];
+                                let vObj = ent[i + 1];
+                                let k = kObj?.value ?? kObj;
+                                let v = vObj?.value ?? vObj;
+                                if (v && typeof v === 'object') v = parseKosJson(v);
+                                if (k != null) result[String(k).trim()] = v;
+                            } catch (e) { }
+                        }
+                    }
+                } catch (e) { console.error("Parse Error Loop", e); }
+                return result;
+            }
+
+            // Caso 2: Estructura { values: [...], $type: "List" }
+            if (data.values && Array.isArray(data.values)) {
+                return data.values.map(item => parseKosJson(item?.value ?? item));
+            }
+
+            // Caso 3: Objeto estándar
+            const processed = {};
+            for (let k in data) {
+                if (k === '$type') continue;
+                processed[k] = parseKosJson(data[k]);
+            }
+            return processed;
+        }
+
+        // --- GENERADOR DE MOTORES CONFIGURACION 11 (Booster) y 1 (Ship) ---
+        function initBoosterEngines() {
+            const container = document.getElementById('booster-engines');
+            container.innerHTML = '';
+            const cx = 125, cy = 125; // Center of 250x250
+
+            // 1. Center Cluster (3 engines - C1, C2, C3)
+            for (let i = 0; i < 3; i++) {
+                const angle = (i * 120 - 90) * (Math.PI / 180);
+                const x = cx + 40 * Math.cos(angle);
+                const y = cy + 40 * Math.sin(angle);
+                createNode(container, `C${i + 1}`, x, y, 35);
+            }
+
+            // 2. Ring (8 engines - R1..R8)
+            for (let i = 0; i < 8; i++) {
+                const angle = (i * 45 - 90) * (Math.PI / 180);
+                const x = cx + 105 * Math.cos(angle);
+                const y = cy + 105 * Math.sin(angle);
+                createNode(container, `R${i + 1}`, x, y, 35);
+            }
+        }
+
+        function initShipEngines() {
+            const container = document.getElementById('ship-engines');
+            container.innerHTML = '';
+            const cx = 75, cy = 75; // Center of 150x150
+            createNode(container, 'S1', cx, cy, 100);
+        }
+
+        function createNode(parent, tag, x, y, size) {
+            const div = document.createElement('div');
+            div.className = 'engine-node';
+            div.dataset.tag = tag;
+            div.innerText = tag;
+            div.style.width = size + 'px';
+            div.style.height = size + 'px';
+            div.style.left = (x - size / 2) + 'px';
+            div.style.top = (y - size / 2) + 'px';
+            div.style.fontSize = Math.max(8, size / 3) + 'px';
+            div.style.display = 'flex';
+            div.style.alignItems = 'center';
+            div.style.justifyContent = 'center';
+            div.style.color = '#000';
+            div.style.fontWeight = 'bold';
+            parent.appendChild(div);
+        }
+
+        initBoosterEngines();
+        initShipEngines();
+
+        // --- FUNCIONES DE ACTUALIZACIÓN DE UI ---
+        function updateBoosterUI(B1) {
+            try {
+                const statusEl = document.getElementById('booster-status');
+                if (statusEl) {
+                    statusEl.innerText = getVal(B1, "status", "STATUS") || "STANDBY";
+                    statusEl.style.borderColor = "#ffae00";
+                }
+
+                document.getElementById('booster-alt').innerText = fmtNum(getVal(B1, "alt", "ALT"));
+                document.getElementById('booster-vel').innerText = fmtNum(getVal(B1, "vel", "VEL"));
+                document.getElementById('booster-vs').innerText = fmtDec(getVal(B1, "vs", "VS"), 1);
+
+                // Si existe distancia al objetivo
+                const dist = getVal(B1, "dist", "DIST", "distance");
+                if (dist !== undefined) document.getElementById('booster-dist').innerText = fmtNum(dist);
+
+                // Fuel & Throttle
+                const fPct = getVal(B1, "fuelPct", "FUELPCT", "fuel_pct") || 0;
+                document.getElementById('booster-fuel-bar').style.width = Math.min(100, Math.max(0, fPct)) + "%";
+                document.getElementById('booster-fuel-pct').innerText = Math.round(Math.min(100, Number(fPct))) + "%";
+
+                const thr = getVal(B1, "thr", "THR", "throttle") || 0;
+                document.getElementById('booster-thr-bar').style.width = Math.min(100, Math.max(0, thr)) + "%";
+                document.getElementById('booster-thr-pct').innerText = Math.round(Number(thr)) + "%";
+
+                // Engines
+                const engs = getVal(B1, "engStates", "ENGSTATES", "engines");
+                if (engs) {
+                    for (let tag in engs) {
+                        const state = engs[tag];
+                        const el = document.querySelector(`#booster-engines [data-tag="${tag}"]`);
+                        if (el) {
+                            if (Number(state) === 1) el.classList.add('active');
+                            else el.classList.remove('active');
+                        }
+                    }
+                }
+            } catch (e) { console.error("Booster UI Error", e); }
+        }
+
+        function updateShipUI(S2) {
+            try {
+                const statusEl = document.getElementById('ship-status');
+                if (statusEl) {
+                    statusEl.innerText = getVal(S2, "status", "STATUS") || "ON ORBIT";
+                    statusEl.style.borderColor = "#00f3ff";
+                }
+
+                document.getElementById('ship-alt').innerText = fmtNum(getVal(S2, "alt", "ALT"));
+                document.getElementById('ship-vel').innerText = fmtNum(getVal(S2, "vel", "VEL"));
+                document.getElementById('ship-apo').innerText = fmtDec((getVal(S2, "apo", "APO") || 0) / 1000, 1);
+                document.getElementById('ship-per').innerText = fmtDec((getVal(S2, "per", "PER") || 0) / 1000, 1);
+                document.getElementById('ship-dv').innerText = fmtNum(getVal(S2, "dv", "DV"));
+
+                // Fuel & Throttle
+                const fPct = getVal(S2, "fuelPct", "FUELPCT") || 0;
+                document.getElementById('ship-fuel-bar').style.width = Math.min(100, Math.max(0, fPct)) + "%";
+                document.getElementById('ship-fuel-pct').innerText = Math.round(Math.min(100, Number(fPct))) + "%";
+
+                const thr = getVal(S2, "thr", "THR") || 0;
+                document.getElementById('ship-thr-bar').style.width = Math.min(100, Math.max(0, thr)) + "%";
+                document.getElementById('ship-thr-pct').innerText = Math.round(Number(thr)) + "%";
+
+                // Inclination
+                const incEl = document.getElementById('ship-inc');
+                if (incEl) incEl.innerText = fmtDec(getVal(S2, "inc", "INC", "inclination"), 1);
+
+                // Ship Engines
+                const engs = getVal(S2, "engStates", "ENGSTATES");
+                if (engs) {
+                    for (let tag in engs) {
+                        const state = engs[tag];
+                        const el = document.querySelector(`#ship-engines [data-tag="${tag}"]`);
+                        if (el) {
+                            if (Number(state) === 1) el.classList.add('active');
+                            else el.classList.remove('active');
+                        }
+                        // Fallback para el nodo único ID-based (S1)
+                        const fallbackEl = document.getElementById('s2-engine-main');
+                        if (fallbackEl && (tag === 'S1' || tag === 'MAIN')) {
+                            if (Number(state) === 1) fallbackEl.classList.add('active');
+                            else fallbackEl.classList.remove('active');
+                        }
+                    }
+                }
+            } catch (e) { console.error("Ship UI Error", e); }
+        }
+
+        // --- CORE UPDATE LOOP ---
+        // (Borrada la escucha a la raíz para evitar conflictos con el particionamiento por misión)
+    </script>
+</body>
+
+</html>

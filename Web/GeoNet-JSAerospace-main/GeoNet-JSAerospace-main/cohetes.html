@@ -1,0 +1,2544 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>J.S.Aerospace | Cohetes</title>
+    <link rel="icon" type="image/png" href="LOGO_JTT.png">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&family=Rajdhani:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #00f3ff;
+            --neon-green: #00ff6a;
+            --neon-red: #ff3333;
+            --neon-orange: #ff6b35;
+            --bg-dark: #050510;
+            --font-heading: 'Orbitron', sans-serif;
+            --font-body: 'Rajdhani', sans-serif;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            font-family: var(--font-body);
+            min-height: 100vh;
+            width: 100%;
+            overflow-y: auto !important;
+            height: auto !important;
+        }
+
+        /* ===== ENTRY TRANSITION ===== */
+        .page-loader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #000;
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 0.6s ease, visibility 0.6s ease;
+        }
+
+        .page-loader.hidden {
+            opacity: 0;
+            visibility: hidden;
+        }
+
+        .loader-content {
+            text-align: center;
+        }
+
+        .loader-rocket {
+            font-size: 3rem;
+            color: var(--neon-red);
+            animation: rocketPulse 1s ease-in-out infinite;
+        }
+
+        @keyframes rocketPulse {
+
+            0%,
+            100% {
+                transform: translateY(0) scale(1);
+                text-shadow: 0 0 20px var(--neon-red);
+            }
+
+            50% {
+                transform: translateY(-10px) scale(1.1);
+                text-shadow: 0 0 40px var(--neon-red), 0 20px 30px var(--neon-orange);
+            }
+        }
+
+        /* Navbar entry animation */
+
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            text-decoration: none;
+        }
+
+        .logo img {
+            height: 32px;
+            width: auto;
+            object-fit: contain;
+        }
+
+        .logo-text {
+            color: #fff;
+            font-family: var(--font-heading);
+            font-size: 1.2rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .highlight {
+            color: var(--primary-color);
+        }
+
+
+
+
+
+        /* Accent line under navbar */
+
+
+        /* Hero Background Container */
+        .hero-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+            opacity: 0;
+            animation: fadeIn 1.5s ease forwards;
+            animation-delay: 0.3s;
+        }
+
+        @keyframes fadeIn {
+            to {
+                opacity: 1;
+            }
+        }
+
+        /* Animated space background */
+        .space-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background:
+                radial-gradient(ellipse at 20% 80%, rgba(255, 51, 51, 0.15) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 20%, rgba(255, 107, 53, 0.1) 0%, transparent 40%),
+                radial-gradient(ellipse at 50% 50%, rgba(10, 10, 30, 1) 0%, rgba(5, 5, 16, 1) 100%);
+        }
+
+        /* Stars */
+        .stars {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image:
+                radial-gradient(2px 2px at 20px 30px, white, rgba(0, 0, 0, 0)),
+                radial-gradient(2px 2px at 40px 70px, rgba(255, 255, 255, 0.8), rgba(0, 0, 0, 0)),
+                radial-gradient(1px 1px at 90px 40px, white, rgba(0, 0, 0, 0)),
+                radial-gradient(2px 2px at 160px 120px, rgba(255, 255, 255, 0.9), rgba(0, 0, 0, 0)),
+                radial-gradient(1px 1px at 230px 80px, white, rgba(0, 0, 0, 0)),
+                radial-gradient(2px 2px at 300px 150px, rgba(255, 255, 255, 0.7), rgba(0, 0, 0, 0)),
+                radial-gradient(1px 1px at 370px 50px, white, rgba(0, 0, 0, 0)),
+                radial-gradient(2px 2px at 450px 200px, rgba(255, 255, 255, 0.8), rgba(0, 0, 0, 0)),
+                radial-gradient(1px 1px at 520px 100px, white, rgba(0, 0, 0, 0)),
+                radial-gradient(2px 2px at 600px 180px, rgba(255, 255, 255, 0.6), rgba(0, 0, 0, 0));
+            background-size: 650px 250px;
+            animation: twinkle 8s ease-in-out infinite;
+        }
+
+        .stars:nth-child(2) {
+            background-position: 50px 50px;
+            animation-delay: -3s;
+            opacity: 0.6;
+        }
+
+        @keyframes twinkle {
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.5;
+            }
+        }
+
+        /* Animated grid lines */
+        .grid-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image:
+                linear-gradient(rgba(255, 51, 51, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 51, 51, 0.03) 1px, transparent 1px);
+            background-size: 80px 80px;
+            animation: gridMove 20s linear infinite;
+        }
+
+        @keyframes gridMove {
+            0% {
+                transform: translateY(0);
+            }
+
+            100% {
+                transform: translateY(80px);
+            }
+        }
+
+        /* Glowing orbs */
+        .glow-orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(60px);
+            opacity: 0;
+            animation: float 10s ease-in-out infinite, orbAppear 1s ease forwards;
+        }
+
+        .glow-orb.red {
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(255, 51, 51, 0.6) 0%, transparent 70%);
+            bottom: -100px;
+            left: -100px;
+            animation-delay: 0.5s, 0.5s;
+        }
+
+        .glow-orb.orange {
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, rgba(255, 107, 53, 0.5) 0%, transparent 70%);
+            top: 20%;
+            right: -50px;
+            animation-delay: 0.7s, 0.7s;
+        }
+
+        .glow-orb.purple {
+            width: 250px;
+            height: 250px;
+            background: radial-gradient(circle, rgba(120, 50, 200, 0.3) 0%, transparent 70%);
+            top: 60%;
+            left: 30%;
+            animation-delay: 0.9s, 0.9s;
+        }
+
+        @keyframes orbAppear {
+            to {
+                opacity: 0.4;
+            }
+        }
+
+        @keyframes float {
+
+            0%,
+            100% {
+                transform: translate(0, 0) scale(1);
+            }
+
+            33% {
+                transform: translate(30px, -30px) scale(1.1);
+            }
+
+            66% {
+                transform: translate(-20px, 20px) scale(0.9);
+            }
+        }
+
+        /* Rocket trail particles */
+        .particle-container {
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100%;
+            height: 60%;
+            overflow: hidden;
+            pointer-events: none;
+        }
+
+        .particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: var(--neon-orange);
+            border-radius: 50%;
+            box-shadow: 0 0 10px var(--neon-orange), 0 0 20px var(--neon-red);
+            animation: rise 4s ease-out infinite;
+        }
+
+        .particle:nth-child(1) {
+            left: 20%;
+            animation-delay: 0s;
+        }
+
+        .particle:nth-child(2) {
+            left: 35%;
+            animation-delay: 0.5s;
+        }
+
+        .particle:nth-child(3) {
+            left: 50%;
+            animation-delay: 1s;
+        }
+
+        .particle:nth-child(4) {
+            left: 65%;
+            animation-delay: 1.5s;
+        }
+
+        .particle:nth-child(5) {
+            left: 80%;
+            animation-delay: 2s;
+        }
+
+        .particle:nth-child(6) {
+            left: 25%;
+            animation-delay: 2.5s;
+        }
+
+        .particle:nth-child(7) {
+            left: 45%;
+            animation-delay: 3s;
+        }
+
+        .particle:nth-child(8) {
+            left: 70%;
+            animation-delay: 3.5s;
+        }
+
+        @keyframes rise {
+            0% {
+                bottom: -10px;
+                opacity: 1;
+                transform: scale(1);
+            }
+
+            100% {
+                bottom: 100%;
+                opacity: 0;
+                transform: scale(0.3);
+            }
+        }
+
+        /* Main content area */
+        .main-content {
+            padding-top: 100px;
+            min-height: 100vh;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Coming soon message with entry animation */
+        .coming-soon {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: calc(100vh - 100px);
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .coming-soon h1 {
+            font-family: var(--font-heading);
+            font-size: 4rem;
+            color: var(--neon-red);
+            text-shadow: 0 0 30px rgba(255, 51, 51, 0.5);
+            margin-bottom: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 5px;
+            opacity: 0;
+            transform: translateY(50px) scale(0.8);
+            animation: heroAppear 1s ease forwards;
+            animation-delay: 0.8s;
+        }
+
+        .coming-soon p {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 1.3rem;
+            max-width: 600px;
+            opacity: 0;
+            transform: translateY(30px);
+            animation: textAppear 0.8s ease forwards;
+            animation-delay: 1.1s;
+        }
+
+        @keyframes heroAppear {
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        @keyframes textAppear {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Exit transition overlay */
+        .exit-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #000;
+            z-index: 9998;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.5s ease;
+        }
+
+        .exit-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        /* Exit animations for page elements */
+        body.exiting .navbar {
+            animation: slideUp 0.4s ease forwards;
+        }
+
+        body.exiting .coming-soon h1 {
+            animation: fadeOutDown 0.4s ease forwards;
+        }
+
+        body.exiting .coming-soon p {
+            animation: fadeOutDown 0.3s ease forwards;
+            animation-delay: 0.1s;
+        }
+
+        body.exiting .hero-background {
+            animation: fadeOut 0.5s ease forwards;
+        }
+
+        @keyframes slideUp {
+            to {
+                transform: translateY(-100%);
+                opacity: 0;
+            }
+        }
+
+        @keyframes fadeOutDown {
+            to {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+        }
+
+        @keyframes fadeOut {
+            to {
+                opacity: 0;
+            }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .navbar {
+                padding: 15px 20px;
+            }
+
+            .logo {
+                font-size: 1.2rem;
+            }
+
+            .nav-links {
+                gap: 15px;
+            }
+
+            .nav-links a {
+                font-size: 0.8rem;
+            }
+
+            .coming-soon h1 {
+                font-size: 2.5rem;
+            }
+        }
+
+        /* Profile Modal Specifics */
+        .profile-section {
+            margin-bottom: 25px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .profile-section:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+
+        .profile-section h3 {
+            font-family: var(--font-heading);
+            color: var(--primary-color);
+            font-size: 1.1rem;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .btn-update {
+            background: linear-gradient(135deg, var(--primary-color), var(--neon-green));
+            color: #000;
+        }
+
+        .btn-update:hover {
+            box-shadow: 0 10px 30px rgba(0, 255, 106, 0.3);
+        }
+
+        .btn-logout {
+            background: rgba(255, 51, 51, 0.1);
+            border: 1px solid var(--neon-red);
+            color: var(--neon-red);
+            width: 100%;
+            padding: 12px;
+            border-radius: 10px;
+            font-family: var(--font-heading);
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 10px;
+        }
+
+        .btn-logout:hover {
+            background: var(--neon-red);
+            color: #000;
+        }
+
+        .btn-logout:hover {
+            background: var(--neon-red);
+            color: #000;
+        }
+
+        /* Fleet Grid & Cards */
+        .rockets-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+            gap: 40px;
+            padding: 40px;
+            max-width: 1600px;
+            margin: 0 auto;
+            z-index: 2;
+            position: relative;
+            justify-content: center;
+        }
+
+        .rocket-card {
+            background: rgba(15, 15, 25, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 24px;
+            overflow: hidden;
+            transition: all 0.4s ease-out;
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.5);
+            height: auto;
+            min-height: 520px;
+            width: 100%;
+            max-width: 500px;
+            margin: 0 auto;
+            cursor: pointer;
+        }
+
+        .rocket-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, transparent, var(--primary-color), transparent);
+            z-index: 3;
+            opacity: 0.7;
+            transition: opacity 0.3s;
+        }
+
+        .rocket-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.8), 0 0 40px rgba(0, 243, 255, 0.15);
+            border-color: rgba(0, 243, 255, 0.5);
+            background: rgba(20, 20, 35, 0.85);
+        }
+
+        .rocket-card:hover::before {
+            opacity: 1;
+            box-shadow: 0 0 15px var(--primary-color);
+        }
+
+        /* Status Colors for Borders on Hover */
+        .rocket-card.status-active:hover {
+            border-color: var(--neon-green);
+        }
+
+        .rocket-card.status-maintenance:hover {
+            border-color: var(--neon-orange);
+        }
+
+        .rocket-card.status-retired:hover {
+            border-color: #777;
+        }
+
+        .rocket-card.status-production:hover {
+            border-color: var(--neon-blue);
+        }
+
+        .rocket-card.status-active::before {
+            background: linear-gradient(90deg, transparent, var(--neon-green), transparent);
+        }
+
+        .rocket-card.status-maintenance::before {
+            background: linear-gradient(90deg, transparent, var(--neon-orange), transparent);
+        }
+
+        .rocket-card.status-retired::before {
+            background: linear-gradient(90deg, transparent, #777, transparent);
+        }
+
+        .rocket-card.status-production::before {
+            background: linear-gradient(90deg, transparent, var(--neon-blue), transparent);
+        }
+
+        .rocket-card.booster::before {
+            background: linear-gradient(90deg, transparent, var(--neon-orange), transparent);
+        }
+
+        .rocket-card.booster:hover {
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.8), 0 0 40px rgba(255, 107, 53, 0.15);
+            border-color: rgba(255, 107, 53, 0.5);
+        }
+
+        .rocket-card.booster:hover::before {
+            box-shadow: 0 0 15px var(--neon-orange);
+        }
+
+        .rocket-img,
+        .carousel-container {
+            width: 100%;
+            height: 280px;
+            min-height: 280px;
+            object-fit: cover;
+            background: #000;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            position: relative;
+            overflow: hidden;
+            mask-image: linear-gradient(to bottom, black 85%, transparent 100%);
+            -webkit-mask-image: linear-gradient(to bottom, black 85%, transparent 100%);
+        }
+
+        .rocket-info {
+            padding: 25px;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Card Footer & Badges */
+        .card-footer {
+            margin-top: auto;
+            padding-top: 15px;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 0.8rem;
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .status-badges {
+            display: flex;
+            gap: 8px;
+        }
+
+        .badge {
+            padding: 4px 8px;
+            border-radius: 4px;
+            background: rgba(255, 255, 255, 0.05);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+            min-width: 28px;
+            height: 28px;
+            transition: all 0.3s;
+        }
+
+        .badge.active {
+            background: rgba(0, 255, 106, 0.1);
+            color: var(--neon-green);
+            border: 1px solid rgba(0, 255, 106, 0.2);
+        }
+
+        .badge:hover {
+            transform: scale(1.1);
+        }
+
+        .rocket-info h3 {
+            font-family: var(--font-heading);
+            color: #fff;
+            font-size: 1.8rem;
+            margin-bottom: 5px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            text-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+        }
+
+        .rocket-type-subtitle {
+            font-size: 0.8rem;
+            color: var(--primary-color);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 20px;
+            opacity: 0.8;
+            font-weight: 700;
+        }
+
+        .rocket-card.booster .rocket-type-subtitle {
+            color: var(--neon-orange);
+        }
+
+        .status-pill {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-left: 10px;
+            vertical-align: middle;
+            border: 1px solid transparent;
+        }
+
+        .status-pill.active {
+            color: var(--neon-green);
+            border-color: rgba(0, 255, 106, 0.3);
+            background: rgba(0, 255, 106, 0.1);
+        }
+
+        .status-pill.maintenance {
+            color: var(--neon-orange);
+            border-color: rgba(255, 107, 53, 0.3);
+            background: rgba(255, 107, 53, 0.1);
+        }
+
+        .status-pill.retired {
+            color: #aaa;
+            border-color: rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .status-pill.production {
+            color: var(--neon-blue);
+            border-color: rgba(0, 243, 255, 0.3);
+            background: rgba(0, 243, 255, 0.1);
+        }
+
+        .rocket-specs {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px 20px;
+            margin-top: 10px;
+        }
+
+        .spec-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.9);
+            background: rgba(255, 255, 255, 0.03);
+            padding: 8px 12px;
+            border-radius: 8px;
+            transition: all 0.3s;
+        }
+
+        .spec-item:hover {
+            background: rgba(255, 255, 255, 0.08);
+            transform: translateX(5px);
+        }
+
+        .spec-item i {
+            color: var(--neon-orange);
+            width: 20px;
+        }
+
+        /* Floating Add Button */
+        .add-rocket-btn {
+            position: fixed;
+            bottom: 40px;
+            right: 40px;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: var(--neon-green);
+            color: #000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            cursor: pointer;
+            box-shadow: 0 0 20px rgba(0, 255, 106, 0.4);
+            border: none;
+            z-index: 1000;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            display: none;
+            /* Hidden by default */
+        }
+
+        .add-rocket-btn:hover {
+            transform: scale(1.1) rotate(90deg);
+        }
+
+        /* Rocket Form Specifics */
+        #rocketModal .login-modal {
+            padding: 20px 30px;
+        }
+
+        #rocketModal h2 {
+            margin-bottom: 5px;
+            font-size: 1.5rem;
+        }
+
+        #rocketForm .form-group {
+            margin-bottom: 10px;
+        }
+
+        #rocketForm label {
+            font-size: 0.8rem;
+            margin-bottom: 4px;
+        }
+
+        #rocketForm input {
+            padding: 8px 12px;
+            font-size: 0.9rem;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        textarea {
+            width: 100%;
+            padding: 8px 12px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            color: #fff;
+            font-family: 'Rajdhani', sans-serif;
+            resize: vertical;
+            min-height: 50px;
+            font-size: 0.9rem;
+        }
+
+
+
+        /* Gallery Modal Styles */
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            gap: 10px;
+            max-height: 400px;
+            overflow-y: auto;
+            padding: 10px;
+        }
+
+        .gallery-item {
+            cursor: pointer;
+            border: 2px solid transparent;
+            border-radius: 8px;
+            overflow: hidden;
+            aspect-ratio: 1;
+            transition: all 0.2s;
+            position: relative;
+        }
+
+        .gallery-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .gallery-item:hover {
+            transform: scale(1.05);
+            border-color: var(--neon-green);
+        }
+
+        .gallery-item.selected {
+            border-color: var(--neon-green);
+            box-shadow: 0 0 10px var(--neon-green);
+        }
+
+        /* CAROUSEL LOGIC */
+        .carousel-slide {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+            object-fit: cover;
+        }
+
+        .carousel-slide {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+            object-fit: cover;
+        }
+
+        .carousel-slide.active {
+            opacity: 1;
+        }
+
+        .carousel-btn {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(0, 0, 0, 0.5);
+            color: white;
+            border: none;
+            padding: 10px;
+            cursor: pointer;
+            z-index: 10;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.3s;
+        }
+
+        .carousel-btn:hover {
+            background: rgba(0, 255, 106, 0.8);
+            color: black;
+        }
+
+        .carousel-btn.prev {
+            left: 10px;
+        }
+
+        .carousel-btn.next {
+            right: 10px;
+        }
+
+        /* ADMIN CONTROLS - Hidden for everyone except admin */
+        .admin-controls {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            display: none !important;
+            /* Hidden by default */
+            gap: 5px;
+            z-index: 20;
+            opacity: 0;
+            transition: opacity 0.3s;
+            pointer-events: none;
+        }
+
+        body.is-admin .admin-controls {
+            display: flex !important;
+            pointer-events: auto;
+        }
+
+        .rocket-card:hover .admin-controls {
+            opacity: 1;
+        }
+
+        .admin-btn {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: transform 0.2s, background 0.3s;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(5px);
+        }
+
+        .edit-btn {
+            color: #3498db;
+        }
+
+        .edit-btn:hover {
+            background: #3498db;
+            color: white;
+            transform: scale(1.1);
+        }
+
+        .delete-btn {
+            color: #e74c3c;
+        }
+
+        .delete-btn:hover {
+            background: #e74c3c;
+            color: white;
+            transform: scale(1.1);
+        }
+
+        /* DETAILS MODAL STYLES */
+        .details-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            padding: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .details-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .details-info {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .details-title h2 {
+            font-size: 2.5rem;
+            margin: 0;
+            background: linear-gradient(45deg, var(--neon-blue), var(--neon-green));
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-transform: uppercase;
+            font-family: 'Orbitron', sans-serif;
+        }
+
+        .details-specs-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 15px;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 20px;
+            border-radius: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .details-spec-item {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .details-spec-item label {
+            font-size: 0.75rem;
+            color: #888;
+            text-transform: uppercase;
+        }
+
+        .details-spec-item span {
+            font-size: 1.1rem;
+            color: #fff;
+            font-weight: 600;
+        }
+
+        .details-spec-item i {
+            color: var(--neon-blue);
+            margin-right: 5px;
+        }
+
+        .details-description {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 20px;
+            border-radius: 15px;
+            border-left: 4px solid var(--neon-green);
+        }
+
+        .details-description h4 {
+            margin-top: 0;
+            color: var(--neon-green);
+            font-size: 1rem;
+            text-transform: uppercase;
+        }
+
+        .details-description p {
+            font-size: 0.95rem;
+            line-height: 1.6;
+            color: #ccc;
+            margin-bottom: 0;
+            white-space: pre-wrap;
+        }
+
+        .details-carousel {
+            height: 400px;
+            border-radius: 20px;
+            overflow: hidden;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            position: relative;
+        }
+
+        .details-carousel img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+
+        #detailsModal .login-modal {
+            max-width: 900px;
+            width: 95%;
+            padding: 10px;
+        }
+
+        .gallery-btn-group {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            padding: 8px 12px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            font-family: var(--font-heading);
+            cursor: pointer;
+            font-size: 0.8rem;
+        }
+
+        /* SECTION TITLES */
+        .section-title {
+            color: white;
+            font-family: var(--font-heading);
+            font-size: 2.5rem;
+            text-transform: uppercase;
+            letter-spacing: 5px;
+            margin: 60px 0 40px 0;
+            text-align: center;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            text-shadow: 0 0 15px rgba(0, 243, 255, 0.5);
+        }
+
+        .section-title::before,
+        .section-title::after {
+            content: '';
+            height: 2px;
+            flex: 1;
+            max-width: 150px;
+            background: linear-gradient(to right, transparent, var(--neon-blue), transparent);
+            opacity: 0.6;
+        }
+
+        /* Specific colorful styling for Boosters title targeting nth-of-type to differentiate */
+        h2.section-title:nth-of-type(2) {
+            text-shadow: 0 0 15px rgba(255, 157, 0, 0.5);
+        }
+
+        h2.section-title:nth-of-type(2)::before,
+        h2.section-title:nth-of-type(2)::after {
+            background: linear-gradient(to right, transparent, var(--neon-orange), transparent);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 2.2);
+        }
+
+        /* FLEET LAYOUT */
+        .fleet-layout {
+            display: flex;
+            flex-direction: column;
+            gap: 60px;
+            padding: 40px 20px;
+            max-width: 1400px;
+            /* Expanded layout */
+            margin: 0 auto;
+            align-items: center;
+        }
+
+        .fleet-column {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .fleet-column .section-title {
+            margin-top: 40px;
+        }
+
+        @media (max-width: 1200px) {
+            .fleet-layout {
+                flex-direction: column;
+                gap: 20px;
+                padding: 10px 20px;
+            }
+        }
+
+        /* SECTION INDICATOR (Scroll Spy) */
+        .section-indicator {
+            position: fixed;
+            right: 40px;
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            z-index: 1000;
+        }
+
+        .indicator-item {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 15px;
+            cursor: pointer;
+            text-decoration: none;
+            opacity: 0.3;
+            transition: all 0.4s ease;
+        }
+
+        .indicator-label {
+            color: white;
+            font-family: var(--font-heading);
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            transform: translateX(10px);
+            opacity: 0;
+            transition: all 0.4s ease;
+            white-space: nowrap;
+            text-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+        }
+
+        .indicator-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: white;
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+            border: 2px solid transparent;
+            transition: all 0.4s ease;
+        }
+
+        .indicator-item:hover,
+        .indicator-item.active {
+            opacity: 1;
+        }
+
+        .indicator-item:hover .indicator-label,
+        .indicator-item.active .indicator-label {
+            transform: translateX(0);
+            opacity: 1;
+        }
+
+        .indicator-item.active[data-target="cohetes-sec"] .indicator-dot {
+            background: var(--neon-blue);
+            box-shadow: 0 0 15px var(--neon-blue);
+            border-color: rgba(255, 255, 255, 0.8);
+        }
+
+        .indicator-item.active[data-target="boosters-sec"] .indicator-dot {
+            background: var(--neon-orange);
+            box-shadow: 0 0 15px var(--neon-orange);
+            border-color: rgba(255, 255, 255, 0.8);
+        }
+
+        @media (max-width: 1400px) {
+            .section-indicator {
+                right: 20px;
+            }
+        }
+
+        @media (max-width: 1000px) {
+            .section-indicator {
+                display: none;
+            }
+        }
+
+        @keyframes fadeInDown {
+            0% {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Page Loader -->
+    <div class="page-loader" id="pageLoader">
+        <div class="loader-content">
+            <div class="logo" style="margin-bottom: 20px;">
+                <img src="LOGO_JTT.png" alt="J.S.Aerospace Logo">
+                <div class="logo-text">J.S.<span class="highlight">AEROSPACE</span></div>
+            </div>
+            <div class="loader-rocket">
+                <i class="fas fa-rocket"></i>
+            </div>
+        </div>
+    </div>
+
+    <!-- Exit Transition Overlay -->
+    <div class="exit-overlay" id="exitOverlay"></div>
+
+    <nav class="navbar">
+        <a href="index.html" class="logo">
+            <img src="LOGO_JTT.png" alt="J.S.Aerospace Logo">
+            <div class="logo-text">J.S.<span class="highlight">AEROSPACE</span></div>
+        </a>
+        <ul class="nav-links">
+            <li><a href="index.html#home">Inicio</a></li>
+            <li><a href="misiones.html">Misiones</a></li>
+            <li><a href="cohetes.html" class="active">Cohetes</a></li>
+            <li><a href="calendario.html">CALENDARIO</a></li>
+            <li><a href="geonet.html">GEONET</a></li>
+            <li>
+                <button class="auth-btn" id="contactBtn">
+                    <i class="fas fa-comment"></i>
+                    <span>Contacto</span>
+                </button>
+            </li>
+            <li>
+                <button class="auth-btn" id="authBtn">
+                    <i class="fas fa-user"></i>
+                    <span id="authBtnText">Iniciar Sesión</span>
+                </button>
+            </li>
+        </ul>
+    </nav>
+
+    <!-- Login Modal -->
+    <div class="modal-overlay" id="loginModal">
+        <div class="login-modal">
+            <button class="close-modal" id="closeModal">&times;</button>
+            <div class="modal-header">
+                <h2 id="modalTitle">Iniciar Sesión</h2>
+                <p id="modalSubtitle">Accede a tu cuenta de J.S.Aerospace</p>
+            </div>
+
+            <div class="auth-message" id="authMessage"></div>
+
+            <form id="authForm">
+                <div class="form-group" id="nameGroup" style="display: none;">
+                    <label for="userName">Nombre</label>
+                    <input type="text" id="userName" placeholder="Tu nombre">
+                </div>
+                <div class="form-group">
+                    <label for="userEmail">Email</label>
+                    <input type="email" id="userEmail" placeholder="tu@email.com" required>
+                </div>
+                <div class="form-group">
+                    <label for="userPassword">Contraseña</label>
+                    <input type="password" id="userPassword" placeholder="••••••••" required>
+                </div>
+                <button type="submit" class="login-btn" id="submitBtn">Entrar</button>
+            </form>
+
+            <div class="divider"><span>o continuar con</span></div>
+
+            <div class="social-login">
+                <button class="social-btn google" id="googleLogin">
+                    <i class="fab fa-google"></i>
+                    <span>Google</span>
+                </button>
+            </div>
+
+            <div class="toggle-auth">
+                <span id="toggleText">¿No tienes cuenta?</span>
+                <a href="#" id="toggleLink">Regístrate</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Profile Modal -->
+    <div class="modal-overlay" id="profileModal">
+        <div class="login-modal">
+            <button class="close-modal" id="closeProfileModal">&times;</button>
+            <div class="modal-header">
+                <h2>Tu Perfil</h2>
+                <p>Gestiona tu cuenta</p>
+            </div>
+
+            <div class="auth-message" id="profileMessage"></div>
+
+            <div class="profile-section">
+                <h3><i class="fas fa-user-edit"></i> Datos Personales</h3>
+                <div class="form-group">
+                    <label for="profileName">Nombre Visible</label>
+                    <input type="text" id="profileName" placeholder="Tu nombre">
+                </div>
+                <button class="login-btn btn-update" id="updateNameBtn">Actualizar Nombre</button>
+            </div>
+
+            <div class="profile-section">
+                <h3><i class="fas fa-lock"></i> Seguridad</h3>
+                <div class="form-group">
+                    <label for="newPassword">Nueva Contraseña</label>
+                    <input type="password" id="newPassword" placeholder="••••••••">
+                </div>
+                <button class="login-btn btn-update" id="updatePassBtn">Cambiar Contraseña</button>
+            </div>
+
+            <div class="profile-section">
+                <button class="btn-logout" id="logoutBtn">
+                    <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Animated Background -->
+    <div class="hero-background">
+        <div class="space-layer"></div>
+        <div class="stars"></div>
+        <div class="stars"></div>
+        <div class="grid-overlay"></div>
+        <div class="glow-orb red"></div>
+        <div class="glow-orb orange"></div>
+        <div class="glow-orb purple"></div>
+        <div class="particle-container">
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <style>
+            /* ===== NEW ROCKET HERO LAYOUT ===== */
+            .rocket-hero {
+                display: grid;
+                grid-template-columns: 1fr 1.2fr;
+                gap: 60px;
+                min-height: 80vh;
+                align-items: center;
+                margin-top: 10px;
+            }
+
+            .rocket-details {
+                display: flex;
+                flex-direction: column;
+                gap: 16px;
+                padding-bottom: 20px;
+            }
+
+            .rocket-title {
+                font-family: var(--font-heading);
+                font-weight: 800;
+                font-size: clamp(40px, 6vw, 72px);
+                margin: 0;
+                text-transform: uppercase;
+                letter-spacing: 0.1em;
+                color: #fff;
+            }
+
+            .rocket-tabs {
+                display: flex;
+                gap: 20px;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+                padding-bottom: 8px;
+            }
+
+            .tab-btn {
+                background: none;
+                border: none;
+                color: rgba(255, 255, 255, 0.5);
+                font-family: var(--font-heading);
+                font-weight: 700;
+                font-size: 11px;
+                letter-spacing: 0.1em;
+                text-transform: uppercase;
+                cursor: pointer;
+                padding: 4px 0;
+                transition: all 0.3s ease;
+                position: relative;
+            }
+
+            .tab-btn.active {
+                color: #fff;
+            }
+
+            .tab-btn.active::after {
+                content: '';
+                position: absolute;
+                bottom: -9px;
+                left: 0;
+                right: 0;
+                height: 2px;
+                background: var(--primary-color);
+            }
+
+            .rocket-description {
+                font-size: 15px;
+                line-height: 1.6;
+                color: rgba(255, 255, 255, 0.8);
+                max-width: 500px;
+                margin: 0;
+            }
+
+            .specs-table {
+                width: 100%;
+                border-collapse: collapse;
+                margin-top: 10px;
+            }
+
+            .specs-table tr {
+                border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            }
+
+            .specs-table td {
+                padding: 12px 0;
+                font-size: 13px;
+            }
+
+            .spec-label {
+                color: rgba(255, 255, 255, 0.6);
+                text-transform: uppercase;
+                font-weight: 700;
+                letter-spacing: 0.1em;
+                font-family: var(--font-heading);
+            }
+
+            .spec-value {
+                text-align: right;
+                font-weight: 800;
+                font-family: var(--font-heading);
+                color: #fff;
+                text-shadow: 0 0 10px rgba(0, 243, 255, 0.5);
+            }
+
+            .unit {
+                color: var(--primary-color);
+                margin-left: 4px;
+                font-size: 11px;
+            }
+
+            .rocket-visual {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                position: relative;
+                height: 75vh;
+            }
+
+            .rocket-visual img {
+                height: 100%;
+                width: auto;
+                filter: drop-shadow(0 0 30px rgba(0, 243, 255, 0.1));
+                transition: transform 0.8s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.5s ease, opacity 0.5s ease;
+                z-index: 1;
+            }
+
+            .rocket-visual img.shield-glow {
+                filter: drop-shadow(0 0 40px rgba(0, 243, 255, 0.4)) brightness(1.1);
+            }
+
+            .rocket-details .hero-badge {
+                display: inline-block;
+                padding: 4px 12px;
+                background: rgba(0, 243, 255, 0.1);
+                border: 1px solid var(--primary-color);
+                color: var(--primary-color);
+                font-size: 10px;
+                font-weight: 800;
+                text-transform: uppercase;
+                letter-spacing: 2px;
+                margin-bottom: 20px;
+                border-radius: 4px;
+            }
+
+            .rocket-selector {
+                display: flex;
+                gap: 20px;
+                margin-bottom: 40px;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+                padding-bottom: 20px;
+            }
+
+            .version-selector {
+                display: flex;
+                gap: 12px;
+                position: absolute;
+                top: -50px;
+                right: -270px;
+                z-index: 10;
+                background: rgba(10, 10, 15, 0.8);
+                padding: 10px 20px;
+                border-radius: 50px;
+                border: 1px solid rgba(0, 243, 255, 0.1);
+                backdrop-filter: blur(10px);
+                white-space: nowrap;
+            }
+
+            .version-btn {
+                background: rgba(255, 255, 255, 0.05);
+                border: 1px solid rgba(0, 243, 255, 0.2);
+                color: rgba(255, 255, 255, 0.7);
+                padding: 8px 16px;
+                border-radius: 4px;
+                cursor: pointer;
+                font-size: 11px;
+                font-weight: 600;
+                text-transform: uppercase;
+                letter-spacing: 1px;
+                transition: all 0.3s ease;
+                font-family: var(--font-heading);
+            }
+
+            .version-btn:hover {
+                background: rgba(0, 243, 255, 0.1);
+                color: #fff;
+            }
+
+            .version-btn.active {
+                background: rgba(0, 243, 255, 0.2);
+                border-color: var(--primary-color);
+                color: #fff;
+                box-shadow: 0 0 15px rgba(0, 243, 255, 0.2);
+            }
+
+            .rocket-sel-btn {
+                background: none;
+                border: none;
+                color: #fff;
+                font-family: var(--font-heading);
+                font-size: 14px;
+                font-weight: 700;
+                text-transform: uppercase;
+                letter-spacing: 2px;
+                cursor: pointer;
+                opacity: 0.4;
+                transition: all 0.3s ease;
+                padding: 8px 0;
+                position: relative;
+            }
+
+            .rocket-sel-btn.active {
+                opacity: 1;
+                color: var(--primary-color);
+            }
+
+            .rocket-sel-btn.active::after {
+                content: '';
+                position: absolute;
+                bottom: -21px;
+                left: 0;
+                width: 100%;
+                height: 2px;
+                background: var(--primary-color);
+                box-shadow: 0 0 10px var(--primary-color);
+            }
+
+            /* CALLOUTS */
+            .callout {
+                position: absolute;
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                z-index: 10;
+                pointer-events: none;
+                transition: all 0.4s ease;
+                opacity: 0;
+                transform: translateX(10px);
+            }
+
+            .callout.active {
+                opacity: 1;
+                transform: translateX(0);
+            }
+
+            .call-pulse {
+                width: 8px;
+                height: 8px;
+                background: var(--primary-color);
+                border-radius: 50%;
+                position: relative;
+                box-shadow: 0 0 10px var(--primary-color);
+            }
+
+            .call-pulse::after {
+                content: '';
+                position: absolute;
+                top: -4px;
+                left: -4px;
+                right: -4px;
+                bottom: -4px;
+                border: 1px solid var(--primary-color);
+                border-radius: 50%;
+                animation: pulse 2s infinite;
+            }
+
+            @keyframes pulse {
+                0% {
+                    transform: scale(1);
+                    opacity: 1;
+                }
+
+                100% {
+                    transform: scale(3.5);
+                    opacity: 0;
+                }
+            }
+
+            .callout-line {
+                width: 60px;
+                height: 1px;
+                background: linear-gradient(90deg, var(--primary-color), transparent);
+                box-shadow: 0 0 5px var(--primary-color);
+            }
+
+            .callout-label {
+                font-family: var(--font-heading);
+                font-size: 12px;
+                font-weight: 800;
+                text-transform: uppercase;
+                letter-spacing: 0.15em;
+                color: #fff;
+                background: linear-gradient(90deg, rgba(0, 243, 255, 0.2), transparent);
+                padding: 6px 12px;
+                border-left: 3px solid var(--primary-color);
+                backdrop-filter: blur(8px);
+                white-space: nowrap;
+                box-shadow: 0 0 15px rgba(0, 243, 255, 0.1);
+            }
+
+            /* RIGHT SIDE CALLOUTS */
+            .callout.right {
+                left: 51%;
+            }
+
+            .callout.right .callout-line {
+                background: linear-gradient(90deg, var(--primary-color), transparent);
+            }
+
+            .callout.right .callout-label {
+                border-left: 3px solid var(--primary-color);
+                border-right: 0;
+                background: linear-gradient(90deg, rgba(0, 243, 255, 0.2), transparent);
+            }
+
+            .callout.left {
+                right: 51%;
+                flex-direction: row-reverse;
+            }
+
+            .callout.left .callout-line {
+                background: linear-gradient(-90deg, var(--primary-color), transparent);
+            }
+
+            .callout.left .callout-label {
+                border-right: 3px solid var(--primary-color);
+                border-left: 0;
+                background: linear-gradient(-90deg, rgba(0, 243, 255, 0.2), transparent);
+            }
+        </style>
+
+        <section class="wrap" style="position: relative; z-index: 1; width: min(1200px, 92vw); margin: 36px auto 72px;">
+            <!-- Rocket Selector -->
+            <div class="rocket-selector">
+                <button class="rocket-sel-btn active" data-rocket="astro3">ASTRO-3</button>
+            </div>
+
+            <div class="rocket-hero">
+                <div class="rocket-details">
+                    <span class="hero-badge">Nueva Generación</span>
+                    <h1 class="rocket-title">A S T R O - 3</h1>
+
+                    <div class="rocket-tabs">
+                        <button class="tab-btn active">Vehículo Completo</button>
+                        <button class="tab-btn">Primera Etapa</button>
+                        <button class="tab-btn">Segunda Etapa</button>
+                    </div>
+
+                    <p class="rocket-description">
+                        ASTRO-3 es el carguero pesado definitivo de J.S. Aerospace, diseñado para la colonización
+                        planetaria y el despliegue de constelaciones satelitales.
+                    </p>
+
+                    <table class="specs-table">
+                        <tr>
+                            <td class="spec-label">Altura Total</td>
+                            <td class="spec-value">131<span class="unit">m</span></td>
+                        </tr>
+                        <tr>
+                            <td class="spec-label">Diámetro</td>
+                            <td class="spec-value">9.0<span class="unit">m</span></td>
+                        </tr>
+                        <tr>
+                            <td class="spec-label">Masa de Despegue</td>
+                            <td class="spec-value">5,000<span class="unit">t</span></td>
+                        </tr>
+                        <tr>
+                            <td class="spec-label">Carga Útil Mars</td>
+                            <td class="spec-value">100<span class="unit">t</span></td>
+                        </tr>
+                        <tr>
+                            <td class="spec-label">Motores</td>
+                            <td class="spec-value">J.S. Engine 2</td>
+                        </tr>
+                        <tr>
+                            <td class="spec-label">Reutilización</td>
+                            <td class="spec-value">100%</td>
+                        </tr>
+                    </table>
+
+                </div>
+
+                <div class="rocket-visual">
+                    <img src="ASTRO-3COMPLETE.png" alt="ASTRO-3 Technical Render">
+
+                    <!-- Callouts -->
+                    <div id="callout-engines" class="callout right active">
+                        <div class="call-pulse"></div>
+                        <div class="callout-line"></div>
+                        <div class="callout-label">Motores J.S. Engine 1</div>
+                    </div>
+
+                    <div id="callout-booster" class="callout right active">
+                        <div class="call-pulse"></div>
+                        <div class="callout-line"></div>
+                        <div class="callout-label">Booster (1ª Etapa)</div>
+                    </div>
+
+                    <div id="callout-vac-engine" class="callout right active">
+                        <div class="call-pulse"></div>
+                        <div class="callout-line"></div>
+                        <div class="callout-label">J.S. Engine 1 Vac</div>
+                    </div>
+
+                    <div id="callout-second-stage" class="callout right active">
+                        <div class="call-pulse"></div>
+                        <div class="callout-line"></div>
+                        <div class="callout-label">Segunda Etapa</div>
+                    </div>
+
+                    <div id="callout-fairing" class="callout right active">
+                        <div class="call-pulse"></div>
+                        <div class="callout-line"></div>
+                        <div class="callout-label">Cofia de Carga</div>
+                    </div>
+
+                    <div id="callout-shield" class="callout right">
+                        <div class="call-pulse"></div>
+                        <div class="callout-line"></div>
+                        <div class="callout-label">Losetas Térmicas JSA</div>
+                    </div>
+
+                    <div id="callout-interstage" class="callout right">
+                        <div class="call-pulse"></div>
+                        <div class="callout-line"></div>
+                        <div class="callout-label">Interetapa</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Admin Controls -->
+        <div class="admin-controls" style="display: none;">
+            <div class="admin-info">
+                <h2>Panel de Gestión de Flota</h2>
+                <p>Añade, edita o elimina vehículos de la base de datos oficial.</p>
+            </div>
+            <button class="btn-add" id="addRocketBtn">
+                <i class="fas fa-plus"></i>
+                <span>Nuevo Cohete</span>
+            </button>
+        </div>
+
+        <section class="wrap">
+            <h2 class="section-title text-neon-red" style="font-size: 2rem; margin-bottom: 30px; text-align: center;">
+                Nuestra Flota</h2>
+            <div class="fleet-grid" id="fleetGrid">
+                <!-- Se cargará desde Firebase -->
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Add Rocket Modal -->
+    <div class="modal-overlay" id="rocketModal">
+        <div class="login-modal" style="max-width: 450px;">
+            <button class="close-modal" id="closeRocketModal">&times;</button>
+            <div class="modal-header">
+                <h2 id="rocketModalTitle">Nuevo Cohete</h2>
+                <p id="rocketModalSubtitle">Añadir a la flota</p>
+            </div>
+
+            <div class="auth-message" id="rocketMessage"></div>
+
+            <form id="rocketForm">
+                <input type="hidden" id="editingRocketId">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Nombre</label>
+                        <input type="text" id="rName" required placeholder="Ej: Vortic 1">
+                    </div>
+                    <div class="form-group">
+                        <label>Tipo</label>
+                        <select id="rType" required
+                            style="background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2); color: white; padding: 10px; border-radius: 8px; width: 100%;">
+                            <option value="rocket" style="color: black;">Cohete</option>
+                            <option value="booster" style="color: black;">Booster</option>
+                            <option value="ship" style="color: black;">Nave / Cápsula</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Altura (m)</label>
+                        <input type="number" id="rHeight" step="0.1" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Diámetro (m)</label>
+                        <input type="number" id="rDiameter" step="0.1" required>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Peso (Ton)</label>
+                        <input type="number" id="rWeight" required>
+                    </div>
+                    <div class="form-group" id="thrustGroup">
+                        <label>Potencia (kN)</label>
+                        <input type="number" id="rThrust" required>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group" id="enginesGroup">
+                        <label>Motores</label>
+                        <input type="number" id="rEngines" required>
+                    </div>
+                    <div class="form-group" id="stagesGroup">
+                        <label>Etapas</label>
+                        <input type="number" id="rStages" required>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Estado Actual</label>
+                        <select id="rStatus" required
+                            style="background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2); color: white; padding: 10px; border-radius: 8px; width: 100%;">
+                            <option value="active" style="color: black;">En Servicio</option>
+                            <option value="maintenance" style="color: black;">En Mantenimiento</option>
+                            <option value="production" style="color: black;">En Producción</option>
+                            <option value="retired" style="color: black;">Retirado</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Booster Specific Fields -->
+                <div id="boosterFields" style="display: none;">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Nº de Lanzamientos</label>
+                            <input type="number" id="bLaunches" value="0">
+                        </div>
+                        <div class="form-group">
+                            <label>Fecha de Producción</label>
+                            <input type="date" id="bProdDate"
+                                style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 8px; color: #fff; width: 100%; padding: 8px;">
+                        </div>
+                    </div>
+                    <div class="form-row" style="margin-bottom: 10px;">
+                        <div class="form-group" style="display: flex; align-items: center; gap: 10px;">
+                            <input type="checkbox" id="bStaticFire" style="width: auto;">
+                            <label for="bStaticFire" style="margin: 0;">Encendido Estático</label>
+                        </div>
+                        <div class="form-group" style="display: flex; align-items: center; gap: 10px;">
+                            <input type="checkbox" id="bFlown" style="width: auto;">
+                            <label for="bFlown" style="margin: 0;">Vuelo Realizado</label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Ship Specific Fields -->
+                <div id="shipFields" style="display: none;">
+                    <div class="form-group">
+                        <label>Capacidad (Tripulación/Carga)</label>
+                        <input type="text" id="sCapacity" placeholder="Ej: 4 Astronautas / 100 Ton">
+                    </div>
+                    <div class="form-group">
+                        <label>Misiones Realizadas</label>
+                        <input type="number" id="sMissions" value="0">
+                    </div>
+                </div>
+
+                <div class="form-group" style="display: flex; align-items: center; gap: 10px; margin-bottom: 15px;">
+                    <input type="checkbox" id="rReusable" style="width: auto;">
+                    <label for="rReusable" style="margin: 0;">Es Reutilizable</label>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Tipo de Combustible</label>
+                        <input type="text" id="rFuel" placeholder="Ej: Metano / LOX">
+                    </div>
+                </div>
+
+                <div id="rocketFields">
+                    <div class="form-group">
+                        <label>Especificaciones 1ª Etapa</label>
+                        <textarea id="rStage1Spec" placeholder="Detalles técnicos..."></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Especificaciones 2ª Etapa</label>
+                        <textarea id="rStage2Spec" placeholder="Detalles técnicos..."></textarea>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Nombres de las Imágenes (una por línea)</label>
+                    <textarea id="rImageName" required placeholder="Ej:
+ASTRO-3.png
+ASTRO-3_launch.png
+..." style="min-height: 100px;"></textarea>
+                    <small style="color: grey; font-size: 0.7em;">Las imágenes deben estar en la carpeta del
+                        proyecto</small>
+                </div>
+
+                <button type="submit" class="login-btn" id="saveRocketBtn">Guardar Cohete</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Details Modal -->
+    <div class="modal-overlay" id="detailsModal">
+        <div class="login-modal">
+            <button class="close-modal" id="closeDetailsModal">&times;</button>
+            <div id="detailsContent">
+                <!-- Content will be injected via JS -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Contact Modal -->
+    <div class="modal-overlay" id="contactModal">
+        <div class="login-modal" id="contactModalContent"
+            style="display: flex; flex-direction: column; height: 80vh; max-height: 600px; padding: 20px;">
+            <button class="close-modal" id="closeContactModal">&times;</button>
+            <div class="contact-header"
+                style="display: flex; align-items: center; border-bottom: 1px solid rgba(255, 255, 255, 0.1); padding-bottom: 15px; margin-bottom: 15px;">
+                <div
+                    style="background: var(--neon-red); color: #000; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-family: var(--font-heading); margin-right: 15px;">
+                    AG</div>
+                <div>
+                    <h2 style="font-family: var(--font-heading); color: #fff; font-size: 1.2rem; margin: 0;">Agus</h2>
+                    <p style="color: var(--neon-red); font-size: 0.85rem; margin: 0;">CEO de J.S. Aerospace</p>
+                </div>
+                <button id="chat-back-btn"
+                    style="display: none; margin-left: auto; background: none; border: 1px solid rgba(255,255,255,0.2); color: #fff; cursor: pointer; padding: 5px 10px; border-radius: 5px;">Volver</button>
+            </div>
+            <div id="contact-login-required"
+                style="text-align: center; flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center;">
+                <i class="fas fa-lock" style="font-size: 3rem; color: rgba(255,51,51,0.5); margin-bottom: 15px;"></i>
+                <h3 style="color: #fff; margin-bottom: 10px;">Inicia sesión para chatear</h3>
+                <button class="login-btn" id="contactLoginBtn" style="padding: 10px 20px;">Iniciar Sesión</button>
+            </div>
+
+            <div id="contact-conversations" style="display: none; flex: 1; overflow-y: auto;">
+                <h3 style="color: rgba(255,255,255,0.7); font-size: 0.9rem; margin-bottom: 10px;">Conversaciones</h3>
+                <div id="conversations-list"></div>
+            </div>
+
+            <div id="contact-chat-area"
+                style="flex: 1; display: flex; flex-direction: column; height: 100%; display: none;">
+                <div
+                    style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 15px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 10px;">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <button id="chat-back-btn"
+                            style="background: none; border: none; color: #fff; cursor: pointer; display: none;"><i
+                                class="fas fa-arrow-left"></i></button>
+                        <span style="font-family: var(--font-heading); font-weight: bold; color: #fff;"
+                            id="chat-title">Chat con J.S.Aerospace</span>
+                    </div>
+                </div>
+                <div id="chat-messages"
+                    style="flex: 1; overflow-y: auto; padding: 10px; display: flex; flex-direction: column; gap: 10px; background: rgba(0,0,0,0.2); border-radius: 8px; margin-bottom: 15px;">
+                </div>
+                <form id="chat-form" style="display: flex; gap: 10px;">
+                    <input type="text" id="chat-input" placeholder="Escribe un mensaje..."
+                        style="flex: 1; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: #fff; padding: 10px;"
+                        required>
+                    <button type="submit"
+                        style="background: var(--neon-red); border: none; color: #000; width: 40px; height: 40px; border-radius: 8px; cursor: pointer;"><i
+                            class="fas fa-paper-plane"></i></button>
+                    <script type="module">
+                        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+                        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut, updateProfile, updatePassword } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+                        import { getDatabase, ref, set, get, update, push, onValue, onChildAdded, remove } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
+
+                        const firebaseConfig = {
+                            apiKey: "AIzaSyC6eDNK7CLl_aXEYkwFV97k-2A1axzRAKg",
+                            authDomain: "j-saerospace.firebaseapp.com",
+                            projectId: "j-saerospace",
+                            storageBucket: "j-saerospace.firebasestorage.app",
+                            messagingSenderId: "496032189875",
+                            appId: "1:496032189875:web:69c591002b8131ed1c0fc6",
+                            measurementId: "G-YXWPQWVGDZ",
+                            databaseURL: "https://j-saerospace-default-rtdb.firebaseio.com"
+                        };
+
+                        const app = initializeApp(firebaseConfig);
+                        const auth = getAuth(app);
+                        const database = getDatabase(app);
+                        const googleProvider = new GoogleAuthProvider();
+
+                        // DOM Elements - Utils
+                        const safeGet = (id) => document.getElementById(id);
+                        const setupModal = (btnId, modalId, closeId) => {
+                            const btn = safeGet(btnId);
+                            const modal = safeGet(modalId);
+                            const close = safeGet(closeId);
+                            if (btn && modal) btn.onclick = () => modal.classList.add('active');
+                            if (close && modal) close.onclick = () => modal.classList.remove('active');
+                        };
+
+                        // Auth Elements
+                        const authBtn = safeGet('authBtn');
+                        const authBtnText = safeGet('authBtnText');
+                        const loginModal = safeGet('loginModal');
+                        const profileModal = safeGet('profileModal');
+                        const authForm = safeGet('authForm');
+                        const authMessage = safeGet('authMessage');
+                        const googleLoginBtn = safeGet('googleLogin');
+                        const toggleLink = safeGet('toggleLink');
+                        const toggleText = safeGet('toggleText');
+                        const modalTitle = safeGet('modalTitle');
+                        const modalSubtitle = safeGet('modalSubtitle');
+                        const submitBtn = safeGet('submitBtn');
+                        const nameGroup = safeGet('nameGroup');
+
+                        let isLoginMode = true;
+                        let currentUser = null;
+                        let isAdmin = false;
+
+                        // AUTH LOGIC
+                        onAuthStateChanged(auth, (user) => {
+                            currentUser = user;
+                            if (user) {
+                                isAdmin = (user.email === 'olanoagus@gmail.com');
+                                if (authBtn) {
+                                    authBtn.classList.add('logged-in');
+                                    authBtn.innerHTML = `
+                        <img src="${user.photoURL || 'https://via.placeholder.com/32'}" class="user-avatar" alt="Avatar">
+                        <span>${user.displayName || user.email.split('@')[0]}</span>
+                    `;
+                                }
+                                saveUserToDatabase(user);
+                                // Show admin controls if applicable
+                                const adminControls = document.querySelector('.admin-controls');
+                                if (adminControls) adminControls.style.display = isAdmin ? 'flex' : 'none';
+                            } else {
+                                isAdmin = false;
+                                if (authBtn) {
+                                    authBtn.classList.remove('logged-in');
+                                    authBtn.innerHTML = `<i class="fas fa-user"></i><span id="authBtnText">Iniciar Sesión</span>`;
+                                }
+                                const adminControls = document.querySelector('.admin-controls');
+                                if (adminControls) adminControls.style.display = 'none';
+                            }
+                            updateChatView();
+                        });
+
+                        async function saveUserToDatabase(user) {
+                            const userRef = ref(database, 'users/' + user.uid);
+                            await update(userRef, {
+                                lastLogin: new Date().toISOString(),
+                                displayName: user.displayName || null,
+                                photoURL: user.photoURL || null
+                            });
+                        }
+
+                        if (authBtn) authBtn.onclick = () => {
+                            if (currentUser) profileModal?.classList.add('active');
+                            else loginModal?.classList.add('active');
+                        };
+
+                        setupModal(null, 'loginModal', 'closeModal'); // Manual override for authBtn
+                        const closeM = safeGet('closeModal'); if (closeM) closeM.onclick = () => loginModal?.classList.remove('active');
+                        const closeP = safeGet('closeProfileModal'); if (closeP) closeP.onclick = () => profileModal?.classList.remove('active');
+
+                        if (toggleLink) toggleLink.onclick = (e) => {
+                            e.preventDefault();
+                            isLoginMode = !isLoginMode;
+                            if (modalTitle) modalTitle.textContent = isLoginMode ? 'Iniciar Sesión' : 'Registrarse';
+                            if (modalSubtitle) modalSubtitle.textContent = isLoginMode ? 'Accede a tu cuenta de J.S.Aerospace' : 'Únete a la nueva era espacial';
+                            if (submitBtn) submitBtn.textContent = isLoginMode ? 'Entrar' : 'Crear Cuenta';
+                            if (toggleText) toggleText.textContent = isLoginMode ? '¿No tienes cuenta?' : '¿Ya tienes cuenta?';
+                            if (toggleLink) toggleLink.textContent = isLoginMode ? 'Regístrate' : 'Inicia Sesión';
+                            if (nameGroup) nameGroup.style.display = isLoginMode ? 'none' : 'block';
+                        };
+
+                        if (authForm) authForm.onsubmit = async (e) => {
+                            e.preventDefault();
+                            const email = safeGet('userEmail')?.value;
+                            const password = safeGet('userPassword')?.value;
+                            const name = safeGet('userName')?.value;
+                            try {
+                                if (isLoginMode) await signInWithEmailAndPassword(auth, email, password);
+                                else {
+                                    const cred = await createUserWithEmailAndPassword(auth, email, password);
+                                    await updateProfile(cred.user, { displayName: name });
+                                }
+                                loginModal?.classList.remove('active');
+                            } catch (err) {
+                                if (authMessage) { authMessage.textContent = err.message; authMessage.className = 'auth-message error'; }
+                            }
+                        };
+
+                        if (googleLoginBtn) googleLoginBtn.onclick = async () => {
+                            try { await signInWithPopup(auth, googleProvider); loginModal?.classList.remove('active'); }
+                            catch (err) { if (authMessage) { authMessage.textContent = err.message; authMessage.className = 'auth-message error'; } }
+                        };
+
+                        const logoutB = safeGet('logoutBtn');
+                        if (logoutB) logoutB.onclick = () => { signOut(auth); profileModal?.classList.remove('active'); };
+
+                        const contactB = safeGet('contactBtn');
+                        if (contactB) contactB.onclick = () => { safeGet('contactModal')?.classList.add('active'); updateChatView(); };
+                        const closeC = safeGet('closeContactModal');
+                        if (closeC) closeC.onclick = () => { safeGet('contactModal')?.classList.remove('active'); };
+
+                        // --- CHAT LOGIC ---
+                        const contactLoginRequired = safeGet('contact-login-required'), contactChatArea = safeGet('contact-chat-area'), contactConversations = safeGet('contact-conversations'), conversationsList = safeGet('conversations-list'), chatMessages = safeGet('chat-messages'), chatForm = safeGet('chat-form'), chatInput = safeGet('chat-input'), chatBackBtn = safeGet('chat-back-btn');
+
+                        if (chatBackBtn) chatBackBtn.onclick = () => { activeChatUid = null; updateChatView(); };
+                        const contactL = safeGet('contactLoginBtn'); if (contactL) contactL.onclick = () => { safeGet('contactModal')?.classList.remove('active'); safeGet('loginModal')?.classList.add('active'); };
+
+                        function clearChatListeners() { chatListeners.forEach(un => un()); chatListeners = []; }
+
+                        function updateChatView() {
+                            if (!currentUser) {
+                                if (contactLoginRequired) contactLoginRequired.style.display = 'flex';
+                                if (contactChatArea) contactChatArea.style.display = 'none';
+                                if (contactConversations) contactConversations.style.display = 'none';
+                                return;
+                            }
+                            if (contactLoginRequired) contactLoginRequired.style.display = 'none';
+                            const isAgus = isAdmin;
+                            if (isAgus) {
+                                if (!activeChatUid) {
+                                    if (contactConversations) contactConversations.style.display = 'block';
+                                    if (contactChatArea) contactChatArea.style.display = 'none';
+                                    if (chatBackBtn) chatBackBtn.style.display = 'none';
+                                    loadConversations();
+                                } else {
+                                    if (contactConversations) contactConversations.style.display = 'none';
+                                    if (contactChatArea) contactChatArea.style.display = 'flex';
+                                    if (chatBackBtn) chatBackBtn.style.display = 'block';
+                                    loadChatMessages(activeChatUid);
+                                }
+                            } else {
+                                if (contactConversations) contactConversations.style.display = 'none';
+                                if (contactChatArea) contactChatArea.style.display = 'flex';
+                                if (chatBackBtn) chatBackBtn.style.display = 'none';
+                                activeChatUid = currentUser.uid;
+                                loadChatMessages(currentUser.uid);
+                            }
+                        }
+
+                        function loadConversations() {
+                            clearChatListeners();
+                            chatListeners.push(onValue(ref(database, 'chats'), (snap) => {
+                                if (conversationsList) {
+                                    conversationsList.innerHTML = '';
+                                    if (!snap.exists()) { conversationsList.innerHTML = '<p>No hay mensajes.</p>'; return; }
+                                    snap.forEach(child => {
+                                        const uid = child.key, last = Object.values(child.val()).pop();
+                                        const div = document.createElement('div');
+                                        div.style.cssText = 'padding:10px; border-bottom:1px solid rgba(255,255,255,0.1); cursor:pointer;';
+                                        div.innerHTML = `<strong>${uid.substring(0, 8)}</strong><br><small>${last.text}</small>`;
+                                        div.onclick = () => { activeChatUid = uid; updateChatView(); };
+                                        conversationsList.appendChild(div);
+                                    });
+                                }
+                            }));
+                        }
+
+                        function loadChatMessages(uid) {
+                            clearChatListeners();
+                            const area = safeGet('chat-messages'); if (!area) return;
+                            area.innerHTML = '';
+                            chatListeners.push(onChildAdded(ref(database, 'chats/' + uid), (snap) => {
+                                const msg = snap.val();
+                                const isMine = (msg.senderUid === currentUser.uid);
+                                const msgEl = document.createElement('div');
+                                msgEl.className = `chat-msg ${isMine ? 'mine' : 'theirs'}`;
+                                msgEl.style.cssText = `max-width:80%; padding:10px; border-radius:10px; margin-bottom:5px; align-self:${isMine ? 'flex-end' : 'flex-start'}; background:${isMine ? 'var(--neon-red)' : 'rgba(255,255,255,0.1)'}; color:${isMine ? '#000' : '#fff'};`;
+                                msgEl.textContent = msg.text;
+                                area.appendChild(msgEl);
+                                area.scrollTop = area.scrollHeight;
+                            }));
+                        }
+
+                        if (safeGet('chat-form')) safeGet('chat-form').onsubmit = (e) => {
+                            e.preventDefault();
+                            const text = safeGet('chat-input')?.value.trim();
+                            const threadUid = (currentUser.displayName === 'Agus' && activeChatUid) ? activeChatUid : currentUser.uid;
+                            if (text && threadUid) {
+                                push(ref(database, 'chats/' + threadUid), { text, senderUid: currentUser.uid, timestamp: Date.now() });
+                                if (safeGet('chat-input')) safeGet('chat-input').value = '';
+                            }
+                        };
+
+                        // ===== ROCKET INTERACTIVE VIEWER LOGIC =====
+                        const rocketsData = {
+                            astro3: {
+                                title: 'A S T R O - 3',
+                                badge: 'Nueva Generación',
+                                image: 'ASTRO-3COMPLETE.png',
+                                stages: {
+                                    'Vehículo Completo': {
+                                        desc: 'ASTRO-3 es el carguero pesado definitivo de J.S. Aerospace, diseñado para la colonización planetaria y el despliegue de constelaciones satelitales.',
+                                        specs: [['Altura Total', '131', 'm'], ['Diámetro', '9.0', 'm'], ['Masa de Despegue', '5,000', 't'], ['Carga Útil Mars', '100', 't'], ['Motores', 'J.S. Engine 2', ''], ['Reutilización', '100%', ''], ['Propelentes', 'CH4 / LOX']],
+                                        imgScale: 'scale(1) translateY(-8%)',
+                                        positions: {
+                                            'callout-fairing': { style: 'top: 2.92%; left: 49.83%', label: 'Cofia' },
+                                            'callout-second-stage': { style: 'top: 17%; left: 49.83%', label: 'Stage 2' },
+                                            'callout-interstage': { style: 'top: 27.23%; left: 49.83%', label: 'Interetapa' },
+                                            'callout-booster': { style: 'top: 52.63%; left: 49.83%', label: 'Booster (1ª Etapa)' },
+                                            'callout-engines': { style: 'top: 84.98%; left: 49.67%', label: 'TQ-12' }
+                                        }
+                                    },
+                                    'Primera Etapa': {
+                                        desc: 'El booster de ASTRO-3 (77m) es una bestia de potencia equipada con 33 motores J.S. Engine 2. Permite retorno directo y captura.',
+                                        image: 'BOOSTER.png',
+                                        specs: [['Altura', '77', 'm'], ['Diámetro', '9.0', 'm'], ['Motores', '33x J.S. Engine 2', ''], ['Empuje Total', '72,000', 'kN'], ['Reutilización', 'Total', '']],
+                                        imgScale: 'scale(1) translateY(-10%)',
+                                        positions: {
+                                            'callout-engines': { style: 'top: 80.81%; left: 49.18%', label: 'TQ-12' },
+                                            'callout-booster': { style: 'top: 38.96%; left: 49.34%', label: 'Booster (1ª Etapa)' },
+                                            'callout-fairing': { style: 'top: 0%; left: 49.5%', label: 'Interetapa' }
+                                        }
+                                    },
+                                    'Segunda Etapa': {
+                                        desc: 'La nave ASTRO-3 (54m) es tanto un carguero como una nave de transporte planetario. Optimizada para reentradas atmosféricas extremas.',
+                                        image: 'ETAPA2.png',
+                                        specs: [['Altura', '54', 'm'], ['Diámetro', '9.0', 'm'], ['Motores', '6x J.S. Engine 2 Vac', ''], ['Carga Órbt. Terrestre', '250', 't'], ['Carga Órbt. Marciana', '100', 't'], ['Capacidad Hab.', 'Aún por definir', '']],
+                                        imgScale: 'scale(1.05) translateY(-5%)',
+                                        positions: {
+                                            'callout-second-stage': { style: 'top: 60.09%; left: 49.02%', label: 'Stage 2' },
+                                            'callout-fairing': { style: 'top: 24.63%; left: 49.02%', label: 'Cofia' },
+                                            'callout-engines': { style: 'top: 86.22%; left: 49.18%', label: 'TQ-15' }
+                                        }
+                                    }
+                                }
+                            }
+                        };
+
+                        const tabBtns = document.querySelectorAll('.tab-btn');
+                        const rocketImg = document.querySelector('.rocket-visual img');
+                        const rocketTitle = document.querySelector('.rocket-title');
+                        const rocketBadge = document.querySelector('.rocket-details .hero-badge');
+                        const rocketDesc = document.querySelector('.rocket-description');
+                        const specsTable = document.querySelector('.specs-table');
+
+                        function updateHero(rocketKey, stageName = 'Vehículo Completo') {
+                            const r = rocketsData[rocketKey];
+                            if (!r) return;
+                            const data = r.stages[stageName];
+                            if (!data) return;
+                            if (rocketTitle) rocketTitle.textContent = r.title;
+                            if (rocketBadge) rocketBadge.textContent = r.badge;
+                            if (rocketDesc) rocketDesc.textContent = data.desc;
+                            if (rocketImg) {
+                                rocketImg.src = data.image || r.image;
+                                if (data.imgScale) rocketImg.style.transform = data.imgScale;
+                            }
+                            tabBtns.forEach(btn => btn.classList.toggle('active', btn.textContent === stageName));
+                            document.querySelectorAll('.callout').forEach(c => c.classList.remove('active'));
+                            if (data.positions) applyPositions(data.positions);
+                            let tableHTML = '';
+                            data.specs.forEach(spec => {
+                                tableHTML += `<tr><td class="spec-label">${spec[0]}</td><td class="spec-value">${spec[1]}${spec[2] ? `<span class="unit">${spec[2]}</span>` : ''}</td></tr>`;
+                            });
+                            if (specsTable) specsTable.innerHTML = tableHTML;
+                        }
+
+                        function applyPositions(positions) {
+                            for (const [id, config] of Object.entries(positions)) {
+                                const el = document.getElementById(id);
+                                if (el) {
+                                    el.classList.add('active');
+                                    el.style.top = ''; el.style.bottom = ''; el.style.left = ''; el.style.right = '';
+                                    config.style.split(';').forEach(s => {
+                                        const [p, v] = s.split(':').map(str => str.trim());
+                                        if (p && v) el.style[p] = v;
+                                    });
+                                    const l = el.querySelector('.callout-label');
+                                    if (l) l.textContent = config.label;
+                                }
+                            }
+                        }
+
+                        tabBtns.forEach(btn => btn.onclick = () => updateHero('astro3', btn.textContent));
+
+                        // INITIALIZE
+                        document.addEventListener('DOMContentLoaded', () => {
+                            updateHero('astro3');
+                            const loader = safeGet('pageLoader');
+                            if (loader) setTimeout(() => loader.classList.add('hidden'), 800);
+
+                            // Transition Link Handling
+                            document.querySelectorAll('.transition-link').forEach(link => {
+                                link.onclick = (e) => {
+                                    e.preventDefault();
+                                    document.body.classList.add('exiting');
+                                    const exit = safeGet('exitOverlay');
+                                    if (exit) exit.classList.add('active');
+                                    setTimeout(() => window.location.href = link.dataset.href || link.href, 700);
+                                };
+                            });
+                        });
+
+                        // FLEET MANAGEMENT (CRUD)
+                        const fleetGrid = safeGet('fleetGrid');
+                        const rocketForm = safeGet('rocketForm');
+                        const rocketModal = safeGet('rocketModal');
+                        onValue(ref(database, 'fleet'), (snap) => {
+                            if (!fleetGrid) return;
+                            fleetGrid.innerHTML = '';
+                            if (!snap.exists()) { fleetGrid.innerHTML = '<p>No hay cohetes en la flota.</p>'; return; }
+                            const statusMap = {
+                                'active': 'EN SERVICIO',
+                                'maintenance': 'EN MANTENIMIENTO',
+                                'production': 'EN PRODUCCIÓN',
+                                'retired': 'RETIRADO'
+                            };
+
+                            snap.forEach(child => {
+                                const r = child.val(); r.id = child.key;
+                                const card = document.createElement('div');
+                                card.className = 'fleet-card';
+                                card.onclick = () => showRocketDetails(r.id);
+                                const statusText = statusMap[r.status] || (r.status || 'Active').toUpperCase();
+
+                                card.innerHTML = `
+                    ${isAdmin ? `<div class="admin-actions">
+                        <button onclick="event.stopPropagation(); window.editRocket('${r.id}')" class="btn-edit"><i class="fas fa-edit"></i></button>
+                        <button onclick="event.stopPropagation(); window.deleteRocket('${r.id}')" class="btn-delete"><i class="fas fa-trash"></i></button>
+                    </div>` : ''}
+                    <div class="card-image-container">
+                        <img src="${r.imageName ? r.imageName.split('\n')[0] : 'https://via.placeholder.com/400x250'}" alt="${r.name}" onerror="this.src='https://via.placeholder.com/400x250?text=No+Image'">
+                    </div>
+                    <div class="card-content">
+                        <h2>${r.name}</h2>
+                        <span class="card-status-text">${statusText}</span>
+                        
+                        <div class="card-info-row">
+                            <i class="fas fa-arrows-alt-v"></i>
+                            <span>Altura: ${r.height}m</span>
+                        </div>
+                        <div class="card-info-row">
+                            <i class="fas fa-weight-hanging"></i>
+                            <span>Masa: ${r.weight}t</span>
+                        </div>
+                        <div class="card-info-row">
+                            <i class="fas fa-recycle"></i>
+                            <span>${r.reusable ? 'Reutilizable' : 'Desechable'}</span>
+                        </div>
+                    </div>
+                `;
+                                fleetGrid.appendChild(card);
+                            });
+                        });
+
+                        window.editRocket = async (id) => {
+                            const snap = await get(ref(database, 'fleet/' + id));
+                            if (snap.exists()) {
+                                const r = snap.val();
+                                safeGet('editingRocketId').value = id;
+                                safeGet('rName').value = r.name;
+                                safeGet('rType').value = r.type;
+                                safeGet('rHeight').value = r.height;
+                                safeGet('rWeight').value = r.weight;
+                                rocketModal.classList.add('active');
+                            }
+                        };
+
+                        window.deleteRocket = async (id) => {
+                            if (confirm('¿Seguro que deseas eliminar este cohete?')) {
+                                await remove(ref(database, 'fleet/' + id));
+                            }
+                        };
+
+                        if (rocketForm) rocketForm.onsubmit = async (e) => {
+                            e.preventDefault();
+                            const id = safeGet('editingRocketId').value;
+                            const data = {
+                                name: safeGet('rName').value,
+                                type: safeGet('rType').value,
+                                height: safeGet('rHeight').value,
+                                weight: safeGet('rWeight').value
+                            };
+                            if (id) await update(ref(database, 'fleet/' + id), data);
+                            else await push(ref(database, 'fleet'), data);
+                            rocketModal.classList.remove('active');
+                            rocketForm.reset();
+                        };
+
+                    </script>
+</body>
+
+</html>

@@ -1,0 +1,166 @@
+{
+    "entries": [
+        {
+            "value": "time",
+            "$type": "kOS.Safe.Encapsulation.StringValue"
+        },
+        {
+            "value": 146416,
+            "$type": "kOS.Safe.Encapsulation.ScalarIntValue"
+        },
+        {
+            "value": "alt",
+            "$type": "kOS.Safe.Encapsulation.StringValue"
+        },
+        {
+            "value": 19347,
+            "$type": "kOS.Safe.Encapsulation.ScalarIntValue"
+        },
+        {
+            "value": "vel",
+            "$type": "kOS.Safe.Encapsulation.StringValue"
+        },
+        {
+            "value": 480,
+            "$type": "kOS.Safe.Encapsulation.ScalarIntValue"
+        },
+        {
+            "value": "apo",
+            "$type": "kOS.Safe.Encapsulation.StringValue"
+        },
+        {
+            "value": 32203,
+            "$type": "kOS.Safe.Encapsulation.ScalarIntValue"
+        },
+        {
+            "value": "per",
+            "$type": "kOS.Safe.Encapsulation.StringValue"
+        },
+        {
+            "value": -598019,
+            "$type": "kOS.Safe.Encapsulation.ScalarIntValue"
+        },
+        {
+            "value": "fuel",
+            "$type": "kOS.Safe.Encapsulation.StringValue"
+        },
+        {
+            "value": 459,
+            "$type": "kOS.Safe.Encapsulation.ScalarIntValue"
+        },
+        {
+            "value": "engStates",
+            "$type": "kOS.Safe.Encapsulation.StringValue"
+        },
+        {
+            "entries": [
+                {
+                    "value": "C3",
+                    "$type": "kOS.Safe.Encapsulation.StringValue"
+                },
+                {
+                    "value": 1,
+                    "$type": "kOS.Safe.Encapsulation.ScalarIntValue"
+                },
+                {
+                    "value": "C1",
+                    "$type": "kOS.Safe.Encapsulation.StringValue"
+                },
+                {
+                    "value": 1,
+                    "$type": "kOS.Safe.Encapsulation.ScalarIntValue"
+                },
+                {
+                    "value": "C2",
+                    "$type": "kOS.Safe.Encapsulation.StringValue"
+                },
+                {
+                    "value": 1,
+                    "$type": "kOS.Safe.Encapsulation.ScalarIntValue"
+                },
+                {
+                    "value": "R4",
+                    "$type": "kOS.Safe.Encapsulation.StringValue"
+                },
+                {
+                    "value": 1,
+                    "$type": "kOS.Safe.Encapsulation.ScalarIntValue"
+                },
+                {
+                    "value": "R3",
+                    "$type": "kOS.Safe.Encapsulation.StringValue"
+                },
+                {
+                    "value": 1,
+                    "$type": "kOS.Safe.Encapsulation.ScalarIntValue"
+                },
+                {
+                    "value": "R2",
+                    "$type": "kOS.Safe.Encapsulation.StringValue"
+                },
+                {
+                    "value": 1,
+                    "$type": "kOS.Safe.Encapsulation.ScalarIntValue"
+                },
+                {
+                    "value": "R1",
+                    "$type": "kOS.Safe.Encapsulation.StringValue"
+                },
+                {
+                    "value": 1,
+                    "$type": "kOS.Safe.Encapsulation.ScalarIntValue"
+                },
+                {
+                    "value": "R8",
+                    "$type": "kOS.Safe.Encapsulation.StringValue"
+                },
+                {
+                    "value": 1,
+                    "$type": "kOS.Safe.Encapsulation.ScalarIntValue"
+                },
+                {
+                    "value": "R7",
+                    "$type": "kOS.Safe.Encapsulation.StringValue"
+                },
+                {
+                    "value": 1,
+                    "$type": "kOS.Safe.Encapsulation.ScalarIntValue"
+                },
+                {
+                    "value": "R6",
+                    "$type": "kOS.Safe.Encapsulation.StringValue"
+                },
+                {
+                    "value": 1,
+                    "$type": "kOS.Safe.Encapsulation.ScalarIntValue"
+                },
+                {
+                    "value": "R5",
+                    "$type": "kOS.Safe.Encapsulation.StringValue"
+                },
+                {
+                    "value": 1,
+                    "$type": "kOS.Safe.Encapsulation.ScalarIntValue"
+                },
+                {
+                    "value": "S1",
+                    "$type": "kOS.Safe.Encapsulation.StringValue"
+                },
+                {
+                    "value": 0,
+                    "$type": "kOS.Safe.Encapsulation.ScalarIntValue"
+                }
+            ],
+            "$type": "kOS.Safe.Encapsulation.Lexicon"
+        },
+        {
+            "value": "status",
+            "$type": "kOS.Safe.Encapsulation.StringValue"
+        },
+        {
+            "value": "ATTACHED",
+            "$type": "kOS.Safe.Encapsulation.StringValue"
+        }
+    ],
+    "$type": "kOS.Safe.Encapsulation.Lexicon"
+}

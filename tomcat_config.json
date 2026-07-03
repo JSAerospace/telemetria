@@ -1,0 +1,21 @@
+{
+    "entries": [
+        {
+            "value": "apo",
+            "$type": "kOS.Safe.Encapsulation.StringValue"
+        },
+        {
+            "value": 200000,
+            "$type": "kOS.Safe.Encapsulation.ScalarIntValue"
+        },
+        {
+            "value": "head",
+            "$type": "kOS.Safe.Encapsulation.StringValue"
+        },
+        {
+            "value": 90,
+            "$type": "kOS.Safe.Encapsulation.ScalarIntValue"
+        }
+    ],
+    "$type": "kOS.Safe.Encapsulation.Lexicon"
+}

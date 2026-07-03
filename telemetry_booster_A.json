@@ -1,0 +1,142 @@
+{
+    "entries": [
+        {
+            "value": "status",
+            "$type": "kOS.Safe.Encapsulation.StringValue"
+        },
+        {
+            "value": "ASCENT",
+            "$type": "kOS.Safe.Encapsulation.StringValue"
+        },
+        {
+            "value": "alt",
+            "$type": "kOS.Safe.Encapsulation.StringValue"
+        },
+        {
+            "value": 25853,
+            "$type": "kOS.Safe.Encapsulation.ScalarIntValue"
+        },
+        {
+            "value": "vel",
+            "$type": "kOS.Safe.Encapsulation.StringValue"
+        },
+        {
+            "value": 681,
+            "$type": "kOS.Safe.Encapsulation.ScalarIntValue"
+        },
+        {
+            "value": "vs",
+            "$type": "kOS.Safe.Encapsulation.StringValue"
+        },
+        {
+            "value": 615.3,
+            "$type": "kOS.Safe.Encapsulation.ScalarDoubleValue"
+        },
+        {
+            "value": "hdist",
+            "$type": "kOS.Safe.Encapsulation.StringValue"
+        },
+        {
+            "value": 101342,
+            "$type": "kOS.Safe.Encapsulation.ScalarIntValue"
+        },
+        {
+            "value": "fuel",
+            "$type": "kOS.Safe.Encapsulation.StringValue"
+        },
+        {
+            "value": 16336,
+            "$type": "kOS.Safe.Encapsulation.ScalarIntValue"
+        },
+        {
+            "value": "fuelpct",
+            "$type": "kOS.Safe.Encapsulation.StringValue"
+        },
+        {
+            "value": 29.6,
+            "$type": "kOS.Safe.Encapsulation.ScalarDoubleValue"
+        },
+        {
+            "value": "thr",
+            "$type": "kOS.Safe.Encapsulation.StringValue"
+        },
+        {
+            "value": 100,
+            "$type": "kOS.Safe.Encapsulation.ScalarIntValue"
+        },
+        {
+            "value": "engstates",
+            "$type": "kOS.Safe.Encapsulation.StringValue"
+        },
+        {
+            "entries": [
+                {
+                    "value": "1",
+                    "$type": "kOS.Safe.Encapsulation.StringValue"
+                },
+                {
+                    "value": 1,
+                    "$type": "kOS.Safe.Encapsulation.ScalarIntValue"
+                },
+                {
+                    "value": "2",
+                    "$type": "kOS.Safe.Encapsulation.StringValue"
+                },
+                {
+                    "value": 1,
+                    "$type": "kOS.Safe.Encapsulation.ScalarIntValue"
+                },
+                {
+                    "value": "3",
+                    "$type": "kOS.Safe.Encapsulation.StringValue"
+                },
+                {
+                    "value": 1,
+                    "$type": "kOS.Safe.Encapsulation.ScalarIntValue"
+                },
+                {
+                    "value": "4",
+                    "$type": "kOS.Safe.Encapsulation.StringValue"
+                },
+                {
+                    "value": 1,
+                    "$type": "kOS.Safe.Encapsulation.ScalarIntValue"
+                },
+                {
+                    "value": "5",
+                    "$type": "kOS.Safe.Encapsulation.StringValue"
+                },
+                {
+                    "value": 1,
+                    "$type": "kOS.Safe.Encapsulation.ScalarIntValue"
+                },
+                {
+                    "value": "6",
+                    "$type": "kOS.Safe.Encapsulation.StringValue"
+                },
+                {
+                    "value": 1,
+                    "$type": "kOS.Safe.Encapsulation.ScalarIntValue"
+                },
+                {
+                    "value": "7",
+                    "$type": "kOS.Safe.Encapsulation.StringValue"
+                },
+                {
+                    "value": 1,
+                    "$type": "kOS.Safe.Encapsulation.ScalarIntValue"
+                }
+            ],
+            "$type": "kOS.Safe.Encapsulation.Lexicon"
+        },
+        {
+            "value": "time",
+            "$type": "kOS.Safe.Encapsulation.StringValue"
+        },
+        {
+            "value": 99,
+            "$type": "kOS.Safe.Encapsulation.ScalarIntValue"
+        }
+    ],
+    "$type": "kOS.Safe.Encapsulation.Lexicon"
+}

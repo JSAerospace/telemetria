@@ -1,0 +1,93 @@
+{
+    "entries": [
+        {
+            "value": "status",
+            "$type": "kOS.Safe.Encapsulation.StringValue"
+        },
+        {
+            "value": "STAGING STANDBY",
+            "$type": "kOS.Safe.Encapsulation.StringValue"
+        },
+        {
+            "value": "alt",
+            "$type": "kOS.Safe.Encapsulation.StringValue"
+        },
+        {
+            "value": 626,
+            "$type": "kOS.Safe.Encapsulation.ScalarIntValue"
+        },
+        {
+            "value": "apo",
+            "$type": "kOS.Safe.Encapsulation.StringValue"
+        },
+        {
+            "value": 614,
+            "$type": "kOS.Safe.Encapsulation.ScalarIntValue"
+        },
+        {
+            "value": "peri",
+            "$type": "kOS.Safe.Encapsulation.StringValue"
+        },
+        {
+            "value": -598445,
+            "$type": "kOS.Safe.Encapsulation.ScalarIntValue"
+        },
+        {
+            "value": "vs",
+            "$type": "kOS.Safe.Encapsulation.StringValue"
+        },
+        {
+            "value": 1.5,
+            "$type": "kOS.Safe.Encapsulation.ScalarDoubleValue"
+        },
+        {
+            "value": "spd",
+            "$type": "kOS.Safe.Encapsulation.StringValue"
+        },
+        {
+            "value": 1.5,
+            "$type": "kOS.Safe.Encapsulation.ScalarDoubleValue"
+        },
+        {
+            "value": "fuel",
+            "$type": "kOS.Safe.Encapsulation.StringValue"
+        },
+        {
+            "value": 99.8,
+            "$type": "kOS.Safe.Encapsulation.ScalarDoubleValue"
+        },
+        {
+            "value": "throttle",
+            "$type": "kOS.Safe.Encapsulation.StringValue"
+        },
+        {
+            "value": 100,
+            "$type": "kOS.Safe.Encapsulation.ScalarIntValue"
+        },
+        {
+            "value": "twr",
+            "$type": "kOS.Safe.Encapsulation.StringValue"
+        },
+        {
+            "value": 1.35,
+            "$type": "kOS.Safe.Encapsulation.ScalarDoubleValue"
+        },
+        {
+            "value": "missiontime",
+            "$type": "kOS.Safe.Encapsulation.StringValue"
+        },
+        {
+            "value": 0,
+            "$type": "kOS.Safe.Encapsulation.ScalarIntValue"
+        },
+        {
+            "value": "time",
+            "$type": "kOS.Safe.Encapsulation.StringValue"
+        },
+        {
+            "value": 0,
+            "$type": "kOS.Safe.Encapsulation.ScalarIntValue"
+        }
+    ],
+    "$type": "kOS.Safe.Encapsulation.Lexicon"
+}

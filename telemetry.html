@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Astro-3 Dual-Stage Telemetry</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Roboto+Mono:wght@400;700&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #030303;
+            --panel-bg: rgba(15, 15, 20, 0.9);
+            --accent-ship: #ff8c00;
+            /* Orange for Ship */
+            --accent-booster: #00d2ff;
+            /* Blue for Booster */
+            --text-color: #f0f0f0;
+            --success: #00ff88;
+            --danger: #ff3e3e;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: 'Roboto Mono', monospace;
+            margin: 0;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            box-sizing: border-box;
+            overflow: hidden;
+        }
+
+        header {
+            background: #111;
+            padding: 10px 20px;
+            border-bottom: 2px solid #333;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-family: 'Orbitron';
+            color: #fff;
+            letter-spacing: 2px;
+        }
+
+        .logo span {
+            color: var(--accent-ship);
+        }
+
+        .container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            grid-template-rows: 1fr 180px;
+            gap: 15px;
+            flex-grow: 1;
+            margin-top: 15px;
+            overflow: hidden;
+        }
+
+        .stage-panel {
+            background: var(--panel-bg);
+            border: 1px solid #444;
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            padding: 15px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .ship-side {
+            border-top: 5px solid var(--accent-ship);
+        }
+
+        .booster-side {
+            border-top: 5px solid var(--accent-booster);
+        }
+
+        .panel-header {
+            font-family: 'Orbitron';
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .data-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            flex-grow: 1;
+        }
+
+        .stat {
+            margin-bottom: 15px;
+        }
+
+        .label {
+            font-size: 0.75rem;
+            color: #888;
+            display: block;
+        }
+
+        .value {
+            font-size: 2rem;
+            font-weight: bold;
+        }
+
+        .unit {
+            font-size: 0.9rem;
+            color: #888;
+            margin-left: 5px;
+        }
+
+        /* --- GAUGES --- */
+        .gauge-container {
+            width: 100%;
+            height: 8px;
+            background: #222;
+            border-radius: 4px;
+            margin-top: 5px;
+            overflow: hidden;
+        }
+
+        .gauge-fill {
+            height: 100%;
+            transition: width 0.3s;
+        }
+
+        .ship-fill {
+            background: var(--accent-ship);
+        }
+
+        .booster-fill {
+            background: var(--accent-booster);
+        }
+
+        /* --- ENGINES --- */
+        .engine-strip {
+            display: flex;
+            gap: 5px;
+            margin-top: 20px;
+        }
+
+        .eng {
+            width: 25px;
+            height: 12px;
+            border: 1px solid #555;
+            border-radius: 2px;
+            background: #111;
+        }
+
+        .eng.active-ship {
+            background: var(--accent-ship);
+            box-shadow: 0 0 10px var(--accent-ship);
+        }
+
+        .eng.active-booster {
+            background: var(--accent-booster);
+            box-shadow: 0 0 10px var(--accent-booster);
+        }
+
+        /* --- LOG --- */
+        .mission-log {
+            grid-column: 1 / span 2;
+            background: #111;
+            border: 1px solid #333;
+            border-radius: 5px;
+            padding: 10px;
+            font-size: 0.8rem;
+            overflow-y: auto;
+        }
+
+        .log-entry {
+            margin-bottom: 4px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .log-time {
+            color: #666;
+        }
+
+        .log-ship {
+            color: var(--accent-ship);
+        }
+
+        .log-booster {
+            color: var(--accent-booster);
+        }
+
+        /* --- OVERLAY ERROR --- */
+        #error-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            text-align: center;
+            padding: 20px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="error-overlay">
+        <h1 style="color: var(--danger); font-family: 'Orbitron';">BROWSER SECURITY BLOCK</h1>
+        <p>Your browser is blocking the telemetry data for security reasons (CORS).</p>
+        <div style="background: #222; padding: 20px; border-radius: 10px; text-align: left; max-width: 600px;">
+            <p><b>How to fix:</b></p>
+            <p>1. Open a terminal in your Script folder.</p>
+            <p>2. Run: <code>python -m http.server 8000</code></p>
+            <p>3. Go to: <code style="color: var(--success);">http://localhost:8000/telemetry.html</code></p>
+        </div>
+        <button onclick="document.getElementById('error-overlay').style.display='none'"
+            style="margin-top: 20px; padding: 10px 20px; cursor: pointer;">I understand, show dashboard anyway</button>
+    </div>
+
+    <header>
+        <div class="logo">ASTRO-3 <span>DUAL-LINK</span></div>
+        <div id="mission-time">T+ 00:00:00</div>
+    </header>
+
+    <div class="container">
+        <!-- SHIP PANEL (S2) -->
+        <div class="stage-panel ship-side">
+            <div class="panel-header">
+                <span>Second Stage</span>
+                <span id="ship-status" style="font-size: 0.8rem; color: var(--success);">READY</span>
+            </div>
+            <div class="data-grid">
+                <div>
+                    <div class="stat">
+                        <span class="label">ALTITUDE</span>
+                        <div class="value" id="ship-alt">0</div><span class="unit">m</span>
+                    </div>
+                    <div class="stat">
+                        <span class="label">VELOCITY</span>
+                        <div class="value" id="ship-vel">0</div><span class="unit">m/s</span>
+                    </div>
+                </div>
+                <div>
+                    <div class="stat">
+                        <span class="label">APOAPSIS</span>
+                        <div class="value" id="ship-apo">0</div><span class="unit">m</span>
+                    </div>
+                    <div class="stat">
+                        <span class="label">FUEL</span>
+                        <div class="value" id="ship-fuel-val">100</div><span class="unit">%</span>
+                        <div class="gauge-container">
+                            <div class="gauge-fill ship-fill" id="ship-fuel-bar" style="width: 100%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="engine-strip" id="ship-engines">
+                <!-- S2 Engines -->
+                <div class="eng" id="eng-SEC1"></div>
+                <div class="eng" id="eng-SEC2"></div>
+            </div>
+        </div>
+
+        <!-- BOOSTER PANEL (S1) -->
+        <div class="stage-panel booster-side">
+            <div class="panel-header">
+                <span>First Stage</span>
+                <span id="booster-status" style="font-size: 0.8rem; color: var(--success);">STANDBY</span>
+            </div>
+            <div class="data-grid">
+                <div>
+                    <div class="stat">
+                        <span class="label">ALTITUDE</span>
+                        <div class="value" id="booster-alt">0</div><span class="unit">m</span>
+                    </div>
+                    <div class="stat">
+                        <span class="label">VELOCITY</span>
+                        <div class="value" id="booster-vel">0</div><span class="unit">m/s</span>
+                    </div>
+                    <div class="stat">
+                        <span class="label">ACCURACY</span>
+                        <div class="value" id="booster-acc">0</div><span class="unit">m</span>
+                    </div>
+                </div>
+                <div>
+                    <div class="stat">
+                        <span class="label">DOWNRANGE</span>
+                        <div class="value" id="booster-dist">0.0</div><span class="unit">km</span>
+                    </div>
+                    <div class="stat">
+                        <span class="label">FUEL</span>
+                        <div class="value" id="booster-fuel-val">100</div><span class="unit">%</span>
+                        <div class="gauge-container">
+                            <div class="gauge-fill booster-fill" id="booster-fuel-bar" style="width: 100%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="engine-strip" id="booster-engines">
+                <!-- S1 Engines -->
+                <div class="eng" id="eng-C1"></div>
+                <div class="eng" id="eng-C2"></div>
+                <div class="eng" id="eng-C3"></div>
+                <div class="eng" id="eng-R1"></div>
+                <div class="eng" id="eng-R2"></div>
+                <div class="eng" id="eng-R3"></div>
+                <div class="eng" id="eng-R4"></div>
+                <div class="eng" id="eng-R5"></div>
+                <div class="eng" id="eng-R6"></div>
+            </div>
+        </div>
+
+        <!-- LOG -->
+        <div class="mission-log" id="log">
+            <div class="log-entry"><span class="log-time">[00:00:00]</span> SYSTEM: Dual-Link established. Ready for
+                launch.</div>
+        </div>
+    </div>
+
+    <script>
+        const paths = {
+            ship: ["telemetry_ship_A.json", "telemetry_ship_B.json"],
+            booster: ["telemetry_booster_A.json", "telemetry_booster_B.json"]
+        };
+
+        let toggles = { ship: 0, booster: 0 };
+        let lastStates = { ship: "", booster: "" };
+
+        function updateClock(sec) {
+            const h = Math.floor(sec / 3600).toString().padStart(2, '0');
+            const m = Math.floor((sec % 3600) / 60).toString().padStart(2, '0');
+            const s = Math.floor(sec % 60).toString().padStart(2, '0');
+            document.getElementById('mission-time').innerText = `T+ ${h}:${m}:${s}`;
+        }
+
+        function addLog(msg, type) {
+            const log = document.getElementById('log');
+            const entry = document.createElement('div');
+            entry.className = 'log-entry';
+            const time = new Date().toLocaleTimeString();
+            entry.innerHTML = `<span class="log-time">[${time}]</span> <span class="log-${type}">${type.toUpperCase()}:</span> ${msg}`;
+            log.prepend(entry);
+        }
+
+        async function fetchStage(type) {
+            const file = paths[type][toggles[type]];
+            try {
+                const res = await fetch(file + "?t=" + Date.now());
+                if (!res.ok) return;
+                const data = await res.json();
+
+                // Hide error if data is flowing
+                document.getElementById('error-overlay').style.display = 'none';
+                // Update UI
+                if (type === 'ship') {
+                    document.getElementById('ship-alt').innerText = data.alt || 0;
+                    document.getElementById('ship-vel').innerText = data.vel || 0;
+                    document.getElementById('ship-apo').innerText = data.apo || 0;
+                    document.getElementById('ship-fuel-val').innerText = (data.fuel || 0).toFixed(1);
+                    document.getElementById('ship-fuel-bar').style.width = (data.fuel || 0) + "%";
+                    document.getElementById('ship-status').innerText = data.status || "IDLE";
+                    if (data.status !== lastStates.ship) { addLog(data.status, 'ship'); lastStates.ship = data.status; }
+                    updateClock(data.time || 0);
+                } else {
+                    document.getElementById('booster-alt').innerText = data.alt || 0;
+                    document.getElementById('booster-vel').innerText = data.vel || 0;
+                    document.getElementById('booster-dist').innerText = (data.dist || 0).toFixed(1);
+                    document.getElementById('booster-acc').innerText = (data.acc || 0);
+                    document.getElementById('booster-fuel-val').innerText = (data.fuel || 0).toFixed(1);
+                    document.getElementById('booster-fuel-bar').style.width = (data.fuel || 0) + "%";
+                    document.getElementById('booster-status').innerText = data.status || "STANDBY";
+                    if (data.status !== lastStates.booster) { addLog(data.status, 'booster'); lastStates.booster = data.status; }
+                }
+
+                // Engines
+                if (data.engStates) {
+                    for (const [tag, state] of Object.entries(data.engStates)) {
+                        const el = document.getElementById('eng-' + tag);
+                        if (el) el.classList.toggle('active-' + type, state === 1);
+                    }
+                }
+
+                toggles[type] = 1 - toggles[type];
+            } catch (e) {
+                if (window.location.protocol === 'file:') {
+                    document.getElementById('error-overlay').style.display = 'flex';
+                }
+                console.log("Telemetry fetch error:", e);
+            }
+        }
+
+        setInterval(() => { fetchStage('ship'); fetchStage('booster'); }, 500);
+    </script>
+</body>
+
+</html>

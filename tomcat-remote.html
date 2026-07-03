@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TOMCAT REMOTE - Firebase</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root { --bg-dark: #050a0f; --panel-bg: rgba(10,20,30,0.85); --neon-blue: #00f3ff; --neon-amber: #ff6a00; --neon-green: #00ff41; --text-main: #e0e0e0; }
+        body { margin: 0; padding: 0; background: var(--bg-dark); color: var(--text-main); font-family: 'Rajdhani', sans-serif; min-height: 100vh; }
+        header { display: flex; justify-content: space-between; align-items: center; padding: 15px 40px; background: rgba(0,0,0,0.85); border-bottom: 2px solid var(--neon-amber); }
+        .header-title { font-family: 'Orbitron', sans-serif; font-weight: 900; font-size: 1.5rem; color: #fff; text-shadow: 0 0 10px var(--neon-amber); }
+        .dashboard-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; padding: 40px; max-width: 1600px; margin: 0 auto; }
+        @media (max-width:1200px) { .dashboard-grid { grid-template-columns: 1fr; } }
+        .panel { background: var(--panel-bg); border: 1px solid rgba(255,255,255,0.1); padding: 25px; }
+        .panel-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; border-bottom: 1px solid rgba(255,255,255,0.15); padding-bottom: 10px; }
+        .panel-title { font-family: 'Orbitron', sans-serif; font-size: 1.2rem; text-transform: uppercase; letter-spacing: 2px; }
+        .panel.booster .panel-title { color: var(--neon-amber); }
+        .panel.ship .panel-title { color: var(--neon-blue); }
+        .status-badge { font-family: 'Orbitron', sans-serif; padding: 5px 15px; background: rgba(0,0,0,0.6); border: 1px solid #fff; color: #fff; font-size: 0.8rem; text-transform: uppercase; }
+        .metrics-container { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .metric-box { background: rgba(255,255,255,0.02); padding: 15px; border-left: 3px solid rgba(255,255,255,0.15); }
+        .panel.booster .metric-box { border-left-color: var(--neon-amber); }
+        .panel.ship .metric-box { border-left-color: var(--neon-blue); }
+        .metric-label { font-size: 0.75rem; text-transform: uppercase; color: rgba(255,255,255,0.6); display: block; }
+        .metric-value { font-family: 'Orbitron', sans-serif; font-size: 1.8rem; font-weight: 700; color: #fff; }
+        .metric-unit { font-size: 0.9rem; color: rgba(255,255,255,0.4); margin-left: 5px; }
+        .bar-container { margin-top: 25px; }
+        .bar-label { display: flex; justify-content: space-between; margin-bottom: 5px; font-size: 0.8rem; text-transform: uppercase; }
+        .progress-track { height: 14px; background: rgba(255,255,255,0.08); overflow: hidden; border: 1px solid rgba(255,255,255,0.1); }
+        .progress-fill { height: 100%; width: 0%; transition: width 0.25s ease-out; }
+        .panel.booster .progress-fill { background: var(--neon-amber); box-shadow: 0 0 10px var(--neon-amber); }
+        .panel.ship .progress-fill { background: var(--neon-blue); box-shadow: 0 0 10px var(--neon-blue); }
+        .camera-section { padding: 0 40px; max-width: 1600px; margin: 20px auto; }
+        .camera-wrapper { position: relative; background: #000; border: 1px solid var(--neon-amber); overflow: hidden; }
+        .camera-feed { width: 100%; display: block; aspect-ratio: 16/9; object-fit: cover; background: #050505; }
+        .cam-offline { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; background: rgba(5,10,15,0.95); font-family: 'Orbitron', sans-serif; color: rgba(255,255,255,0.3); }
+        .conn-badge { position: fixed; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.9); padding: 10px 40px; font-family: monospace; border-top: 1px solid rgba(255,255,255,0.15); display: flex; justify-content: space-between; font-size: 0.8rem; z-index: 100; }
+    </style>
+</head>
+<body>
+    <header>
+        <h1 class="header-title">TOMCAT REMOTE (FIREBASE)</h1>
+        <div style="font-family:'Orbitron',sans-serif;" id="fb-status">CONECTANDO...</div>
+    </header>
+
+    <div class="camera-section">
+        <div class="camera-wrapper">
+            <img id="cam-feed" class="camera-feed" alt="Remote Camera Feed" />
+            <div class="cam-offline" id="cam-offline">SIN SEÑAL</div>
+        </div>
+    </div>
+
+    <div class="dashboard-grid">
+        <div class="panel booster">
+            <div class="panel-header">
+                <div class="panel-title">TOMCAT BOOSTER / S1</div>
+                <div class="status-badge" id="booster-status">STANDBY</div>
+            </div>
+            <div class="metrics-container">
+                <div class="metric-box"><span class="metric-label">Altitud</span><span class="metric-value" id="booster-alt">0</span><span class="metric-unit">m</span></div>
+                <div class="metric-box"><span class="metric-label">Velocidad</span><span class="metric-value" id="booster-vel">0</span><span class="metric-unit">m/s</span></div>
+                <div class="metric-box"><span class="metric-label">V. Vertical</span><span class="metric-value" id="booster-vs">0.0</span><span class="metric-unit">m/s</span></div>
+                <div class="metric-box"><span class="metric-label">Dist. Barca</span><span class="metric-value" id="booster-dist">0</span><span class="metric-unit">m</span></div>
+            </div>
+            <div class="bar-container">
+                <div class="bar-label"><span>COMBUSTIBLE</span><span id="booster-fuel-pct">0%</span></div>
+                <div class="progress-track"><div class="progress-fill" id="booster-fuel-bar"></div></div>
+            </div>
+            <div class="bar-container">
+                <div class="bar-label"><span>EMPUJE</span><span id="booster-thr-pct">0%</span></div>
+                <div class="progress-track"><div class="progress-fill" id="booster-thr-bar"></div></div>
+            </div>
+        </div>
+        <div class="panel ship">
+            <div class="panel-header">
+                <div class="panel-title">TOMCAT SHIP / S2</div>
+                <div class="status-badge" id="ship-status">STANDBY</div>
+            </div>
+            <div class="metrics-container">
+                <div class="metric-box"><span class="metric-label">Apoapsis</span><span class="metric-value" id="ship-apo">0.0</span><span class="metric-unit">km</span></div>
+                <div class="metric-box"><span class="metric-label">Periapsis</span><span class="metric-value" id="ship-per">0.0</span><span class="metric-unit">km</span></div>
+                <div class="metric-box"><span class="metric-label">Velocidad</span><span class="metric-value" id="ship-vel">0</span><span class="metric-unit">m/s</span></div>
+                <div class="metric-box"><span class="metric-label">Altitud</span><span class="metric-value" id="ship-alt">0</span><span class="metric-unit">m</span></div>
+                <div class="metric-box"><span class="metric-label">TWR</span><span class="metric-value" id="ship-twr">0.00</span></div>
+                <div class="metric-box"><span class="metric-label">V. Vertical</span><span class="metric-value" id="ship-vs">0.0</span><span class="metric-unit">m/s</span></div>
+            </div>
+            <div class="bar-container">
+                <div class="bar-label"><span>COMBUSTIBLE</span><span id="ship-fuel-pct">0%</span></div>
+                <div class="progress-track"><div class="progress-fill" id="ship-fuel-bar"></div></div>
+            </div>
+            <div class="bar-container">
+                <div class="bar-label"><span>EMPUJE</span><span id="ship-thr-pct">0%</span></div>
+                <div class="progress-track"><div class="progress-fill" id="ship-thr-bar"></div></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="conn-badge">
+        <span>FIREBASE: <span id="conn-status" style="color:orange">CONECTANDO...</span></span>
+        <span>REFRESH: <span id="refresh-status">0s</span></span>
+    </div>
+
+    <script>
+        const DB_URL = 'https://tomcat-b9bdb-default-rtdb.firebaseio.com';
+        const fmtNum = (n) => Math.round(n || 0).toLocaleString();
+        const fmtDec = (n, d) => (Number(n) || 0).toFixed(d);
+
+        let lastFrameUrl = null;
+
+        async function pollFirebase() {
+            try {
+                const resp = await fetch(DB_URL + '/telemetry.json');
+                if (!resp.ok) throw new Error('HTTP ' + resp.status);
+                const data = await resp.json();
+
+                document.getElementById('conn-status').innerText = 'ONLINE';
+                document.getElementById('conn-status').style.color = '#00ff41';
+
+                const B1 = data.booster;
+                const S2 = data.ship;
+
+                if (B1) {
+                    document.getElementById('booster-status').innerText = B1.status || 'OFFLINE';
+                    document.getElementById('booster-alt').innerText = fmtNum(B1.alt);
+                    document.getElementById('booster-vel').innerText = fmtNum(B1.vel);
+                    document.getElementById('booster-vs').innerText = fmtDec(B1.vs, 1);
+                    document.getElementById('booster-dist').innerText = fmtNum(B1.hdist || B1.dist);
+                    const fPct = B1.fuelpct || B1.fuelPct || 0;
+                    document.getElementById('booster-fuel-bar').style.width = fPct + '%';
+                    document.getElementById('booster-fuel-pct').innerText = Math.round(fPct) + '%';
+                    const thr = B1.thr || B1.throttle || 0;
+                    document.getElementById('booster-thr-bar').style.width = thr + '%';
+                    document.getElementById('booster-thr-pct').innerText = Math.round(thr) + '%';
+                }
+
+                if (S2) {
+                    document.getElementById('ship-status').innerText = S2.status || 'OFFLINE';
+                    document.getElementById('ship-alt').innerText = fmtNum(S2.alt);
+                    document.getElementById('ship-vel').innerText = fmtNum(S2.spd || S2.vel);
+                    document.getElementById('ship-vs').innerText = fmtDec(S2.vs, 1);
+                    document.getElementById('ship-apo').innerText = fmtDec((S2.apo || 0) / 1000, 1);
+                    document.getElementById('ship-per').innerText = fmtDec((S2.per || S2.peri || 0) / 1000, 1);
+                    document.getElementById('ship-twr').innerText = fmtDec(S2.twr, 2);
+                    const fPct = S2.fuel || S2.fuelpct || 0;
+                    document.getElementById('ship-fuel-bar').style.width = fPct + '%';
+                    document.getElementById('ship-fuel-pct').innerText = Math.round(fPct) + '%';
+                    const thr = S2.throttle || S2.thr || 0;
+                    document.getElementById('ship-thr-bar').style.width = thr + '%';
+                    document.getElementById('ship-thr-pct').innerText = Math.round(thr) + '%';
+                }
+
+                document.getElementById('fb-status').innerText = 'ULTIMA ACT: ' + new Date().toLocaleTimeString();
+            } catch (e) {
+                document.getElementById('conn-status').innerText = 'OFFLINE';
+                document.getElementById('conn-status').style.color = 'red';
+            }
+        }
+
+        async function pollCameraUrl() {
+            try {
+                const resp = await fetch(DB_URL + '/camera/last_frame_url.json');
+                if (!resp.ok) return;
+                const url = await resp.json();
+                if (url && url !== lastFrameUrl) {
+                    lastFrameUrl = url;
+                    const img = document.getElementById('cam-feed');
+                    img.src = url + '?t=' + Date.now();
+                    document.getElementById('cam-offline').style.display = 'none';
+                }
+            } catch (e) {}
+        }
+
+        let refreshCount = 0;
+        setInterval(() => {
+            pollFirebase();
+            pollCameraUrl();
+            refreshCount++;
+            document.getElementById('refresh-status').innerText = refreshCount + 'x';
+        }, 1000);
+
+        pollFirebase();
+        pollCameraUrl();
+    </script>
+</body>
+</html>

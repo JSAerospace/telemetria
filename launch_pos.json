@@ -1,0 +1,21 @@
+{
+    "entries": [
+        {
+            "value": "lat",
+            "$type": "kOS.Safe.Encapsulation.StringValue"
+        },
+        {
+            "value": 5.8030520709531936,
+            "$type": "kOS.Safe.Encapsulation.ScalarDoubleValue"
+        },
+        {
+            "value": "lng",
+            "$type": "kOS.Safe.Encapsulation.StringValue"
+        },
+        {
+            "value": -62.636922085718169,
+            "$type": "kOS.Safe.Encapsulation.ScalarDoubleValue"
+        }
+    ],
+    "$type": "kOS.Safe.Encapsulation.Lexicon"
+}

@@ -1,0 +1,920 @@
+<!doctype html>
+<html lang="es">
+
+<head>
+  <meta name="title" content="STREAM – EsZunSpace">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>STREAM – EsZunSpace</title>
+  <meta name="description" content="Sigue el lanzamiento en directo.">
+  <link rel="canonical" href="https://eszunspace.es/stream.html">
+  <meta name="theme-color" content="#0b0b0f">
+
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://eszunspace.es/stream.html">
+  <meta property="og:title" content="🚀 Stream en Vivo – EsZunSpace">
+  <meta property="og:description"
+    content="Sigue el próximo lanzamiento espacial en directo. Cuenta regresiva y telemetría en tiempo real.">
+  <meta property="og:image" content="https://eszunspace.es/logoarriba.jpg">
+  <meta property="og:site_name" content="EsZunSpace">
+  <meta property="og:locale" content="es_ES">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:url" content="https://eszunspace.es/stream.html">
+  <meta name="twitter:title" content="🚀 Stream en Vivo – EsZunSpace">
+  <meta name="twitter:description"
+    content="Sigue el próximo lanzamiento espacial en directo. Cuenta regresiva y telemetría en tiempo real.">
+  <meta name="twitter:image" content="https://eszunspace.es/logoarriba.jpg">
+
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&family=Space+Grotesk:wght@500;700;800&display=swap" rel="stylesheet">
+  <link rel="icon" type="image/jpeg" href="logoarriba.jpg">
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+  
+  <link rel="stylesheet" href="styles.css">
+  <script src="app.js"></script>
+
+  <style>
+    :root {
+      --header-h: 64px;
+      --primary: #00f0ff;
+      --secondary: #ff00d4;
+    }
+    html, body {
+      height: 100%;
+      margin: 0;
+      background: #050506;
+      color: #fff;
+    }
+    body {
+      opacity: 0;
+      transition: opacity 0.6s ease;
+    }
+    body.fade-in { opacity: 1; }
+    body.fade-out { opacity: 0; }
+
+    .main-container {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      padding-top: calc(var(--header-h) + 20px);
+      padding-bottom: 20px;
+      background-color: #050506;
+      background-image: 
+        radial-gradient(circle at 15% 50%, rgba(0, 240, 255, 0.06), transparent 50%),
+        radial-gradient(circle at 85% 30%, rgba(255, 0, 212, 0.05), transparent 50%),
+        linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+      background-size: 100% 100%, 100% 100%, 40px 40px, 40px 40px;
+      background-position: center, center, center, center;
+      background-attachment: fixed;
+      position: relative;
+    }
+    .main-container::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse at center, transparent 0%, #050506 100%);
+      pointer-events: none;
+    }
+
+    /* Twitch-like Grid Layout */
+    .stream-layout {
+      position: relative;
+      z-index: 10;
+      width: min(1500px, 96vw);
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 340px;
+      gap: 20px;
+      flex-grow: 1;
+      align-items: start;
+    }
+    
+    @media (max-width: 1024px) {
+      .stream-layout {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Left Column: Player & Telemetry */
+    .stream-main {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .video-frame {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 16/9;
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 0 30px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(255, 255, 255, 0.08);
+      background: #000;
+      flex-shrink: 0;
+    }
+    .video-frame iframe {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+    .admin-edit-btn {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      z-index: 20;
+      background: rgba(0, 0, 0, 0.7);
+      border: 1px solid rgba(255,255,255,0.2);
+      color: #fff;
+      padding: 6px 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 13px;
+      display: none;
+      backdrop-filter: blur(4px);
+      transition: background 0.2s;
+    }
+    .admin-edit-btn:hover { background: rgba(0,0,0,0.9); }
+
+    .telemetry-bar {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 16px 20px;
+      background: rgba(10, 10, 12, 0.85);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 16px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    }
+    .countdown-center {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+    }
+    .mission-name {
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 800;
+      font-size: 16px;
+      color: #ccc;
+      margin-bottom: 2px;
+    }
+    .countdown-timer {
+      font-family: 'Space Grotesk', monospace;
+      font-size: 32px;
+      font-weight: 700;
+      color: #fff;
+      line-height: 1;
+      text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+    }
+    .mission-status {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--primary);
+      margin-top: 4px;
+      letter-spacing: 0.05em;
+    }
+
+    /* Right Column: Chat */
+    .stream-sidebar {
+      display: flex;
+      flex-direction: column;
+      background: rgba(18, 18, 22, 0.9);
+      backdrop-filter: blur(16px);
+      border-radius: 16px;
+      border: 1px solid rgba(255,255,255,0.08);
+      overflow: hidden;
+      height: 600px;
+      max-height: calc(100vh - 140px);
+      position: sticky;
+      top: 100px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.4);
+    }
+    @media (max-width: 1024px) {
+      .stream-sidebar {
+        position: static;
+        height: 500px;
+        order: 2;
+      }
+    }
+
+    .chat-header {
+      padding: 14px 16px;
+      font-weight: 700;
+      font-size: 14px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      background: rgba(255,255,255,0.02);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .chat-header::before {
+      content: '';
+      display: block;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--primary);
+      box-shadow: 0 0 8px var(--primary);
+    }
+    
+    .chat-messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      /* Scrollbar styling */
+      scrollbar-width: thin;
+      scrollbar-color: rgba(255,255,255,0.2) transparent;
+    }
+    .chat-messages::-webkit-scrollbar {
+      width: 6px;
+    }
+    .chat-messages::-webkit-scrollbar-thumb {
+      background-color: rgba(255,255,255,0.2);
+      border-radius: 4px;
+    }
+
+    .chat-message {
+      display: flex;
+      gap: 10px;
+      word-break: break-word;
+      font-size: 14px;
+      line-height: 1.4;
+    }
+    .chat-avatar {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #00f0ff, #ff00d4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 12px;
+      color: #fff;
+      flex-shrink: 0;
+      overflow: hidden;
+    }
+    .chat-avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .chat-user {
+      font-weight: 600;
+      color: #ccc;
+      margin-right: 4px;
+    }
+    .chat-text {
+      color: #fff;
+    }
+
+    .chat-input-area {
+      padding: 14px;
+      border-top: 1px solid rgba(255,255,255,0.08);
+      background: rgba(0,0,0,0.2);
+      display: flex;
+      gap: 8px;
+    }
+    .chat-input-area input {
+      flex: 1;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1);
+      color: #fff;
+      padding: 10px 14px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-family: inherit;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .chat-input-area input:focus {
+      border-color: var(--primary);
+    }
+    .chat-input-area input:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    .btn-send {
+      background: linear-gradient(90deg, var(--primary), var(--secondary));
+      border: none;
+      border-radius: 8px;
+      color: #fff;
+      font-weight: 700;
+      padding: 0 16px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: opacity 0.2s;
+    }
+    .btn-send:hover:not(:disabled) {
+      opacity: 0.8;
+    }
+    .btn-send:disabled {
+      background: rgba(255,255,255,0.1);
+      color: rgba(255,255,255,0.4);
+      cursor: not-allowed;
+    }
+
+    #chat-login-prompt {
+      font-size: 12px;
+      color: rgba(255,255,255,0.6);
+      text-align: center;
+      padding-bottom: 12px;
+      display: none;
+    }
+    #chat-login-prompt a {
+      color: var(--primary);
+      text-decoration: none;
+      cursor: pointer;
+    }
+    #chat-login-prompt a:hover { text-decoration: underline; }
+
+    /* Launch Details Card */
+    .launch-details-card {
+      background: rgba(10, 10, 12, 0.85);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 16px;
+      padding: 24px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+    .details-title {
+      font-family: 'Space Grotesk', system-ui, sans-serif;
+      font-size: 18px;
+      font-weight: 700;
+      margin: 0;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .details-title::before {
+      content: '';
+      display: inline-block;
+      width: 4px;
+      height: 18px;
+      background: linear-gradient(180deg, var(--primary), var(--secondary));
+      border-radius: 4px;
+    }
+    .details-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+    }
+    .detail-item {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .detail-label {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: rgba(255, 255, 255, 0.5);
+      font-weight: 600;
+    }
+    .detail-value {
+      font-size: 14px;
+      color: #fff;
+      font-weight: 600;
+    }
+    .detail-desc-text {
+      font-size: 14px;
+      color: rgba(255, 255, 255, 0.8);
+      line-height: 1.6;
+      margin: 4px 0 0 0;
+    }
+
+  </style>
+</head>
+
+<body>
+
+  <!-- ================= HEADER TOPBAR ================= -->
+  <header class="topbar">
+    <div class="nav-shell">
+      <a class="brand" href="index.html" aria-label="Ir a inicio">
+        <img src="logoarriba.jpg" alt="Logo de EsZunSpace" width="36" height="36">
+        <span class="title">EsZunSpace</span>
+      </a>
+
+      <button class="menu-toggle" aria-controls="primary-menu" aria-expanded="false" aria-label="Abrir menú">
+        <svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+          <path d="M3 6h18M3 12h18M3 18h18" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+        </svg>
+      </button>
+
+      <nav id="primary-menu" class="menu" role="navigation" aria-label="Menú principal">
+        <a href="calendario.html">Calendario</a>
+        <a href="cohetes.html">Cohetes</a>
+        <a href="motores.html">Motores</a>
+        <a href="satelites.html">Satélites</a>
+        <a href="lanzamientos.html">Lanzamientos</a>
+        <a href="stream.html" aria-current="page">Stream</a>
+        <div id="mobile-logout-section" style="display:none; margin-top:8px; padding-top:8px; border-top:1px solid rgba(255,255,255,.12);">
+          <button class="btn ghost" onclick="logout()" style="width:100%; justify-content:center;">Cerrar sesión</button>
+        </div>
+      </nav>
+
+      <div class="user-section">
+        <div id="user-display" style="display:none;">
+          <div class="user-info" onclick="showProfileModal()" role="button" tabindex="0" aria-label="Ver perfil">
+            <div class="user-avatar" id="user-avatar">U</div>
+            <span class="user-name" id="user-name">Usuario</span>
+          </div>
+          <button class="btn ghost" onclick="logout()">Salir</button>
+        </div>
+        <button id="login-btn" class="btn primary" onclick="showLoginModal()">Iniciar sesión</button>
+      </div>
+    </div>
+  </header>
+  <!-- ================= /HEADER TOPBAR ================= -->
+
+  <main class="main-container">
+
+    <div class="stream-layout">
+      
+      <!-- LEFT: Video y Telemetría -->
+      <div class="stream-main">
+        <div class="video-frame">
+          <!-- Botón de admin -->
+          <button id="admin-edit-stream" class="admin-edit-btn" onclick="showStreamEditor()">
+            ✏️ Editar Stream
+          </button>
+          <iframe id="stream-iframe" src="https://www.youtube-nocookie.com/embed/ZA-RB3gltpo?autoplay=1&rel=0"
+            title="Live Stream" frameborder="0"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+            allowfullscreen>
+          </iframe>
+        </div>
+
+        <div class="telemetry-bar">
+          <div class="countdown-center">
+            <div class="mission-name" id="stream-mission-name">CARGANDO...</div>
+            <div class="countdown-timer" id="stream-timer">T- --:--:--</div>
+            <div class="mission-status" id="stream-mission-status">ESPERANDO</div>
+          </div>
+        </div>
+
+        <!-- Launch details added below -->
+        <div class="launch-details-card" id="stream-details-card" style="display: none;">
+          <h3 class="details-title">Detalles de la Misión</h3>
+          
+          <div class="details-grid">
+            <div class="detail-item">
+              <span class="detail-label">Vehículo</span>
+              <span class="detail-value" id="stream-detail-vehicle">--</span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">Carga Útil</span>
+              <span class="detail-value" id="stream-detail-payload">--</span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">Órbita Objetivo</span>
+              <span class="detail-value" id="stream-detail-orbit">--</span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">Instalación</span>
+              <span class="detail-value" id="stream-detail-site">--</span>
+            </div>
+          </div>
+          
+          <div class="detail-desc-box">
+            <span class="detail-label">Planes e Información Adicional</span>
+            <p class="detail-desc-text" id="stream-detail-desc">--</p>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- RIGHT: Chat -->
+      <div class="stream-sidebar">
+        <div class="chat-header">
+           <span>Chat en Vivo</span>
+           <button id="admin-clear-chat" class="btn primary" style="display:none; margin-left: auto; padding: 2px 10px; font-size: 11px; height: 24px; min-width: auto; background: #ff4757; color: white; border: none; box-shadow: none;">Limpiar</button>
+        </div>
+        <div class="chat-messages" id="chat-messages">
+          <!-- Messages will be injected here -->
+        </div>
+        <div class="chat-input-area">
+          <input type="text" id="chat-input" placeholder="Escribe un mensaje..." disabled autocomplete="off">
+          <button id="chat-send-btn" class="btn-send" disabled>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+          </button>
+        </div>
+        <div id="chat-login-prompt">
+          <a onclick="showLoginModal()">Inicia sesión para conversar</a>
+        </div>
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- ================= MODALS ================= -->
+
+  <!-- Modal Stream Edit (Admin) -->
+  <div id="stream-editor-modal" class="modal-overlay" role="dialog" aria-modal="true" aria-hidden="true">
+    <div class="modal-card" role="document">
+      <div class="modal-head">
+        <h3 class="modal-title">Editar URL del Stream</h3>
+        <button class="btn ghost" onclick="closeStreamEditor()">✕</button>
+      </div>
+
+      <!-- Usando la clase login-form de styles.css para que se vea igual -->
+      <form id="stream-url-form" class="login-form" style="margin-top:20px;" onsubmit="saveStreamUrl(event)">
+        <div class="form-group">
+          <label for="stream-url-input">YouTube URL o Video ID</label>
+          <input type="text" id="stream-url-input" required placeholder="Ej: ZA-RB3gltpo">
+          <div style="font-size:12px; color:rgba(255,255,255,0.6); margin-top:4px;">
+            Pega la URL completa de YouTube o el ID del vídeo.
+          </div>
+          <div id="stream-url-error" class="error-msg">Error al guardar</div>
+          <div id="stream-url-success" class="success-msg">¡Stream actualizado!</div>
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="btn ghost" onclick="closeStreamEditor()">Cancelar</button>
+          <button type="submit" class="btn primary">Guardar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Note: Auth Modals (Login/Register/Profile) and Modals (Contact/Updates) 
+       are loaded dynamically via app.js or exist globally. 
+       We rely entirely on app.js for authentication logic! -->
+
+
+  <!-- ================= SCRIPTS ================= -->
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      document.body.classList.add("fade-in");
+    });
+
+    // ----------------------------------------------------
+    // LÓGICA DEL DIRECTO Y TELEMETRÍA (EXCLUSIVO PARA STREAM)
+    // ----------------------------------------------------
+    (function () {
+      const timerEl = document.getElementById('stream-timer');
+      const missionNameEl = document.getElementById('stream-mission-name');
+      const missionStatusEl = document.getElementById('stream-mission-status');
+
+      let currentLaunch = null;
+      let streamInterval = null;
+
+      async function initStreamLaunches() {
+        if (!database) {
+            setTimeout(initStreamLaunches, 500);
+            return;
+        }
+
+        try {
+          const snapshot = await database.ref('events').once('value');
+          const data = snapshot.val() || {};
+          let allLaunches = Object.keys(data).map(key => ({ id: key, ...data[key] }));
+          allLaunches.sort((a, b) => new Date(a.datetimeISO) - new Date(b.datetimeISO));
+          
+          updateCurrentStreamLaunch(allLaunches);
+
+          if (streamInterval) clearInterval(streamInterval);
+          streamInterval = setInterval(() => updateCurrentStreamLaunch(allLaunches), 1000);
+          
+        } catch (error) {
+          console.error("Error cargando lanzamientos para stream:", error);
+          timerEl.textContent = 'T- --:--:--';
+        }
+      }
+
+      function updateCurrentStreamLaunch(allLaunches) {
+        const now = new Date();
+        const fiveHoursInMs = 5 * 60 * 60 * 1000;
+        let activeLaunch = null;
+
+        // Find active launch: past but < 5h ago OR next future
+        for (const launch of allLaunches) {
+          const launchTime = new Date(launch.datetimeISO);
+          const diff = now - launchTime;
+
+          if ((diff > 0 && diff < fiveHoursInMs) || launchTime > now) {
+            activeLaunch = launch;
+            break;
+          }
+        }
+
+        currentLaunch = activeLaunch;
+
+        if (!currentLaunch) {
+          missionNameEl.textContent = 'SIN LANZAMIENTOS';
+          missionStatusEl.textContent = 'ESPERANDO';
+          timerEl.textContent = 'T- --:--:--';
+          document.getElementById('stream-details-card').style.display = 'none';
+          return;
+        }
+
+        missionNameEl.textContent = currentLaunch.mission || currentLaunch.vehicle || 'Lanzamiento';
+        
+        // Populate details
+        document.getElementById('stream-details-card').style.display = 'flex';
+        document.getElementById('stream-detail-vehicle').textContent = currentLaunch.vehicleFull || currentLaunch.vehicle || '--';
+        document.getElementById('stream-detail-payload').textContent = currentLaunch.payload || '--';
+        document.getElementById('stream-detail-orbit').textContent = currentLaunch.orbit || '--';
+        document.getElementById('stream-detail-site').textContent = currentLaunch.site || '--';
+        document.getElementById('stream-detail-desc').textContent = currentLaunch.description || 'Sin descripción adicional disponible.';
+        
+        const target = new Date(currentLaunch.datetimeISO);
+        const timeDiff = target - now;
+
+        updateStreamStatusAndTimer(timeDiff);
+      }
+
+      function updateStreamStatusAndTimer(diff) {
+        if (diff > 0) {
+          missionStatusEl.textContent = 'EN ESPERA';
+        } else if (diff > -3600000) { // 1 hora
+          missionStatusEl.textContent = 'LANZAMIENTO';
+        } else {
+          missionStatusEl.textContent = 'COMPLETADO';
+        }
+
+        const absSeconds = Math.floor(Math.abs(diff) / 1000);
+        const hrs = Math.floor(absSeconds / 3600);
+        const mins = Math.floor((absSeconds % 3600) / 60);
+        const secs = absSeconds % 60;
+
+        const timeString = `${String(hrs).padStart(2, '0')}:${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+
+        if (diff > 0) {
+          timerEl.textContent = `T- ${timeString}`;
+        } else {
+          timerEl.textContent = `T+ ${timeString}`;
+        }
+      }
+
+      initStreamLaunches();
+    })();
+
+    // ----------------------------------------------------
+    // LÓGICA DE ADMINISTRADOR DE STREAM
+    // ----------------------------------------------------
+    
+    // Function that runs every time auth state changes in app.js
+    // We override updateUIForLogin and updateUIForLogout to also trigger local things
+    
+    // Lógica para detectar el usuario logueado en la ventana (Google o Legacy) independientemente de app.js
+    let localChatUser = null;
+    let localChatPhoto = null;
+
+    function updateLocalUserState() {
+      const fbUser = window.firebase ? firebase.auth().currentUser : null;
+      const legacyUser = localStorage.getItem('esz_user');
+      
+      let newChatUser = null;
+      let newChatPhoto = null;
+
+      if (fbUser) {
+         newChatUser = fbUser.displayName || fbUser.email.split('@')[0];
+         newChatPhoto = fbUser.photoURL;
+      } else if (legacyUser) {
+         newChatUser = legacyUser;
+      }
+
+      if (newChatUser !== localChatUser) {
+         localChatUser = newChatUser;
+         localChatPhoto = newChatPhoto;
+         checkAdminButton();
+         checkChatPermissions();
+      }
+    }
+
+    // Inicializar listener y polling
+    setTimeout(() => {
+      if (window.firebase) firebase.auth().onAuthStateChanged(updateLocalUserState);
+    }, 1000);
+    setInterval(updateLocalUserState, 1000);
+
+    function checkAdminButton() {
+      const btn = document.getElementById('admin-edit-stream');
+      const clearBtn = document.getElementById('admin-clear-chat');
+      if (typeof window.isAdmin === 'function' && window.isAdmin()) {
+        if(btn) btn.style.display = 'block';
+        if(clearBtn) clearBtn.style.display = 'block';
+      } else {
+        if(btn) btn.style.display = 'none';
+        if(clearBtn) clearBtn.style.display = 'none';
+      }
+    }
+
+    async function loadStreamUrl() {
+        if (typeof database === 'undefined') {
+            setTimeout(loadStreamUrl, 500);
+            return;
+        }
+      try {
+        database.ref('config/streamUrl').on('value', (snapshot) => {
+          const savedUrl = snapshot.val();
+          if (savedUrl) {
+            const iframe = document.getElementById('stream-iframe');
+            if (iframe) iframe.src = `https://www.youtube-nocookie.com/embed/${savedUrl}?autoplay=1&rel=0`;
+          }
+        });
+      } catch (error) {
+        console.error('Error loading stream URL:', error);
+      }
+    }
+    loadStreamUrl();
+
+    function showStreamEditor() {
+      if (!window.isAdmin || !window.isAdmin()) return;
+      const modal = document.getElementById('stream-editor-modal');
+      const input = document.getElementById('stream-url-input');
+      
+      const iframe = document.getElementById('stream-iframe');
+      if (iframe) {
+        const match = iframe.src.match(/embed\/([a-zA-Z0-9_-]{11})/);
+        if (match) input.value = match[1];
+      }
+
+      document.getElementById('stream-url-error').classList.remove('show');
+      document.getElementById('stream-url-success').classList.remove('show');
+
+      modal.style.display = 'flex';
+      requestAnimationFrame(() => modal.classList.add('show'));
+    }
+
+    function closeStreamEditor() {
+      const modal = document.getElementById('stream-editor-modal');
+      modal.classList.remove('show');
+      setTimeout(() => modal.style.display = 'none', 300);
+    }
+
+    async function saveStreamUrl(e) {
+      e.preventDefault();
+      if (!window.isAdmin || !window.isAdmin()) return;
+
+      const input = document.getElementById('stream-url-input').value.trim();
+      let videoId = input;
+      const patterns = [
+        /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([a-zA-Z0-9_-]{11})/,
+        /youtube\.com\/live\/([a-zA-Z0-9_-]{11})/
+      ];
+      for (const pattern of patterns) {
+        const match = input.match(pattern);
+        if (match) { videoId = match[1]; break; }
+      }
+
+      const errEl = document.getElementById('stream-url-error');
+      const sucEl = document.getElementById('stream-url-success');
+      errEl.classList.remove('show');
+      sucEl.classList.remove('show');
+
+      if (!/^[a-zA-Z0-9_-]{11}$/.test(videoId)) {
+        errEl.textContent = 'URL o ID inválido';
+        errEl.classList.add('show');
+        return;
+      }
+
+      try {
+        await database.ref('config/streamUrl').set(videoId);
+        sucEl.classList.add('show');
+        setTimeout(closeStreamEditor, 1500);
+      } catch (error) {
+        errEl.textContent = 'Error al guardar';
+        errEl.classList.add('show');
+      }
+    }
+
+    // ----------------------------------------------------
+    // LÓGICA DEL CHAT EN VIVO (TWITCH STYLE)
+    // ----------------------------------------------------
+    const messagesContainer = document.getElementById('chat-messages');
+    const chatInput = document.getElementById('chat-input');
+    const sendBtn = document.getElementById('chat-send-btn');
+    const promptRef = document.getElementById('chat-login-prompt');
+    let chatInitialized = false;
+
+    function checkChatPermissions() {
+      if (localChatUser) {
+        chatInput.disabled = false;
+        sendBtn.disabled = false;
+        promptRef.style.display = 'none';
+      } else {
+        chatInput.disabled = true;
+        sendBtn.disabled = true;
+        promptRef.style.display = 'block';
+      }
+    }
+
+    function initChat() {
+      if (typeof database === 'undefined') {
+          setTimeout(initChat, 500);
+          return;
+      }
+      if (chatInitialized) return;
+      chatInitialized = true;
+
+      const chatRef = database.ref('stream_chat/messages');
+      chatRef.limitToLast(100).on('child_added', (snapshot) => {
+        const msg = snapshot.val();
+        renderMessage(snapshot.key, msg);
+      });
+
+      chatRef.on('child_removed', (snapshot) => {
+        const el = messagesContainer.querySelector(`[data-id="${snapshot.key}"]`);
+        if (el) el.remove();
+      });
+
+      const clearBtn = document.getElementById('admin-clear-chat');
+      if (clearBtn) {
+        clearBtn.addEventListener('click', async () => {
+          if (confirm('¿Estás seguro de que quieres limpiar todo el chat para todos los usuarios?')) {
+            try {
+              await chatRef.remove();
+            } catch (e) {
+              alert('Error al limpiar el chat. Puede que necesites permisos en Firebase Database Rules.');
+            }
+          }
+        });
+      }
+    }
+
+    setTimeout(initChat, 1000); // init after database is likely loaded
+
+    function renderMessage(key, msg) {
+      const el = document.createElement('div');
+      el.className = 'chat-message';
+      el.dataset.id = key;
+      
+      let avatarContent = `<img src="${msg.photoURL}">`;
+      if (!msg.photoURL) {
+          avatarContent = msg.username.charAt(0).toUpperCase();
+      }
+
+      el.innerHTML = `
+        <div class="chat-avatar">${avatarContent}</div>
+        <div class="chat-content">
+            <span class="chat-user">${msg.username}:</span>
+            <span class="chat-text"></span>
+        </div>
+      `;
+      // Prevent XSS
+      el.querySelector('.chat-text').textContent = msg.text;
+
+      const isScrolledToBottom = messagesContainer.scrollHeight - messagesContainer.clientHeight <= messagesContainer.scrollTop + 50;
+      
+      messagesContainer.appendChild(el);
+
+      if (isScrolledToBottom || document.activeElement === chatInput) {
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+      }
+    }
+
+    async function handleSendMessage() {
+      if (!localChatUser || typeof database === 'undefined' || chatInput.disabled) return;
+      const text = chatInput.value.trim();
+      if (!text) return;
+
+      chatInput.disabled = true;
+      sendBtn.disabled = true;
+
+      try {
+        const chatRef = database.ref('stream_chat/messages');
+        const newMsgRef = chatRef.push();
+        await newMsgRef.set({
+          username: localChatUser,
+          photoURL: localChatPhoto,
+          text: text,
+          timestamp: firebase.database.ServerValue.TIMESTAMP
+        });
+        chatInput.value = '';
+      } catch (e) {
+        console.error('Error enviando mensaje', e);
+      } finally {
+        chatInput.disabled = false;
+        sendBtn.disabled = false;
+        chatInput.focus();
+      }
+    }
+
+    sendBtn.addEventListener('click', handleSendMessage);
+    chatInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') handleSendMessage();
+    });
+
+  </script>
+</body>
+</html>
