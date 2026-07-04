@@ -386,7 +386,7 @@ def main():
                         push_camera_to_firebase(frame)
                 except:
                     pass
-                time.sleep(1)
+                time.sleep(0.5)
         threading.Thread(target=bg_camera, daemon=True).start()
         print("[*] Push automático a Firebase cada 2s activado")
 
