@@ -114,11 +114,13 @@ FUNCTION LogS2 {
     LOCAL fuelPct IS ROUND((fuelAct / MAX(1, fuelCap)) * 100, 1).
 
     LOCAL engStates IS LEXICON().
-    LOCAL anyOn IS FALSE.
-    FOR e IN SHIP:ENGINES {
-        IF e:IGNITION AND THROTTLE > 0 { SET anyOn TO TRUE. }
+    FOR tag IN LIST("S1","S2") {
+        LOCAL foundOn IS FALSE.
+        FOR e IN SHIP:ENGINES {
+            IF e:TAG:TOUPPER = tag AND e:IGNITION AND THROTTLE > 0 { SET foundOn TO TRUE. }
+        }
+        engStates:ADD(tag, 1 IF foundOn ELSE 0).
     }
-    engStates:ADD("S1", 1 IF anyOn ELSE 0).
 
     LOCAL data IS LEXICON(
         "status", phase,
