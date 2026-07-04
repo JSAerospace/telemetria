@@ -31,6 +31,12 @@
         .progress-fill { height: 100%; width: 0%; transition: width 0.25s ease-out; }
         .panel.booster .progress-fill { background: var(--neon-amber); box-shadow: 0 0 10px var(--neon-amber); }
         .panel.ship .progress-fill { background: var(--neon-blue); box-shadow: 0 0 10px var(--neon-blue); }
+        .engine-cluster { position: relative; width: 180px; height: 180px; margin: 20px auto; }
+        .engine-cluster.ship { width: 100px; height: 100px; }
+        .engine-node { position: absolute; border-radius: 50%; border: 2px solid #2a2a2a; background: #121212; display: flex; align-items: center; justify-content: center; font-family: 'Orbitron',sans-serif; font-weight: bold; color: #444; font-size: 10px; transition: all 0.2s; }
+        .engine-node.active { background: #fff; border-color: #fff; color: #000; box-shadow: 0 0 20px currentColor; }
+        .panel.booster .engine-node.active { color: var(--neon-amber); }
+        .panel.ship .engine-node.active { color: var(--neon-blue); }
         .camera-section { padding: 0 40px; max-width: 1600px; margin: 20px auto; }
         .camera-wrapper { position: relative; background: #000; border: 1px solid var(--neon-amber); overflow: hidden; }
         .camera-feed { width: 100%; display: block; aspect-ratio: 16/9; object-fit: cover; background: #050505; }
@@ -71,6 +77,7 @@
                 <div class="bar-label"><span>EMPUJE</span><span id="booster-thr-pct">0%</span></div>
                 <div class="progress-track"><div class="progress-fill" id="booster-thr-bar"></div></div>
             </div>
+            <div class="engine-cluster" id="booster-engines"></div>
         </div>
         <div class="panel ship">
             <div class="panel-header">
@@ -93,6 +100,7 @@
                 <div class="bar-label"><span>EMPUJE</span><span id="ship-thr-pct">0%</span></div>
                 <div class="progress-track"><div class="progress-fill" id="ship-thr-bar"></div></div>
             </div>
+            <div class="engine-cluster" id="ship-engines"></div>
         </div>
     </div>
 
@@ -123,6 +131,51 @@
 
         const $ = (id) => document.getElementById(id);
 
+        // --- ENGINE CLUSTER ---
+        function createEngine(parent, tag, x, y, size) {
+            const el = document.createElement('div');
+            el.className = 'engine-node';
+            el.dataset.tag = tag;
+            el.textContent = tag;
+            el.style.width = size + 'px';
+            el.style.height = size + 'px';
+            el.style.left = (x - size/2) + 'px';
+            el.style.top = (y - size/2) + 'px';
+            el.style.fontSize = Math.max(8, size/3) + 'px';
+            parent.appendChild(el);
+        }
+
+        function initBoosterEngines() {
+            const c = $('booster-engines');
+            c.innerHTML = '';
+            const cx = 90, cy = 90;
+            createEngine(c, '1', cx, cy, 32);
+            for (let i = 0; i < 6; i++) {
+                const a = (i * 60 - 90) * Math.PI / 180;
+                createEngine(c, String(i + 2), cx + 55 * Math.cos(a), cy + 55 * Math.sin(a), 24);
+            }
+        }
+
+        function initShipEngines() {
+            const c = $('ship-engines');
+            c.innerHTML = '';
+            createEngine(c, 'S2', 50, 50, 48);
+        }
+
+        function updateEngineStates(engstates) {
+            if (!engstates) return;
+            for (const tag in engstates) {
+                const el = document.querySelector(`[data-tag="${tag}"]`);
+                if (el) {
+                    if (Number(engstates[tag]) === 1) el.classList.add('active');
+                    else el.classList.remove('active');
+                }
+            }
+        }
+
+        initBoosterEngines();
+        initShipEngines();
+
         // --- TELEMETRIA EN TIEMPO REAL ---
         const telemetryRef = ref(database, 'telemetry');
         onValue(telemetryRef, (snapshot) => {
@@ -148,6 +201,7 @@
                 const thr = B1.thr || B1.throttle || 0;
                 $('booster-thr-bar').style.width = thr + '%';
                 $('booster-thr-pct').innerText = Math.round(thr) + '%';
+                updateEngineStates(B1.engstates || B1.engStates || B1.ENGSTATES);
             }
 
             if (S2) {
@@ -164,6 +218,7 @@
                 const thr = S2.throttle || S2.thr || 0;
                 $('ship-thr-bar').style.width = thr + '%';
                 $('ship-thr-pct').innerText = Math.round(thr) + '%';
+                updateEngineStates(S2.engstates || S2.engStates || S2.ENGSTATES);
             }
         }, (error) => {
             $('conn-status').innerText = 'OFFLINE';
