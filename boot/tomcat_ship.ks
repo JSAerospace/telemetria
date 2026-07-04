@@ -113,6 +113,13 @@ FUNCTION LogS2 {
     }
     LOCAL fuelPct IS ROUND((fuelAct / MAX(1, fuelCap)) * 100, 1).
 
+    LOCAL engStates IS LEXICON().
+    LOCAL anyOn IS FALSE.
+    FOR e IN SHIP:ENGINES {
+        IF e:IGNITION AND THROTTLE > 0 { SET anyOn TO TRUE. }
+    }
+    engStates:ADD("S1", 1 IF anyOn ELSE 0).
+
     LOCAL data IS LEXICON(
         "status", phase,
         "alt", ROUND(SHIP:ALTITUDE, 0),
@@ -124,7 +131,8 @@ FUNCTION LogS2 {
         "throttle", ROUND(THROTTLE * 100, 0),
         "twr", ROUND(SHIP:MAXTHRUST / MAX(0.1, SHIP:MASS * 9.805), 2),
         "missiontime", ROUND(MISSIONTIME, 0),
-        "time", ROUND(MISSIONTIME, 0)
+        "time", ROUND(MISSIONTIME, 0),
+        "engStates", engStates
     ).
     IF ship_telemetry_toggle {
         WRITEJSON(data, "0:/telemetry_ship_A.json").
