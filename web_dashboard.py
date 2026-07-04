@@ -1,6 +1,9 @@
 import sys
 import os
 
+# Directorio base de los scripts
+BASE_DIR = r"C:\Users\olano\OneDrive\Desktop\Kerbal Space Program\Ships\Script"
+
 # Asegurar que los paquetes de Python 3.14 sean encontrados
 _site_packages = r"C:\Users\olano\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages"
 if os.path.isdir(_site_packages) and _site_packages not in sys.path:
@@ -12,6 +15,60 @@ import json
 import time
 import io
 import threading
+
+# --- CONTROL DE LANZAMIENTO (COUNTDOWN & HOLDS) ---
+countdown_lock = threading.Lock()
+countdown_state = {
+    "t_minus": 15,
+    "payload_tons": 0.0,
+    "status": "READY"
+}
+
+def load_initial_config():
+    global countdown_state
+    cfg_file = os.path.join(BASE_DIR, "boot", "PreLanzamiento", "launch_config.txt")
+    if os.path.exists(cfg_file):
+        try:
+            with open(cfg_file, "r") as f:
+                for line in f:
+                    if "=" in line:
+                        k, v = line.split("=", 1)
+                        k, v = k.strip(), v.strip()
+                        if k == "t_minus":
+                            countdown_state["t_minus"] = int(v)
+                        elif k == "payload_tons":
+                            countdown_state["payload_tons"] = float(v)
+                        elif k == "status":
+                            countdown_state["status"] = v
+            print(f"[OK] Configuración de lanzamiento inicial cargada: T-{countdown_state['t_minus']}s, Status={countdown_state['status']}")
+        except Exception as e:
+            print(f"[!] Error cargando configuración inicial de lanzamiento: {e}")
+
+last_config_mtime = 0
+
+def save_config_to_file():
+    global last_config_mtime
+    cfg_file = os.path.join(BASE_DIR, "boot", "PreLanzamiento", "launch_config.txt")
+    tmp_file = cfg_file + ".tmp"
+    os.makedirs(os.path.dirname(cfg_file), exist_ok=True)
+    try:
+        # Escritura atómica: escribir en .tmp y luego renombrar
+        # Así kOS nunca ve un archivo a medio escribir (Sharing Violation)
+        with open(tmp_file, "w") as f:
+            f.write(f"t_minus={countdown_state['t_minus']}\n")
+            f.write(f"payload_tons={countdown_state['payload_tons']}\n")
+            f.write(f"status={countdown_state['status']}\n")
+            f.flush()
+            os.fsync(f.fileno())
+        os.replace(tmp_file, cfg_file)  # Atómico en NTFS dentro del mismo drive
+        try:
+            last_config_mtime = os.path.getmtime(cfg_file)
+        except:
+            pass
+    except Exception as e:
+        print(f"[!] Error escribiendo launch_config.txt: {e}")
+
+
 
 # --- CAPTURA DE PANTALLA (Pillow + Win32) ---
 try:
@@ -123,9 +180,7 @@ def capture_camera_frame(quality=90):
         print(f"[!] Fallo en captura en segundo plano ({e})")
         return None
 
-PORT = 8080
-# Directorio base de los scripts
-BASE_DIR = r"C:\Users\olano\OneDrive\Desktop\Kerbal Space Program\Ships\Script"
+PORT = 9090
 
 # --- FIREBASE INTEGRATION ---
 FIREBASE_CREDS = os.path.join(BASE_DIR, "tomcat-firebase-creds.json")
@@ -168,6 +223,8 @@ def push_telemetry_to_firebase(combined=None):
                 "server_time": time.time()
             }
         fb_db.reference('/telemetry').set(combined)
+        with countdown_lock:
+            fb_db.reference('/countdown').set(countdown_state)
     except Exception as e:
         print(f"[!] Error subiendo telemetría a Firebase: {e}")
 
@@ -262,6 +319,11 @@ def parse_kos_json(data):
     # Si no es un Lexicon pero es un dict, procesar sus campos
     return {k: parse_kos_json(v) for k, v in data.items()}
 
+class ThreadedTCPServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
+    """Servidor HTTP multi-hilo: cada request se maneja en su propio thread."""
+    daemon_threads = True
+    allow_reuse_address = True
+
 class TelemetryHandler(http.server.SimpleHTTPRequestHandler):
     def end_headers(self):
         self.send_header('Access-Control-Allow-Origin', '*')
@@ -296,7 +358,7 @@ class TelemetryHandler(http.server.SimpleHTTPRequestHandler):
             else:
                 self.wfile.write(b"<h1>Tomcat Dashboard file not found</h1>")
         
-        elif self.path == '/api/telemetry':
+        elif self.path.startswith('/api/telemetry'):
             self.send_response(200)
             self.send_header('Content-type', 'application/json')
             self.end_headers()
@@ -334,7 +396,7 @@ class TelemetryHandler(http.server.SimpleHTTPRequestHandler):
                 self.end_headers()
                 self.wfile.write(json.dumps({"error": "Camera unavailable. Install Pillow: pip install pillow"}).encode())
 
-        elif self.path == '/api/camera_status':
+        elif self.path.startswith('/api/camera_status'):
             self.send_response(200)
             self.send_header('Content-type', 'application/json')
             self.end_headers()
@@ -345,56 +407,207 @@ class TelemetryHandler(http.server.SimpleHTTPRequestHandler):
             }
             self.wfile.write(json.dumps(status).encode())
 
+        elif self.path.startswith('/api/launch_control') and not self.path.startswith('/api/launch_control/command'):
+            self.send_response(200)
+            self.send_header('Content-type', 'application/json')
+            self.end_headers()
+            with countdown_lock:
+                self.wfile.write(json.dumps(countdown_state).encode())
+
+        elif self.path.startswith('/api/launch_control/command'):
+            from urllib.parse import urlparse, parse_qs
+            query = parse_qs(urlparse(self.path).query)
+            cmd = query.get('cmd', [''])[0]
+            val = query.get('val', [''])[0]
+            
+            with countdown_lock:
+                if cmd == 'start':
+                    countdown_state['status'] = 'COUNTDOWN'
+                elif cmd == 'hold':
+                    countdown_state['status'] = 'HOLD'
+                elif cmd == 'resume':
+                    countdown_state['status'] = 'COUNTDOWN'
+                elif cmd == 'abort':
+                    countdown_state['status'] = 'ABORT'
+                elif cmd == 'reset':
+                    countdown_state['status'] = 'READY'
+                    if val:
+                        countdown_state['t_minus'] = int(val)
+                elif cmd == 'set_t':
+                    countdown_state['t_minus'] = int(val)
+                elif cmd == 'set_payload':
+                    countdown_state['payload_tons'] = float(val)
+                
+                save_config_to_file()
+                
+            self.send_response(200)
+            self.send_header('Content-type', 'application/json')
+            self.end_headers()
+            with countdown_lock:
+                self.wfile.write(json.dumps(countdown_state).encode())
+
         else:
             super().do_GET()
 
 def main():
+    global last_config_mtime
     print(f"=========================================")
     print(f"     CENTRO DE TELEMETRÍA PREMIMUM")
     print(f"=========================================")
-    print(f"[*] Servidor corriendo en el puerto {PORT}")
     print(f"[*] Firebase:    {'CONECTADO' if FIREBASE_AVAILABLE else 'NO DISPONIBLE'}")
     
-    import socket
-    try:
-        hostname = socket.gethostname()
-        local_ip = socket.gethostbyname(hostname)
-        print(f"[*] Acceso Local: http://localhost:{PORT}")
-        print(f"[*] Acceso Red:  http://{local_ip}:{PORT}")
-    except:
-        pass
-        
-    print(f"[*] NOTA: Usa Ngrok para acceso público.")
-    print(f"=========================================")
+    # Cargar mtime inicial
+    cfg_file = os.path.join(BASE_DIR, "boot", "PreLanzamiento", "launch_config.txt")
+    if os.path.exists(cfg_file):
+        try:
+            last_config_mtime = os.path.getmtime(cfg_file)
+        except:
+            pass
 
-    # Hilos en segundo plano: subir telemetría y cámara a Firebase
+    # Hilo para procesar el countdown segundo a segundo
+    def bg_countdown():
+        global countdown_state
+        while True:
+            time.sleep(1.0)
+            with countdown_lock:
+                status = countdown_state["status"]
+                if status == "COUNTDOWN":
+                    if countdown_state["t_minus"] > 0:
+                        countdown_state["t_minus"] -= 1
+                    else:
+                        countdown_state["status"] = "LAUNCHED"
+                    save_config_to_file()
+                elif status in ["READY", "HOLD", "ABORT", "LAUNCHED"]:
+                    save_config_to_file()
+
+    threading.Thread(target=bg_countdown, daemon=True).start()
+    print("[*] Hilo de control de lanzamiento web activo")
+
+    # Hilo para escribir launch_data.js y detectar cambios manuales
+    def bg_local_js():
+        global last_config_mtime, countdown_state
+        while True:
+            try:
+                # 1. Detectar cambios manuales del usuario en el txt
+                if os.path.exists(cfg_file):
+                    mtime = os.path.getmtime(cfg_file)
+                    if mtime > last_config_mtime:
+                        time.sleep(0.05)  # Evitar lectura a medio escribir
+                        with countdown_lock:
+                            with open(cfg_file, "r") as f:
+                                for line in f:
+                                    if "=" in line:
+                                        k, v = line.split("=", 1)
+                                        k, v = k.strip(), v.strip()
+                                        if k == "t_minus":
+                                            countdown_state["t_minus"] = int(v)
+                                        elif k == "payload_tons":
+                                            countdown_state["payload_tons"] = float(v)
+                                        elif k == "status":
+                                            countdown_state["status"] = v
+                            last_config_mtime = os.path.getmtime(cfg_file)
+
+                # 2. Escribir launch_data.js
+                ship_data = get_latest_telemetry("ship", check_stale=True)
+                booster_data = get_latest_telemetry("booster", check_stale=True)
+                combined = {
+                    "ship": ship_data,
+                    "booster": booster_data,
+                    "launch_control": {
+                        "t_minus": countdown_state["t_minus"],
+                        "payload_tons": countdown_state["payload_tons"],
+                        "status": countdown_state["status"]
+                    },
+                    "server_time": time.time()
+                }
+                js_content = f"window.tomcatData = {json.dumps(combined, indent=2)};\n"
+                js_file = os.path.join(BASE_DIR, "launch_data.js")
+                tmp_file = js_file + ".tmp"
+                with open(tmp_file, "w", encoding="utf-8") as f:
+                    f.write(js_content)
+                    f.flush()
+                    os.fsync(f.fileno())
+                os.replace(tmp_file, js_file)
+            except Exception as e:
+                pass
+            time.sleep(0.2)
+
+    threading.Thread(target=bg_local_js, daemon=True).start()
+    print("[*] Hilo local launch_data.js activo (Soporte Offline)")
+
+    # Hilo para capturar cámara y guardarla en live_camera.jpg
+    def bg_camera():
+        while True:
+            try:
+                frame = capture_camera_frame(quality=70)
+                if frame:
+                    # Guardar localmente para modo offline
+                    cam_file = os.path.join(BASE_DIR, "live_camera.jpg")
+                    tmp_file = cam_file + ".tmp"
+                    with open(tmp_file, "wb") as f:
+                        f.write(frame)
+                        f.flush()
+                        os.fsync(f.fileno())
+                    os.replace(tmp_file, cam_file)
+                    
+                    if FIREBASE_AVAILABLE:
+                        push_camera_to_firebase(frame)
+            except:
+                pass
+            time.sleep(0.5)
+
+    threading.Thread(target=bg_camera, daemon=True).start()
+    print("[*] Hilo de cámara en vivo activo (escribiendo live_camera.jpg)")
+
+    # Hilos opcionales de Firebase
     if FIREBASE_AVAILABLE:
         def bg_push():
             while True:
                 try:
-                    push_telemetry_to_firebase()
+                    # Preparar combined
+                    ship_data = get_latest_telemetry("ship", check_stale=True)
+                    booster_data = get_latest_telemetry("booster", check_stale=True)
+                    combined = {
+                        "ship": ship_data,
+                        "booster": booster_data,
+                        "server_time": time.time()
+                    }
+                    push_telemetry_to_firebase(combined)
                 except:
                     pass
                 time.sleep(2)
         threading.Thread(target=bg_push, daemon=True).start()
-
-        def bg_camera():
-            while True:
-                try:
-                    frame = capture_camera_frame(quality=70)
-                    if frame:
-                        push_camera_to_firebase(frame)
-                except:
-                    pass
-                time.sleep(0.5)
-        threading.Thread(target=bg_camera, daemon=True).start()
         print("[*] Push automático a Firebase cada 2s activado")
 
-    # Permitir reutilización de puerto
-    socketserver.TCPServer.allow_reuse_address = True
-    with socketserver.TCPServer(("0.0.0.0", PORT), TelemetryHandler) as httpd:
+    # Iniciar servidor local si el puerto está libre
+    server_running = False
+    try:
+        httpd = ThreadedTCPServer(("0.0.0.0", PORT), TelemetryHandler)
+        print(f"[*] Servidor corriendo en el puerto {PORT}")
+        import socket
+        try:
+            hostname = socket.gethostname()
+            local_ip = socket.gethostbyname(hostname)
+            print(f"[*] Acceso Local: http://localhost:{PORT}")
+            print(f"[*] Acceso Red:  http://{local_ip}:{PORT}")
+        except:
+            pass
+        server_running = True
+    except OSError as e:
+        print(f"\n[!] AVISO: Puerto {PORT} ocupado. Iniciando en MODO LOCAL / PORTLESS.")
+        print(f"    Podes abrir 'tomcat.html' haciendo doble clic directamente en el archivo.")
+        print(f"    Los comandos se controlan editando 'launch_config.txt' o mediante los archivos .bat\n")
+
+    if server_running:
         try:
             httpd.serve_forever()
+        except KeyboardInterrupt:
+            print("\nServidor apagado.")
+    else:
+        # Si el servidor no corre, mantener el script vivo para los hilos de fondo
+        try:
+            while True:
+                time.sleep(1)
         except KeyboardInterrupt:
             print("\nServidor apagado.")
 

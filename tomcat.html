@@ -223,6 +223,193 @@
             letter-spacing: 1px;
         }
 
+        /* --- LAUNCH CONTROL PANEL --- */
+        .launch-control-section {
+            padding: 0 40px;
+            max-width: 1600px;
+            margin: 20px auto 0 auto;
+        }
+
+        .panel.launch-control::before {
+            background: var(--neon-green);
+            box-shadow: 0 0 10px var(--neon-green);
+        }
+
+        .lc-container {
+            display: grid;
+            grid-template-columns: 1.2fr 1fr 1.5fr;
+            gap: 20px;
+            align-items: center;
+            padding-top: 10px;
+        }
+
+        @media (max-width: 900px) {
+            .lc-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .lc-clock-box {
+            background: rgba(0, 0, 0, 0.4);
+            padding: 15px;
+            border-left: 3px solid var(--neon-green);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            min-height: 80px;
+            border-radius: 4px;
+        }
+
+        .lc-clock-label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            color: rgba(255, 255, 255, 0.6);
+            letter-spacing: 1px;
+            margin-bottom: 5px;
+        }
+
+        .lc-clock-time {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2.2rem;
+            font-weight: 700;
+            color: var(--neon-green);
+            text-shadow: 0 0 10px rgba(0, 255, 65, 0.3);
+        }
+
+        .lc-inputs {
+            display: flex;
+            gap: 15px;
+            align-items: flex-end;
+            background: rgba(255, 255, 255, 0.02);
+            padding: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 4px;
+        }
+
+        .lc-input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .lc-input-group label {
+            font-size: 0.7rem;
+            color: rgba(255, 255, 255, 0.5);
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .lc-input-group input {
+            background: rgba(0, 0, 0, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #fff;
+            padding: 6px 10px;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.95rem;
+            width: 80px;
+            outline: none;
+            transition: border-color 0.2s;
+            border-radius: 2px;
+        }
+
+        .lc-input-group input:focus {
+            border-color: var(--neon-green);
+        }
+
+        .lc-actions {
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+            flex-wrap: wrap;
+        }
+
+        .lc-btn {
+            background: rgba(0, 255, 65, 0.07);
+            border: 1px solid var(--neon-green);
+            color: var(--neon-green);
+            padding: 10px 18px;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.75rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            border-radius: 3px;
+        }
+
+        .lc-btn:hover {
+            background: var(--neon-green);
+            color: #000;
+            box-shadow: 0 0 12px rgba(0, 255, 65, 0.4);
+        }
+
+        .lc-btn.apply {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: rgba(255, 255, 255, 0.3);
+            color: #fff;
+            padding: 8px 12px;
+            font-size: 0.65rem;
+        }
+        .lc-btn.apply:hover {
+            background: #fff;
+            color: #000;
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+        }
+
+        .lc-btn.start {
+            border-color: var(--neon-green);
+            color: var(--neon-green);
+            background: rgba(0, 255, 65, 0.07);
+        }
+
+        .lc-btn.hold {
+            border-color: var(--neon-amber);
+            color: var(--neon-amber);
+            background: rgba(255, 106, 0, 0.07);
+        }
+        .lc-btn.hold:hover {
+            background: var(--neon-amber);
+            color: #000;
+            box-shadow: 0 0 12px rgba(255, 106, 0, 0.4);
+        }
+
+        .lc-btn.resume {
+            border-color: var(--neon-blue);
+            color: var(--neon-blue);
+            background: rgba(0, 243, 255, 0.07);
+        }
+        .lc-btn.resume:hover {
+            background: var(--neon-blue);
+            color: #000;
+            box-shadow: 0 0 12px rgba(0, 243, 255, 0.4);
+        }
+
+        .lc-btn.reset {
+            border-color: #888;
+            color: #ccc;
+            background: rgba(128, 128, 128, 0.07);
+        }
+        .lc-btn.reset:hover {
+            background: #ccc;
+            color: #000;
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
+        }
+
+        .lc-btn.abort {
+            border-color: var(--neon-red);
+            color: var(--neon-red);
+            background: rgba(255, 0, 60, 0.07);
+            font-weight: 900;
+            animation: blinker 1s linear infinite;
+        }
+        .lc-btn.abort:hover {
+            background: var(--neon-red);
+            color: #fff;
+            box-shadow: 0 0 20px var(--neon-red);
+            animation: none;
+        }
+
         .mission-timer {
             text-align: right;
         }
@@ -539,6 +726,43 @@
             <button class="cam-btn" id="cam-btn-pause" onclick="setCamMode('pause')">&#10074;&#10074; PAUSA</button>
             <span style="margin-left:auto;font-family:'Orbitron',sans-serif;font-size:0.65rem;opacity:0.4;letter-spacing:2px;" id="cam-fps-label">FPS: --</span>
         </div>
+    <!-- === CONTROL DE LANZAMIENTO === -->
+    <div class="launch-control-section">
+        <div class="panel launch-control">
+            <div class="panel-header">
+                <div class="panel-title" style="color:var(--neon-green)">CENTRO DE CONTROL DE LANZAMIENTO</div>
+                <div class="status-badge" id="lc-status-badge" style="border-color:var(--neon-green);color:var(--neon-green)">STANDBY</div>
+            </div>
+            
+            <div class="lc-container">
+                <!-- Reloj de cuenta atras -->
+                <div class="lc-clock-box">
+                    <span class="lc-clock-label">TIEMPO PARA LANZAMIENTO</span>
+                    <span class="lc-clock-time" id="lc-tminus-display">T- 00 s</span>
+                </div>
+
+                <!-- Inputs de configuración -->
+                <div class="lc-inputs">
+                    <div class="lc-input-group">
+                        <label>T-MINUS INICIAL</label>
+                        <input type="number" id="lc-t-input" value="15" min="5" max="300">
+                    </div>
+                    <div class="lc-input-group">
+                        <label>CARGA UTIL (T)</label>
+                        <input type="number" id="lc-payload-input" value="0.0" step="0.5" min="0" max="150">
+                    </div>
+                    <button class="lc-btn apply" onclick="applyLCSettings()">APLICAR</button>
+                </div>
+
+                <!-- Botones de comandos -->
+                <div class="lc-actions">
+                    <button class="lc-btn start" id="lc-btn-start" onclick="lcStartOrResume()">INICIAR</button>
+                    <button class="lc-btn hold" id="lc-btn-hold" onclick="sendLCCommand('hold')">HOLD</button>
+                    <button class="lc-btn reset" id="lc-btn-reset" onclick="sendLCCommand('reset')">RESET</button>
+                    <button class="lc-btn abort" id="lc-btn-abort" onclick="sendLCCommand('abort')">ABORTAR</button>
+                </div>
+            </div>
+        </div>
     </div>
 
     <div class="dashboard-grid">
@@ -668,7 +892,7 @@
     <div class="status-bar">
         <span>CONEXIÓN: <span id="conn-status" style="color:red">OFFLINE</span></span>
         <span>SISTEMA: TOMCAT DUAL-LINK ACTIVE</span>
-        <span>PUERTO: LOCAL API (8080)</span>
+        <span>PUERTO: LOCAL API (9090)</span>
     </div>
 
     <!-- LOCAL TELEMETRY POLLING SCRIPT -->
@@ -677,7 +901,7 @@
         const fmtDec = (n, d = 1) => (Number(n) || 0).toFixed(d);
 
         // --- GENERADOR DE MOTORES ---
-        // Tomcat Booster tiene 7 motores lógicos en la telemetría (1 central y 6 en anillo)
+        // Tomcat Booster tiene 7 motores lógicos en la telemetría (1 central y 6 en anillo, todos de 38px)
         function initBoosterEngines() {
             const container = document.getElementById('booster-engines');
             container.innerHTML = '';
@@ -692,7 +916,7 @@
                 const r = 70; // radio de colocación
                 const x = cx + r * Math.cos(angle);
                 const y = cy + r * Math.sin(angle);
-                createNode(container, String(i + 2), x, y, 28);
+                createNode(container, String(i + 2), x, y, 38);
             }
         }
 
@@ -700,7 +924,8 @@
             const container = document.getElementById('ship-engines');
             container.innerHTML = '';
             const cx = 70, cy = 70; // Centro de 140x140
-            createNode(container, 'S2', cx, cy, 56);
+            createNode(container, 'S1', cx - 28, cy, 52);
+            createNode(container, 'S2', cx + 28, cy, 52);
         }
 
         function createNode(parent, tag, x, y, size) {
@@ -791,11 +1016,22 @@
                     document.getElementById('ship-thr-bar').style.width = thr + "%";
                     document.getElementById('ship-thr-pct').innerText = Math.round(thr) + "%";
 
-                    // Motor S2 se enciende si el throttle del ship es mayor a 0%
-                    const elShipEng = document.querySelector(`#ship-engines [data-tag="S2"]`);
-                    if (elShipEng) {
-                        if (thr > 0) elShipEng.classList.add('active');
-                        else elShipEng.classList.remove('active');
+                    // Estado del cluster de motores de la segunda etapa (S1 y S2)
+                    const engs = S2.engstates || S2.engStates || S2.ENGSTATES;
+                    if (engs) {
+                        for (let tag in engs) {
+                            const el = document.querySelector(`#ship-engines [data-tag="${tag.toUpperCase()}"]`);
+                            if (el) {
+                                if (Number(engs[tag]) === 1) el.classList.add('active');
+                                else el.classList.remove('active');
+                            }
+                        }
+                    } else {
+                        // Fallback: encender ambos motores si el throttle del ship es mayor a 0%
+                        document.querySelectorAll("#ship-engines .engine-node").forEach(el => {
+                            if (thr > 0) el.classList.add('active');
+                            else el.classList.remove('active');
+                        });
                     }
                 }
 
@@ -833,6 +1069,8 @@
             if (btn) btn.classList.add('active');
         }
 
+        const isLocalFileMode = (window.location.protocol === 'file:');
+
         function refreshCameraFeed() {
             if (camMode !== 'ksp') return;
 
@@ -865,108 +1103,112 @@
                     if (fpsLabel) fpsLabel.innerText = 'FPS: --';
                 }
             };
-            newImg.src = '/api/camera?t=' + Date.now();
+            newImg.src = isLocalFileMode ? 'live_camera.jpg?t=' + Date.now() : '/api/camera?t=' + Date.now();
         }
 
         // Actualizar las etiquetas HUD del feed con los datos de telemetría más recientes
         let _lastB1 = null, _lastS2 = null;
-        const _origFetch = fetchLocalTelemetry;
+
+        function updateTelemetryUI(raw) {
+            const connStatus = document.getElementById('conn-status');
+            if (connStatus) {
+                connStatus.innerText = isLocalFileMode ? "ONLINE (LOCAL FILE)" : "ONLINE (LOCAL)";
+                connStatus.style.color = "#00ff41";
+                connStatus.classList.add('blink');
+            }
+
+            const B1 = raw.booster;
+            const S2 = raw.ship;
+            _lastB1 = B1; _lastS2 = S2;
+
+            // Actualizar etiquetas del HUD de cámara
+            const activeFor = B1 || S2;
+            if (activeFor) {
+                const altEl = document.getElementById('cam-label-alt');
+                const spdEl = document.getElementById('cam-label-spd');
+                const distEl = document.getElementById('cam-label-dist');
+                const stEl = document.getElementById('cam-label-status');
+
+                if (B1) {
+                    if (altEl) altEl.innerText = `ALT: ${Math.round(B1.alt || B1.ALT || 0).toLocaleString()} m`;
+                    if (spdEl) spdEl.innerText = `VS: ${(B1.vs || B1.VS || 0).toFixed(1)} m/s`;
+                    if (distEl) distEl.innerText = `DIST BARCA: ${Math.round(B1.hdist || B1.dist || B1.HDIST || 0)} m`;
+                    if (stEl) stEl.innerText = `TOMCAT / ${(B1.status || 'BOOSTER').toUpperCase()}`;
+                } else if (S2) {
+                    if (altEl) altEl.innerText = `ALT: ${Math.round(S2.alt || S2.ALT || 0).toLocaleString()} m`;
+                    if (spdEl) spdEl.innerText = `VS: ${(S2.vs || S2.VS || 0).toFixed(1)} m/s`;
+                    if (distEl) distEl.innerText = `APO: ${((S2.apo || S2.APO || 0)/1000).toFixed(1)} km`;
+                    if (stEl) stEl.innerText = `TOMCAT / ${(S2.status || 'SHIP').toUpperCase()}`;
+                }
+            }
+
+            // --- ACTUALIZAR BOOSTER (S1) ---
+            if (B1) {
+                document.getElementById('booster-status').innerText = B1.status || B1.STATUS || "OFFLINE";
+                document.getElementById('booster-status').style.borderColor = "var(--neon-amber)";
+                document.getElementById('booster-alt').innerText = fmtNum(B1.alt || B1.ALT);
+                document.getElementById('booster-vel').innerText = fmtNum(B1.vel || B1.VEL);
+                document.getElementById('booster-vs').innerText = fmtDec(B1.vs || B1.VS, 1);
+                document.getElementById('booster-dist').innerText = fmtNum(B1.hdist || B1.HDIST || B1.dist || B1.DIST);
+                const fPct = B1.fuelpct || B1.fuelPct || B1.FUELPCT || 0;
+                document.getElementById('booster-fuel-bar').style.width = fPct + "%";
+                document.getElementById('booster-fuel-pct').innerText = Math.round(fPct) + "%";
+                const thr = B1.thr || B1.THR || B1.throttle || B1.THROTTLE || 0;
+                document.getElementById('booster-thr-bar').style.width = thr + "%";
+                document.getElementById('booster-thr-pct').innerText = Math.round(thr) + "%";
+                const engs = B1.engstates || B1.engStates || B1.ENGSTATES;
+                if (engs) {
+                    for (let tag in engs) {
+                        const el = document.querySelector(`#booster-engines [data-tag="${tag}"]`);
+                        if (el) {
+                            if (Number(engs[tag]) === 1) el.classList.add('active');
+                            else el.classList.remove('active');
+                        }
+                    }
+                }
+            }
+
+            // --- ACTUALIZAR SHIP (S2) ---
+            if (S2) {
+                document.getElementById('ship-status').innerText = S2.status || S2.STATUS || "OFFLINE";
+                document.getElementById('ship-status').style.borderColor = "var(--neon-blue)";
+                document.getElementById('ship-alt').innerText = fmtNum(S2.alt || S2.ALT);
+                document.getElementById('ship-vel').innerText = fmtNum(S2.spd || S2.SPD || S2.vel || S2.VEL);
+                document.getElementById('ship-vs').innerText = fmtDec(S2.vs || S2.VS, 1);
+                document.getElementById('ship-apo').innerText = fmtDec((S2.apo || S2.APO || 0) / 1000, 1);
+                document.getElementById('ship-per').innerText = fmtDec((S2.per || S2.PER || 0) / 1000, 1);
+                document.getElementById('ship-twr').innerText = fmtDec(S2.twr || S2.TWR || 0, 2);
+                const fPct = S2.fuel || S2.FUEL || S2.fuelpct || S2.FUELPCT || 0;
+                document.getElementById('ship-fuel-bar').style.width = fPct + "%";
+                document.getElementById('ship-fuel-pct').innerText = Math.round(fPct) + "%";
+                const thr = S2.throttle || S2.THROTTLE || S2.thr || S2.THR || 0;
+                document.getElementById('ship-thr-bar').style.width = thr + "%";
+                document.getElementById('ship-thr-pct').innerText = Math.round(thr) + "%";
+                const elShipEng = document.querySelector(`#ship-engines [data-tag="S2"]`);
+                if (elShipEng) {
+                    if (thr > 0) elShipEng.classList.add('active');
+                    else elShipEng.classList.remove('active');
+                }
+            }
+
+            // --- CRONÓMETRO ---
+            const activeData = B1 || S2;
+            if (activeData) {
+                const sec = activeData.time || activeData.missiontime || activeData.MISSIONTIME || 0;
+                const h = Math.floor(sec / 3600).toString().padStart(2, '0');
+                const m = Math.floor((sec % 3600) / 60).toString().padStart(2, '0');
+                const s = Math.floor(sec % 60).toString().padStart(2, '0');
+                document.getElementById('met-display').innerText = `T+ ${h}:${m}:${s}`;
+            }
+        }
+
         async function fetchLocalTelemetryWrapped() {
+            if (isLocalFileMode) return; // Se gestiona en el bucle local de script injection
             try {
                 const response = await fetch('/api/telemetry?t=' + Date.now());
                 if (!response.ok) throw new Error("Server error");
                 const raw = await response.json();
-
-                const connStatus = document.getElementById('conn-status');
-                if (connStatus) {
-                    connStatus.innerText = "ONLINE (LOCAL)";
-                    connStatus.style.color = "#00ff41";
-                    connStatus.classList.add('blink');
-                }
-
-                const B1 = raw.booster;
-                const S2 = raw.ship;
-                _lastB1 = B1; _lastS2 = S2;
-
-                // Actualizar etiquetas del HUD de cámara
-                const activeFor = B1 || S2;
-                if (activeFor) {
-                    const altEl = document.getElementById('cam-label-alt');
-                    const spdEl = document.getElementById('cam-label-spd');
-                    const distEl = document.getElementById('cam-label-dist');
-                    const stEl = document.getElementById('cam-label-status');
-
-                    if (B1) {
-                        if (altEl) altEl.innerText = `ALT: ${Math.round(B1.alt || B1.ALT || 0).toLocaleString()} m`;
-                        if (spdEl) spdEl.innerText = `VS: ${(B1.vs || B1.VS || 0).toFixed(1)} m/s`;
-                        if (distEl) distEl.innerText = `DIST BARCA: ${Math.round(B1.hdist || B1.dist || B1.HDIST || 0)} m`;
-                        if (stEl) stEl.innerText = `TOMCAT / ${(B1.status || 'BOOSTER').toUpperCase()}`;
-                    } else if (S2) {
-                        if (altEl) altEl.innerText = `ALT: ${Math.round(S2.alt || S2.ALT || 0).toLocaleString()} m`;
-                        if (spdEl) spdEl.innerText = `VS: ${(S2.vs || S2.VS || 0).toFixed(1)} m/s`;
-                        if (distEl) distEl.innerText = `APO: ${((S2.apo || S2.APO || 0)/1000).toFixed(1)} km`;
-                        if (stEl) stEl.innerText = `TOMCAT / ${(S2.status || 'SHIP').toUpperCase()}`;
-                    }
-                }
-
-                // --- ACTUALIZAR BOOSTER (S1) ---
-                if (B1) {
-                    document.getElementById('booster-status').innerText = B1.status || B1.STATUS || "OFFLINE";
-                    document.getElementById('booster-status').style.borderColor = "var(--neon-amber)";
-                    document.getElementById('booster-alt').innerText = fmtNum(B1.alt || B1.ALT);
-                    document.getElementById('booster-vel').innerText = fmtNum(B1.vel || B1.VEL);
-                    document.getElementById('booster-vs').innerText = fmtDec(B1.vs || B1.VS, 1);
-                    document.getElementById('booster-dist').innerText = fmtNum(B1.hdist || B1.HDIST || B1.dist || B1.DIST);
-                    const fPct = B1.fuelpct || B1.fuelPct || B1.FUELPCT || 0;
-                    document.getElementById('booster-fuel-bar').style.width = fPct + "%";
-                    document.getElementById('booster-fuel-pct').innerText = Math.round(fPct) + "%";
-                    const thr = B1.thr || B1.THR || B1.throttle || B1.THROTTLE || 0;
-                    document.getElementById('booster-thr-bar').style.width = thr + "%";
-                    document.getElementById('booster-thr-pct').innerText = Math.round(thr) + "%";
-                    const engs = B1.engstates || B1.engStates || B1.ENGSTATES;
-                    if (engs) {
-                        for (let tag in engs) {
-                            const el = document.querySelector(`#booster-engines [data-tag="${tag}"]`);
-                            if (el) {
-                                if (Number(engs[tag]) === 1) el.classList.add('active');
-                                else el.classList.remove('active');
-                            }
-                        }
-                    }
-                }
-
-                // --- ACTUALIZAR SHIP (S2) ---
-                if (S2) {
-                    document.getElementById('ship-status').innerText = S2.status || S2.STATUS || "OFFLINE";
-                    document.getElementById('ship-status').style.borderColor = "var(--neon-blue)";
-                    document.getElementById('ship-alt').innerText = fmtNum(S2.alt || S2.ALT);
-                    document.getElementById('ship-vel').innerText = fmtNum(S2.spd || S2.SPD || S2.vel || S2.VEL);
-                    document.getElementById('ship-vs').innerText = fmtDec(S2.vs || S2.VS, 1);
-                    document.getElementById('ship-apo').innerText = fmtDec((S2.apo || S2.APO || 0) / 1000, 1);
-                    document.getElementById('ship-per').innerText = fmtDec((S2.per || S2.PER || 0) / 1000, 1);
-                    document.getElementById('ship-twr').innerText = fmtDec(S2.twr || S2.TWR || 0, 2);
-                    const fPct = S2.fuel || S2.FUEL || S2.fuelpct || S2.FUELPCT || 0;
-                    document.getElementById('ship-fuel-bar').style.width = fPct + "%";
-                    document.getElementById('ship-fuel-pct').innerText = Math.round(fPct) + "%";
-                    const thr = S2.throttle || S2.THROTTLE || S2.thr || S2.THR || 0;
-                    document.getElementById('ship-thr-bar').style.width = thr + "%";
-                    document.getElementById('ship-thr-pct').innerText = Math.round(thr) + "%";
-                    const elShipEng = document.querySelector(`#ship-engines [data-tag="S2"]`);
-                    if (elShipEng) {
-                        if (thr > 0) elShipEng.classList.add('active');
-                        else elShipEng.classList.remove('active');
-                    }
-                }
-
-                // --- CRONÓMETRO ---
-                const activeData = B1 || S2;
-                if (activeData) {
-                    const sec = activeData.time || activeData.missiontime || activeData.MISSIONTIME || 0;
-                    const h = Math.floor(sec / 3600).toString().padStart(2, '0');
-                    const m = Math.floor((sec % 3600) / 60).toString().padStart(2, '0');
-                    const s = Math.floor(sec % 60).toString().padStart(2, '0');
-                    document.getElementById('met-display').innerText = `T+ ${h}:${m}:${s}`;
-                }
+                updateTelemetryUI(raw);
             } catch (e) {
                 const connStatus = document.getElementById('conn-status');
                 if (connStatus) {
@@ -979,6 +1221,178 @@
 
         setInterval(fetchLocalTelemetryWrapped, 250);
         setInterval(refreshCameraFeed, 250); // ~4 FPS para el feed de cámara
+
+        // --- CONTROL DE LANZAMIENTO WEB ---
+        let lcClientTminus = 15;   // copia local para el tick suave
+        let lcClientStatus = 'READY';
+        let lcLastSyncTime = Date.now();
+
+        function formatTminus(seconds) {
+            const s = Math.max(0, Math.floor(seconds));
+            if (s >= 60) {
+                const m = Math.floor(s / 60);
+                const sec = s % 60;
+                return `T-${String(m).padStart(2,'0')}:${String(sec).padStart(2,'0')}`;
+            }
+            return `T-${String(s).padStart(2,'0')}s`;
+        }
+
+        function updateClockDisplay(tminus, status) {
+            const display = document.getElementById('lc-tminus-display');
+            if (!display) return;
+            if (status === 'LAUNCHED') {
+                display.innerText = 'LIFTOFF! 🚀';
+                display.style.color = '#ffffff';
+            } else if (status === 'ABORT') {
+                display.innerText = 'ABORTADO ❌';
+                display.style.color = 'var(--neon-red)';
+            } else if (status === 'HOLD') {
+                display.innerText = formatTminus(tminus);
+                display.style.color = 'var(--neon-amber)';
+            } else {
+                display.innerText = formatTminus(tminus);
+                display.style.color = 'var(--neon-green)';
+            }
+        }
+
+        // Tick local cada 100ms para suavizar el display
+        setInterval(() => {
+            if (lcClientStatus === 'COUNTDOWN') {
+                const elapsed = (Date.now() - lcLastSyncTime) / 1000;
+                const estimated = Math.max(0, lcClientTminus - elapsed);
+                updateClockDisplay(estimated, lcClientStatus);
+            }
+        }, 100);
+
+        function updateLaunchControlUI(state) {
+            if (!state) return;
+            
+            // Sincronizar estado local
+            lcClientTminus = state.t_minus;
+            lcClientStatus = state.status;
+            lcLastSyncTime = Date.now();
+
+            // Actualizar reloj
+            updateClockDisplay(state.t_minus, state.status);
+
+            // Actualizar badge de estado
+            const badge = document.getElementById('lc-status-badge');
+            if (badge) {
+                badge.innerText = state.status;
+                badge.className = 'lc-status-badge'; // reset classes
+                if (state.status === 'READY') {
+                    badge.style.borderColor = 'var(--neon-green)';
+                    badge.style.color = 'var(--neon-green)';
+                } else if (state.status === 'COUNTDOWN') {
+                    badge.style.borderColor = 'var(--neon-blue)';
+                    badge.style.color = 'var(--neon-blue)';
+                } else if (state.status === 'HOLD') {
+                    badge.style.borderColor = 'var(--neon-amber)';
+                    badge.style.color = 'var(--neon-amber)';
+                } else if (state.status === 'ABORT') {
+                    badge.style.borderColor = 'var(--neon-red)';
+                    badge.style.color = 'var(--neon-red)';
+                    badge.classList.add('blink');
+                } else if (state.status === 'LAUNCHED') {
+                    badge.style.borderColor = '#fff';
+                    badge.style.color = '#fff';
+                }
+            }
+
+            // Actualizar botones según estado
+            const startBtn = document.getElementById('lc-btn-start');
+            const holdBtn  = document.getElementById('lc-btn-hold');
+
+            if (state.status === 'READY') {
+                if (startBtn) { startBtn.innerText = 'INICIAR';  startBtn.disabled = isLocalFileMode; startBtn.style.opacity = isLocalFileMode ? '0.3' : '1'; }
+                if (holdBtn)  { holdBtn.disabled = true;  holdBtn.style.opacity = '0.3'; holdBtn.style.cursor = 'not-allowed'; }
+            } else if (state.status === 'COUNTDOWN') {
+                if (startBtn) { startBtn.innerText = 'INICIADO'; startBtn.disabled = true;  startBtn.style.opacity = '0.4'; }
+                if (holdBtn)  { holdBtn.disabled = isLocalFileMode; holdBtn.style.opacity = isLocalFileMode ? '0.3' : '1';   holdBtn.style.cursor = isLocalFileMode ? 'default' : 'pointer'; }
+            } else if (state.status === 'HOLD') {
+                if (startBtn) { startBtn.innerText = 'REANUDAR'; startBtn.disabled = isLocalFileMode; startBtn.style.opacity = isLocalFileMode ? '0.3' : '1'; }
+                if (holdBtn)  { holdBtn.disabled = true;  holdBtn.style.opacity = '0.3'; holdBtn.style.cursor = 'not-allowed'; }
+            } else {
+                if (startBtn) { startBtn.innerText = 'INICIAR'; startBtn.disabled = true; startBtn.style.opacity = '0.4'; }
+                if (holdBtn)  { holdBtn.disabled = true; holdBtn.style.opacity = '0.3'; holdBtn.style.cursor = 'not-allowed'; }
+            }
+        }
+
+        async function fetchLaunchControl() {
+            if (isLocalFileMode) return; // Se gestiona en el bucle local de script injection
+            try {
+                const response = await fetch('/api/launch_control?t=' + Date.now());
+                if (!response.ok) return;
+                const state = await response.json();
+                updateLaunchControlUI(state);
+            } catch (e) {
+                console.error('Error al obtener estado de launch control:', e);
+            }
+        }
+
+        function lcStartOrResume() {
+            if (lcClientStatus === 'HOLD') {
+                sendLCCommand('resume');
+            } else {
+                sendLCCommand('start');
+            }
+        }
+
+        async function sendLCCommand(cmd, val = '') {
+            if (isLocalFileMode) {
+                alert("MODO ARCHIVO LOCAL: Edita 'boot/PreLanzamiento/launch_config.txt' o usa los accesos directos (.bat) para cambiar el estado (start, hold, reset, abort).");
+                return;
+            }
+            try {
+                const response = await fetch(`/api/launch_control/command?cmd=${cmd}&val=${encodeURIComponent(val)}&t=${Date.now()}`);
+                if (response.ok) {
+                    await fetchLaunchControl();
+                }
+            } catch (e) {
+                console.error('Error al enviar comando:', e);
+            }
+        }
+
+        async function applyLCSettings() {
+            const tVal = document.getElementById('lc-t-input').value;
+            const pVal = document.getElementById('lc-payload-input').value;
+            await sendLCCommand('reset', tVal);
+            await sendLCCommand('set_payload', pVal);
+        }
+
+        // --- MODO LOCAL / PORTLESS SCRIPT INJECTION LOOP ---
+        function loadLocalDataJS() {
+            const oldScript = document.getElementById('local-data-script');
+            if (oldScript) oldScript.remove();
+            
+            const script = document.createElement('script');
+            script.id = 'local-data-script';
+            script.src = 'launch_data.js?t=' + Date.now();
+            script.onload = () => {
+                if (window.tomcatData) {
+                    updateTelemetryUI(window.tomcatData);
+                    if (window.tomcatData.launch_control) {
+                        updateLaunchControlUI(window.tomcatData.launch_control);
+                    }
+                }
+            };
+            document.body.appendChild(script);
+        }
+
+        if (isLocalFileMode) {
+            console.log("[TOMCAT] Inicializando en MODO LOCAL (Script Injection).");
+            setInterval(loadLocalDataJS, 250);
+            loadLocalDataJS();
+            
+            // Mostrar aviso en la interfaz
+            const header = document.querySelector('.header-title');
+            if (header) {
+                header.innerHTML += ' <span style="font-size:0.9rem; color:var(--neon-amber); text-shadow:none; letter-spacing:1px">(MODO LOCAL)</span>';
+            }
+        } else {
+            setInterval(fetchLaunchControl, 500);
+            fetchLaunchControl();
+        }
     </script>
 </body>
 

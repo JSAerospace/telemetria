@@ -21,7 +21,7 @@ if not exist "%PYTHON_EXE%" (
 )
 
 :: Abrir el navegador automaticamente despues de 2 segundos
-start "" cmd /c "timeout /t 2 /nobreak > nul && start http://localhost:8080"
+start "" cmd /c "timeout /t 2 /nobreak > nul && start http://localhost:9090"
 
 :: Iniciar el servidor
 "%PYTHON_EXE%" web_dashboard.py
