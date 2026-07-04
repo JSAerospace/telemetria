@@ -231,7 +231,7 @@ def push_telemetry_to_firebase(combined=None):
 def push_camera_to_firebase(frame_bytes):
     global _camera_last_upload
     now = time.time()
-    if now - _camera_last_upload < 5.0:
+    if now - _camera_last_upload < 0.5:
         return
     if not FIREBASE_AVAILABLE:
         return
@@ -565,8 +565,8 @@ def main():
             while True:
                 try:
                     # Preparar combined
-                    ship_data = get_latest_telemetry("ship", check_stale=True)
-                    booster_data = get_latest_telemetry("booster", check_stale=True)
+                    ship_data = get_latest_telemetry("ship", check_stale=False)
+                    booster_data = get_latest_telemetry("booster", check_stale=False)
                     combined = {
                         "ship": ship_data,
                         "booster": booster_data,
