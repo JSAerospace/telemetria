@@ -1,3 +1,0 @@
-t_minus=0
-payload_tons=20.0
-status=LAUNCHED
