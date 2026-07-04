@@ -3,61 +3,480 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TOMCAT REMOTE - Firebase</title>
+    <title>TOMCAT REMOTE CONTROL PANEL</title>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;500;700&display=swap" rel="stylesheet">
     <style>
-        :root { --bg-dark: #050a0f; --panel-bg: rgba(10,20,30,0.85); --neon-blue: #00f3ff; --neon-amber: #ff6a00; --neon-green: #00ff41; --text-main: #e0e0e0; }
-        body { margin: 0; padding: 0; background: var(--bg-dark); color: var(--text-main); font-family: 'Rajdhani', sans-serif; min-height: 100vh; }
-        header { display: flex; justify-content: space-between; align-items: center; padding: 15px 40px; background: rgba(0,0,0,0.85); border-bottom: 2px solid var(--neon-amber); }
-        .header-title { font-family: 'Orbitron', sans-serif; font-weight: 900; font-size: 1.5rem; color: #fff; text-shadow: 0 0 10px var(--neon-amber); }
-        .dashboard-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; padding: 40px; max-width: 1600px; margin: 0 auto; }
-        @media (max-width:1200px) { .dashboard-grid { grid-template-columns: 1fr; } }
-        .panel { background: var(--panel-bg); border: 1px solid rgba(255,255,255,0.1); padding: 25px; }
-        .panel-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; border-bottom: 1px solid rgba(255,255,255,0.15); padding-bottom: 10px; }
-        .panel-title { font-family: 'Orbitron', sans-serif; font-size: 1.2rem; text-transform: uppercase; letter-spacing: 2px; }
-        .panel.booster .panel-title { color: var(--neon-amber); }
-        .panel.ship .panel-title { color: var(--neon-blue); }
-        .status-badge { font-family: 'Orbitron', sans-serif; padding: 5px 15px; background: rgba(0,0,0,0.6); border: 1px solid #fff; color: #fff; font-size: 0.8rem; text-transform: uppercase; }
-        .metrics-container { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-        .metric-box { background: rgba(255,255,255,0.02); padding: 15px; border-left: 3px solid rgba(255,255,255,0.15); }
-        .panel.booster .metric-box { border-left-color: var(--neon-amber); }
-        .panel.ship .metric-box { border-left-color: var(--neon-blue); }
-        .metric-label { font-size: 0.75rem; text-transform: uppercase; color: rgba(255,255,255,0.6); display: block; }
-        .metric-value { font-family: 'Orbitron', sans-serif; font-size: 1.8rem; font-weight: 700; color: #fff; }
-        .metric-unit { font-size: 0.9rem; color: rgba(255,255,255,0.4); margin-left: 5px; }
-        .bar-container { margin-top: 25px; }
-        .bar-label { display: flex; justify-content: space-between; margin-bottom: 5px; font-size: 0.8rem; text-transform: uppercase; }
-        .progress-track { height: 14px; background: rgba(255,255,255,0.08); overflow: hidden; border: 1px solid rgba(255,255,255,0.1); }
-        .progress-fill { height: 100%; width: 0%; transition: width 0.25s ease-out; }
-        .panel.booster .progress-fill { background: var(--neon-amber); box-shadow: 0 0 10px var(--neon-amber); }
-        .panel.ship .progress-fill { background: var(--neon-blue); box-shadow: 0 0 10px var(--neon-blue); }
-        .engine-cluster { position: relative; width: 180px; height: 180px; margin: 20px auto; }
-        .engine-cluster.ship { width: 100px; height: 100px; }
-        .engine-node { position: absolute; border-radius: 50%; border: 2px solid #2a2a2a; background: #121212; display: flex; align-items: center; justify-content: center; font-family: 'Orbitron',sans-serif; font-weight: bold; color: #444; font-size: 10px; transition: all 0.2s; }
-        .engine-node.active { background: #fff; border-color: #fff; color: #000; box-shadow: 0 0 20px currentColor; }
-        .panel.booster .engine-node.active { color: var(--neon-amber); }
-        .panel.ship .engine-node.active { color: var(--neon-blue); }
-        .camera-section { padding: 0 40px; max-width: 1600px; margin: 20px auto; }
-        .camera-wrapper { position: relative; background: #000; border: 1px solid var(--neon-amber); overflow: hidden; }
-        .camera-feed { width: 100%; display: block; aspect-ratio: 16/9; object-fit: cover; background: #050505; }
-        .cam-offline { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; background: rgba(5,10,15,0.95); font-family: 'Orbitron', sans-serif; color: rgba(255,255,255,0.3); }
-        .conn-badge { position: fixed; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.9); padding: 10px 40px; font-family: monospace; border-top: 1px solid rgba(255,255,255,0.15); display: flex; justify-content: space-between; font-size: 0.8rem; z-index: 100; }
+        :root {
+            --bg-dark: #050a0f;
+            --panel-bg: rgba(10, 20, 30, 0.85);
+            --neon-blue: #00f3ff;
+            --neon-amber: #ff6a00;
+            --neon-green: #00ff41;
+            --neon-red: #ff003c;
+            --text-main: #e0e0e0;
+            --grid-color: rgba(0, 243, 255, 0.05);
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-dark);
+            background-image:
+                linear-gradient(var(--grid-color) 1px, transparent 1px),
+                linear-gradient(90deg, var(--grid-color) 1px, transparent 1px);
+            background-size: 40px 40px;
+            color: var(--text-main);
+            font-family: 'Rajdhani', sans-serif;
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+
+        /* --- HEADER --- */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 40px;
+            background: rgba(0, 0, 0, 0.85);
+            border-bottom: 2px solid var(--neon-amber);
+            box-shadow: 0 0 20px rgba(255, 106, 0, 0.2);
+            position: relative;
+            z-index: 10;
+        }
+
+        .header-title {
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 900;
+            font-size: 1.8rem;
+            margin: 0;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            color: #fff;
+            text-shadow: 0 0 10px var(--neon-amber);
+        }
+
+        .update-time {
+            text-align: right;
+            font-family: 'Orbitron', sans-serif;
+            color: var(--neon-green);
+            font-size: 0.95rem;
+            text-shadow: 0 0 10px rgba(0, 255, 65, 0.4);
+        }
+
+        /* --- CAMERA FEED --- */
+        .camera-section {
+            padding: 0 40px;
+            max-width: 1600px;
+            margin: 20px auto 0 auto;
+        }
+
+        .camera-wrapper {
+            position: relative;
+            background: #000;
+            border: 1px solid var(--neon-amber);
+            box-shadow: 0 0 30px rgba(255, 106, 0, 0.15);
+            overflow: hidden;
+            clip-path: polygon(0 0, 100% 0, 100% calc(100% - 16px), calc(100% - 16px) 100%, 0 100%);
+        }
+
+        .camera-feed {
+            width: 100%;
+            display: block;
+            aspect-ratio: 16/9;
+            object-fit: cover;
+            background: #050505;
+        }
+
+        .camera-hud {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+        }
+
+        .cam-label {
+            position: absolute;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.75rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            padding: 4px 12px;
+            background: rgba(0,0,0,0.65);
+        }
+
+        .cam-label.top-left {
+            top: 14px;
+            left: 14px;
+            color: var(--neon-amber);
+            border-left: 2px solid var(--neon-amber);
+        }
+
+        .cam-label.top-right {
+            top: 14px;
+            right: 14px;
+            color: var(--neon-green);
+            border-right: 2px solid var(--neon-green);
+        }
+
+        .cam-label.bot-left {
+            bottom: 14px;
+            left: 14px;
+            color: rgba(255,255,255,0.7);
+        }
+
+        .cam-label.bot-right {
+            bottom: 14px;
+            right: 14px;
+            color: var(--neon-blue);
+            border-right: 2px solid var(--neon-blue);
+        }
+
+        .cam-corner {
+            position: absolute;
+            width: 22px;
+            height: 22px;
+            border-color: var(--neon-amber);
+            border-style: solid;
+            opacity: 0.7;
+        }
+        .cam-corner.tl { top: 8px; left: 8px; border-width: 2px 0 0 2px; }
+        .cam-corner.tr { top: 8px; right: 8px; border-width: 2px 2px 0 0; }
+        .cam-corner.bl { bottom: 8px; left: 8px; border-width: 0 0 2px 2px; }
+        .cam-corner.br { bottom: 8px; right: 8px; border-width: 0 2px 2px 0; }
+
+        .cam-scanlines {
+            position: absolute;
+            inset: 0;
+            background: repeating-linear-gradient(
+                0deg,
+                transparent,
+                transparent 2px,
+                rgba(0,0,0,0.06) 2px,
+                rgba(0,0,0,0.06) 4px
+            );
+        }
+
+        .rec-indicator {
+            position: absolute;
+            top: 14px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.7rem;
+            color: var(--neon-red);
+            letter-spacing: 3px;
+            background: rgba(0,0,0,0.6);
+            padding: 4px 12px;
+        }
+
+        .rec-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--neon-red);
+            box-shadow: 0 0 8px var(--neon-red);
+            animation: blinker 1s ease-in-out infinite;
+        }
+
+        .cam-offline {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(5,10,15,0.95);
+            font-family: 'Orbitron', sans-serif;
+            color: rgba(255,255,255,0.3);
+            font-size: 1.1rem;
+            letter-spacing: 3px;
+        }
+
+        /* --- DASHBOARD GRID --- */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            padding: 40px;
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        @media (max-width: 1200px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* --- PANELS --- */
+        .panel {
+            background: var(--panel-bg);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 25px;
+            position: relative;
+            clip-path: polygon(0 0, 100% 0, 100% calc(100% - 20px), calc(100% - 20px) 100%, 0 100%);
+        }
+
+        .panel::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 120px;
+            height: 3px;
+        }
+
+        .panel.booster::before {
+            background: var(--neon-amber);
+            box-shadow: 0 0 10px var(--neon-amber);
+        }
+
+        .panel.ship::before {
+            background: var(--neon-blue);
+            box-shadow: 0 0 10px var(--neon-blue);
+        }
+
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+            padding-bottom: 10px;
+        }
+
+        .panel-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.5rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .panel.booster .panel-title {
+            color: var(--neon-amber);
+        }
+
+        .panel.ship .panel-title {
+            color: var(--neon-blue);
+        }
+
+        .status-badge {
+            font-family: 'Orbitron', sans-serif;
+            padding: 5px 15px;
+            background: rgba(0, 0, 0, 0.6);
+            border: 1px solid #fff;
+            color: #fff;
+            font-size: 0.9rem;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        /* --- METRICS --- */
+        .metrics-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .metric-box {
+            background: rgba(255, 255, 255, 0.02);
+            padding: 15px;
+            border-left: 3px solid rgba(255, 255, 255, 0.15);
+        }
+
+        .panel.booster .metric-box {
+            border-left-color: var(--neon-amber);
+        }
+
+        .panel.ship .metric-box {
+            border-left-color: var(--neon-blue);
+        }
+
+        .metric-label {
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            color: rgba(255, 255, 255, 0.6);
+            margin-bottom: 5px;
+            display: block;
+        }
+
+        .metric-value {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2rem;
+            font-weight: 700;
+            color: #fff;
+        }
+
+        .metric-unit {
+            font-size: 1rem;
+            color: rgba(255, 255, 255, 0.4);
+            margin-left: 5px;
+        }
+
+        /* --- BARS --- */
+        .bar-container {
+            margin-top: 25px;
+        }
+
+        .bar-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+        }
+
+        .progress-track {
+            height: 14px;
+            background: rgba(255, 255, 255, 0.08);
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .progress-fill {
+            height: 100%;
+            width: 0%;
+            transition: width 0.25s ease-out;
+            position: relative;
+        }
+
+        .panel.booster .progress-fill {
+            background: var(--neon-amber);
+            box-shadow: 0 0 10px var(--neon-amber);
+        }
+
+        .panel.ship .progress-fill {
+            background: var(--neon-blue);
+            box-shadow: 0 0 10px var(--neon-blue);
+        }
+
+        .progress-fill::after {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-image: linear-gradient(45deg, rgba(0, 0, 0, 0.15) 25%, transparent 25%,
+                    transparent 50%, rgba(0, 0, 0, 0.15) 50%,
+                    rgba(0, 0, 0, 0.15) 75%, transparent 75%, transparent);
+            background-size: 20px 20px;
+        }
+
+        /* --- ENGINE DISPLAY --- */
+        .engine-display {
+            margin-top: 30px;
+            display: flex;
+            justify-content: center;
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 50%;
+            width: 220px;
+            height: 220px;
+            margin-left: auto;
+            margin-right: auto;
+            position: relative;
+            border: 1px dashed rgba(255, 255, 255, 0.15);
+        }
+
+        .engine-display.ship {
+            width: 140px;
+            height: 140px;
+        }
+
+        .engine-node {
+            position: absolute;
+            border-radius: 50%;
+            border: 2px solid #2a2a2a;
+            background: #121212;
+            box-shadow: inset 0 0 6px #000;
+            transition: all 0.2s ease-out;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Orbitron', sans-serif;
+            font-weight: bold;
+            color: #444;
+        }
+
+        .engine-node.active {
+            background: #fff;
+            border-color: #fff;
+            color: #000;
+            box-shadow: 0 0 20px currentColor;
+        }
+
+        .panel.ship .engine-node.active {
+            color: var(--neon-blue);
+        }
+
+        .panel.booster .engine-node.active {
+            color: var(--neon-amber);
+        }
+
+        /* --- FOOTER --- */
+        .status-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0, 0, 0, 0.95);
+            padding: 10px 40px;
+            font-family: monospace;
+            border-top: 1px solid rgba(255, 255, 255, 0.15);
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.8rem;
+            z-index: 100;
+        }
+
+        .blink {
+            animation: blinker 1.5s linear infinite;
+        }
+
+        @keyframes blinker {
+            50% {
+                opacity: 0;
+            }
+        }
     </style>
 </head>
 <body>
     <header>
-        <h1 class="header-title">TOMCAT REMOTE (FIREBASE)</h1>
-        <div style="font-family:'Orbitron',sans-serif;" id="fb-status">CONECTANDO...</div>
+        <h1 class="header-title">TOMCAT CONTROL CENTER</h1>
+        <div class="update-time" id="fb-status">CONECTANDO...</div>
     </header>
 
+    <!-- === CAMERA FEED SECTION === -->
     <div class="camera-section">
         <div class="camera-wrapper">
             <img id="cam-feed" class="camera-feed" alt="Remote Camera Feed" />
             <div class="cam-offline" id="cam-offline">SIN SEÑAL</div>
+
+            <!-- HUD decorativo de cámara -->
+            <div class="camera-hud">
+                <div class="cam-scanlines"></div>
+                <div class="cam-corner tl"></div>
+                <div class="cam-corner tr"></div>
+                <div class="cam-corner bl"></div>
+                <div class="cam-corner br"></div>
+
+                <div class="rec-indicator">
+                    <div class="rec-dot"></div>
+                    <span>EN VIVO</span>
+                </div>
+
+                <div class="cam-label top-left" id="cam-label-status">TOMCAT / TELEMETRÍA NUBE</div>
+                <div class="cam-label top-right" id="cam-label-alt">ALT: --- m</div>
+                <div class="cam-label bot-left" id="cam-label-spd">VS: --- m/s</div>
+                <div class="cam-label bot-right" id="cam-label-dist">DIST BARCA: --- m</div>
+            </div>
         </div>
     </div>
 
+    <!-- === DASHBOARD GRID === -->
     <div class="dashboard-grid">
+        
+        <!-- PROPULSOR PANEL -->
         <div class="panel booster">
             <div class="panel-header">
                 <div class="panel-title">TOMCAT BOOSTER / S1</div>
@@ -65,20 +484,22 @@
             </div>
             <div class="metrics-container">
                 <div class="metric-box"><span class="metric-label">Altitud</span><span class="metric-value" id="booster-alt">0</span><span class="metric-unit">m</span></div>
-                <div class="metric-box"><span class="metric-label">Velocidad</span><span class="metric-value" id="booster-vel">0</span><span class="metric-unit">m/s</span></div>
+                <div class="metric-box"><span class="metric-label">Velocidad Superficie</span><span class="metric-value" id="booster-vel">0</span><span class="metric-unit">m/s</span></div>
                 <div class="metric-box"><span class="metric-label">V. Vertical</span><span class="metric-value" id="booster-vs">0.0</span><span class="metric-unit">m/s</span></div>
                 <div class="metric-box"><span class="metric-label">Dist. Barca</span><span class="metric-value" id="booster-dist">0</span><span class="metric-unit">m</span></div>
             </div>
             <div class="bar-container">
-                <div class="bar-label"><span>COMBUSTIBLE</span><span id="booster-fuel-pct">0%</span></div>
+                <div class="bar-label"><span>COMBUSTIBLE RESTANTE</span><span id="booster-fuel-pct">0%</span></div>
                 <div class="progress-track"><div class="progress-fill" id="booster-fuel-bar"></div></div>
             </div>
             <div class="bar-container">
-                <div class="bar-label"><span>EMPUJE</span><span id="booster-thr-pct">0%</span></div>
+                <div class="bar-label"><span>EMPUJE (THROTTLE)</span><span id="booster-thr-pct">0%</span></div>
                 <div class="progress-track"><div class="progress-fill" id="booster-thr-bar"></div></div>
             </div>
-            <div class="engine-cluster" id="booster-engines"></div>
+            <div class="engine-display" id="booster-engines"></div>
         </div>
+
+        <!-- ORBITADOR PANEL -->
         <div class="panel ship">
             <div class="panel-header">
                 <div class="panel-title">TOMCAT SHIP / S2</div>
@@ -89,26 +510,28 @@
                 <div class="metric-box"><span class="metric-label">Periapsis</span><span class="metric-value" id="ship-per">0.0</span><span class="metric-unit">km</span></div>
                 <div class="metric-box"><span class="metric-label">Velocidad</span><span class="metric-value" id="ship-vel">0</span><span class="metric-unit">m/s</span></div>
                 <div class="metric-box"><span class="metric-label">Altitud</span><span class="metric-value" id="ship-alt">0</span><span class="metric-unit">m</span></div>
-                <div class="metric-box"><span class="metric-label">TWR</span><span class="metric-value" id="ship-twr">0.00</span></div>
+                <div class="metric-box"><span class="metric-label">Relación TWR</span><span class="metric-value" id="ship-twr">0.00</span></div>
                 <div class="metric-box"><span class="metric-label">V. Vertical</span><span class="metric-value" id="ship-vs">0.0</span><span class="metric-unit">m/s</span></div>
             </div>
             <div class="bar-container">
-                <div class="bar-label"><span>COMBUSTIBLE</span><span id="ship-fuel-pct">0%</span></div>
+                <div class="bar-label"><span>COMBUSTIBLE RESTANTE</span><span id="ship-fuel-pct">0%</span></div>
                 <div class="progress-track"><div class="progress-fill" id="ship-fuel-bar"></div></div>
             </div>
             <div class="bar-container">
-                <div class="bar-label"><span>EMPUJE</span><span id="ship-thr-pct">0%</span></div>
+                <div class="bar-label"><span>EMPUJE (THROTTLE)</span><span id="ship-thr-pct">0%</span></div>
                 <div class="progress-track"><div class="progress-fill" id="ship-thr-bar"></div></div>
             </div>
-            <div class="engine-cluster" id="ship-engines"></div>
+            <div class="engine-display ship" id="ship-engines"></div>
         </div>
     </div>
 
-    <div class="conn-badge">
+    <!-- BARRA DE ESTADO -->
+    <div class="status-bar">
         <span>FIREBASE: <span id="conn-status" style="color:orange">CONECTANDO...</span></span>
-        <span id="cam-label">CAMARA: ESPERANDO...</span>
+        <span id="cam-label">CÁMARA: ESPERANDO...</span>
     </div>
 
+    <!-- FIREBASE INTEGRATION -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
         import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-database.js";
@@ -127,11 +550,11 @@
         const database = getDatabase(app);
 
         const fmtNum = (n) => Math.round(n || 0).toLocaleString();
-        const fmtDec = (n, d) => (Number(n) || 0).toFixed(d);
+        const fmtDec = (n, d = 1) => (Number(n) || 0).toFixed(d);
 
         const $ = (id) => document.getElementById(id);
 
-        // --- ENGINE CLUSTER ---
+        // --- GENERADOR DE MOTORES ---
         function createEngine(parent, tag, x, y, size) {
             const el = document.createElement('div');
             el.className = 'engine-node';
@@ -141,26 +564,29 @@
             el.style.height = size + 'px';
             el.style.left = (x - size/2) + 'px';
             el.style.top = (y - size/2) + 'px';
-            el.style.fontSize = Math.max(8, size/3) + 'px';
+            el.style.fontSize = Math.max(8, size/3.2) + 'px';
             parent.appendChild(el);
         }
 
+        // Booster: 1 central, 6 radiales (Todos tamaño 38)
         function initBoosterEngines() {
             const c = $('booster-engines');
             c.innerHTML = '';
-            const cx = 90, cy = 90;
-            createEngine(c, '1', cx, cy, 32);
+            const cx = 110, cy = 110; // Centro de 220x220
+            createEngine(c, '1', cx, cy, 38);
             for (let i = 0; i < 6; i++) {
                 const a = (i * 60 - 90) * Math.PI / 180;
-                createEngine(c, String(i + 2), cx + 55 * Math.cos(a), cy + 55 * Math.sin(a), 24);
+                createEngine(c, String(i + 2), cx + 70 * Math.cos(a), cy + 70 * Math.sin(a), 38);
             }
         }
 
+        // Ship: 2 motores independientes grandes (S1 y S2)
         function initShipEngines() {
             const c = $('ship-engines');
             c.innerHTML = '';
-            createEngine(c, 'S1', 35, 50, 36);
-            createEngine(c, 'S2', 65, 50, 36);
+            const cx = 70, cy = 70; // Centro de 140x140
+            createEngine(c, 'S1', cx - 28, cy, 52);
+            createEngine(c, 'S2', cx + 28, cy, 52);
         }
 
         function updateEngineStates(engstates) {
@@ -177,15 +603,16 @@
         initBoosterEngines();
         initShipEngines();
 
-        // --- TELEMETRIA EN TIEMPO REAL ---
+        // --- SUSCRIPCIÓN A TELEMETRÍA (Firebase) ---
         const telemetryRef = ref(database, 'telemetry');
         onValue(telemetryRef, (snapshot) => {
             const data = snapshot.val();
             if (!data) return;
 
-            $('conn-status').innerText = 'ONLINE';
+            $('conn-status').innerText = 'ONLINE (NUBE)';
             $('conn-status').style.color = '#00ff41';
-            $('fb-status').innerText = 'ULTIMA ACT: ' + new Date().toLocaleTimeString();
+            $('conn-status').classList.add('blink');
+            $('fb-status').innerText = 'ÚLT. DATO: ' + new Date().toLocaleTimeString();
 
             const B1 = data.booster;
             const S2 = data.ship;
@@ -196,13 +623,22 @@
                 $('booster-vel').innerText = fmtNum(B1.vel);
                 $('booster-vs').innerText = fmtDec(B1.vs, 1);
                 $('booster-dist').innerText = fmtNum(B1.hdist || B1.dist);
+                
                 const fPct = B1.fuelpct || B1.fuelPct || 0;
                 $('booster-fuel-bar').style.width = fPct + '%';
                 $('booster-fuel-pct').innerText = Math.round(fPct) + '%';
-                const thr = B1.thr || B1.throttle || 0;
+                
+                const thr = B1.thr || B1.throttle || B1.THR || 0;
                 $('booster-thr-bar').style.width = thr + '%';
                 $('booster-thr-pct').innerText = Math.round(thr) + '%';
+                
                 updateEngineStates(B1.engstates || B1.engStates || B1.ENGSTATES);
+
+                // HUD updates if S1 is the active telemetry sender
+                $('cam-label-alt').innerText = `ALT: ${fmtNum(B1.alt)} m`;
+                $('cam-label-spd').innerText = `VS: ${fmtDec(B1.vs, 1)} m/s`;
+                $('cam-label-dist').innerText = `DIST BARCA: ${fmtNum(B1.hdist || B1.dist)} m`;
+                $('cam-label-status').innerText = `TOMCAT / ${String(B1.status || 'BOOSTER').toUpperCase()}`;
             }
 
             if (S2) {
@@ -212,35 +648,50 @@
                 $('ship-vs').innerText = fmtDec(S2.vs, 1);
                 $('ship-apo').innerText = fmtDec((S2.apo || 0) / 1000, 1);
                 $('ship-per').innerText = fmtDec((S2.per || S2.peri || 0) / 1000, 1);
-                $('ship-twr').innerText = fmtDec(S2.twr, 2);
+                $('ship-twr').innerText = fmtDec(S2.twr || 0, 2);
+                
                 const fPct = S2.fuel || S2.fuelpct || 0;
                 $('ship-fuel-bar').style.width = fPct + '%';
                 $('ship-fuel-pct').innerText = Math.round(fPct) + '%';
+                
                 const thr = S2.throttle || S2.thr || 0;
                 $('ship-thr-bar').style.width = thr + '%';
                 $('ship-thr-pct').innerText = Math.round(thr) + '%';
+                
                 updateEngineStates(S2.engstates || S2.engStates || S2.ENGSTATES);
+
+                // HUD updates if S2 is active and booster is standby
+                if (!B1 || B1.status === 'STANDBY' || B1.status === 'OFFLINE') {
+                    $('cam-label-alt').innerText = `ALT: ${fmtNum(S2.alt)} m`;
+                    $('cam-label-spd').innerText = `VS: ${fmtDec(S2.vs, 1)} m/s`;
+                    $('cam-label-dist').innerText = `APO: ${fmtDec((S2.apo || 0)/1000, 1)} km`;
+                    $('cam-label-status').innerText = `TOMCAT / ${String(S2.status || 'SHIP').toUpperCase()}`;
+                }
             }
         }, (error) => {
             $('conn-status').innerText = 'OFFLINE';
             $('conn-status').style.color = 'red';
+            $('conn-status').classList.remove('blink');
         });
 
-        // --- CAMARA (Base64 desde RTDB) ---
+        // --- SUSCRIPCIÓN A CÁMARA (Firebase) ---
         const cameraRef = ref(database, 'camera');
         onValue(cameraRef, (snapshot) => {
             const cam = snapshot.val();
             if (cam && cam.frame_b64) {
                 $('cam-feed').src = 'data:image/jpeg;base64,' + cam.frame_b64;
                 $('cam-offline').style.display = 'none';
-                $('cam-label').innerText = 'CAMARA: OK';
+                $('cam-label').innerText = 'CÁMARA: CONECTADA';
+                $('cam-label').style.color = '#00ff41';
             } else {
                 $('cam-offline').style.display = 'flex';
-                $('cam-label').innerText = 'CAMARA: SIN SEÑAL';
+                $('cam-label').innerText = 'CÁMARA: SIN SEÑAL';
+                $('cam-label').style.color = 'var(--neon-red)';
             }
         }, () => {
             $('cam-offline').style.display = 'flex';
-            $('cam-label').innerText = 'CAMARA: SIN SEÑAL';
+            $('cam-label').innerText = 'CÁMARA: SIN SEÑAL';
+            $('cam-label').style.color = 'var(--neon-red)';
         });
     </script>
 </body>
