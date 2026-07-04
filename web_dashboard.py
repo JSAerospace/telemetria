@@ -179,10 +179,13 @@ def push_camera_to_firebase(frame_bytes):
     if not FIREBASE_AVAILABLE:
         return
     try:
-        blob = fb_bucket.blob('camera/frame.jpg')
-        blob.upload_from_string(frame_bytes, content_type='image/jpeg')
-        blob.make_public()
-        fb_db.reference('/camera/last_frame_url').set(blob.public_url)
+        import base64
+        # Guardar como Base64 en RTDB (funciona siempre, sin necesidad de Storage)
+        b64 = base64.b64encode(frame_bytes).decode()
+        fb_db.reference('/camera').set({
+            'frame_b64': b64,
+            'updated': now
+        })
         _camera_last_upload = now
     except Exception as e:
         print(f"[!] Error subiendo cámara a Firebase: {e}")
@@ -364,7 +367,7 @@ def main():
     print(f"[*] NOTA: Usa Ngrok para acceso público.")
     print(f"=========================================")
 
-    # Hilo en segundo plano: subir telemetría a Firebase cada 2s
+    # Hilos en segundo plano: subir telemetría y cámara a Firebase
     if FIREBASE_AVAILABLE:
         def bg_push():
             while True:
@@ -373,8 +376,18 @@ def main():
                 except:
                     pass
                 time.sleep(2)
-        t = threading.Thread(target=bg_push, daemon=True)
-        t.start()
+        threading.Thread(target=bg_push, daemon=True).start()
+
+        def bg_camera():
+            while True:
+                try:
+                    frame = capture_camera_frame(quality=70)
+                    if frame:
+                        push_camera_to_firebase(frame)
+                except:
+                    pass
+                time.sleep(5)
+        threading.Thread(target=bg_camera, daemon=True).start()
         print("[*] Push automático a Firebase cada 2s activado")
 
     # Permitir reutilización de puerto

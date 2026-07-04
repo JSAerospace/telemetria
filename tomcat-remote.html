@@ -103,8 +103,7 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
-        import { getDatabase, ref, onValue, get, child } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-database.js";
-        import { getStorage, ref as sRef, getDownloadURL } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-storage.js";
+        import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-database.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyB5yPyJyiwz8Ulwn2z9MC4PgaYSZD5Nr68",
@@ -118,7 +117,6 @@
 
         const app = initializeApp(firebaseConfig);
         const database = getDatabase(app);
-        const storage = getStorage(app);
 
         const fmtNum = (n) => Math.round(n || 0).toLocaleString();
         const fmtDec = (n, d) => (Number(n) || 0).toFixed(d);
@@ -172,21 +170,22 @@
             $('conn-status').style.color = 'red';
         });
 
-        // --- CAMARA (Storage) ---
-        async function updateCamera() {
-            try {
-                const url = await getDownloadURL(sRef(storage, 'camera/frame.jpg'));
-                $('cam-feed').src = url + '?t=' + Date.now();
+        // --- CAMARA (Base64 desde RTDB) ---
+        const cameraRef = ref(database, 'camera');
+        onValue(cameraRef, (snapshot) => {
+            const cam = snapshot.val();
+            if (cam && cam.frame_b64) {
+                $('cam-feed').src = 'data:image/jpeg;base64,' + cam.frame_b64;
                 $('cam-offline').style.display = 'none';
                 $('cam-label').innerText = 'CAMARA: OK';
-            } catch {
+            } else {
                 $('cam-offline').style.display = 'flex';
                 $('cam-label').innerText = 'CAMARA: SIN SEÑAL';
             }
-        }
-
-        updateCamera();
-        setInterval(updateCamera, 5000);
+        }, () => {
+            $('cam-offline').style.display = 'flex';
+            $('cam-label').innerText = 'CAMARA: SIN SEÑAL';
+        });
     </script>
 </body>
 </html>
