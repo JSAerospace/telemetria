@@ -155,10 +155,18 @@ if os.path.exists(FIREBASE_CREDS):
 else:
     print("[!] Credenciales Firebase no encontradas. Ignorando.")
 
-def push_telemetry_to_firebase(combined):
+def push_telemetry_to_firebase(combined=None):
     if not FIREBASE_AVAILABLE:
         return
     try:
+        if combined is None:
+            ship_data = get_latest_telemetry("ship", check_stale=False)
+            booster_data = get_latest_telemetry("booster", check_stale=False)
+            combined = {
+                "ship": ship_data,
+                "booster": booster_data,
+                "server_time": time.time()
+            }
         fb_db.reference('/telemetry').set(combined)
     except Exception as e:
         print(f"[!] Error subiendo telemetría a Firebase: {e}")
@@ -179,7 +187,7 @@ def push_camera_to_firebase(frame_bytes):
     except Exception as e:
         print(f"[!] Error subiendo cámara a Firebase: {e}")
 
-def get_latest_telemetry(prefix):
+def get_latest_telemetry(prefix, check_stale=True):
     """Busca el archivo más reciente (A o B) para un prefijo dado."""
     file_a = os.path.join(BASE_DIR, f"telemetry_{prefix}_A.json")
     file_b = os.path.join(BASE_DIR, f"telemetry_{prefix}_B.json")
@@ -195,8 +203,7 @@ def get_latest_telemetry(prefix):
                 latest_file = f
     
     if latest_file:
-        # Detectar si el archivo es antiguo (staleness > 5s)
-        if time.time() - latest_time > 5.0:
+        if check_stale and time.time() - latest_time > 5.0:
             return None
 
         try:
@@ -356,6 +363,19 @@ def main():
         
     print(f"[*] NOTA: Usa Ngrok para acceso público.")
     print(f"=========================================")
+
+    # Hilo en segundo plano: subir telemetría a Firebase cada 2s
+    if FIREBASE_AVAILABLE:
+        def bg_push():
+            while True:
+                try:
+                    push_telemetry_to_firebase()
+                except:
+                    pass
+                time.sleep(2)
+        t = threading.Thread(target=bg_push, daemon=True)
+        t.start()
+        print("[*] Push automático a Firebase cada 2s activado")
 
     # Permitir reutilización de puerto
     socketserver.TCPServer.allow_reuse_address = True
