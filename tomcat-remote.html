@@ -98,89 +98,95 @@
 
     <div class="conn-badge">
         <span>FIREBASE: <span id="conn-status" style="color:orange">CONECTANDO...</span></span>
-        <span>REFRESH: <span id="refresh-status">0s</span></span>
+        <span id="cam-label">CAMARA: ESPERANDO...</span>
     </div>
 
-    <script>
-        const DB_URL = 'https://tomcat-b9bdb-default-rtdb.firebaseio.com';
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
+        import { getDatabase, ref, onValue, get, child } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-database.js";
+        import { getStorage, ref as sRef, getDownloadURL } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-storage.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyB5yPyJyiwz8Ulwn2z9MC4PgaYSZD5Nr68",
+            authDomain: "tomcat-b9bdb.firebaseapp.com",
+            projectId: "tomcat-b9bdb",
+            storageBucket: "tomcat-b9bdb.firebasestorage.app",
+            messagingSenderId: "83233310329",
+            appId: "1:83233310329:web:7a794a67fc52a5295376a8",
+            measurementId: "G-WX9TPZ3NK5"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const database = getDatabase(app);
+        const storage = getStorage(app);
+
         const fmtNum = (n) => Math.round(n || 0).toLocaleString();
         const fmtDec = (n, d) => (Number(n) || 0).toFixed(d);
 
-        let lastFrameUrl = null;
+        const $ = (id) => document.getElementById(id);
 
-        async function pollFirebase() {
+        // --- TELEMETRIA EN TIEMPO REAL ---
+        const telemetryRef = ref(database, 'telemetry');
+        onValue(telemetryRef, (snapshot) => {
+            const data = snapshot.val();
+            if (!data) return;
+
+            $('conn-status').innerText = 'ONLINE';
+            $('conn-status').style.color = '#00ff41';
+            $('fb-status').innerText = 'ULTIMA ACT: ' + new Date().toLocaleTimeString();
+
+            const B1 = data.booster;
+            const S2 = data.ship;
+
+            if (B1) {
+                $('booster-status').innerText = B1.status || 'OFFLINE';
+                $('booster-alt').innerText = fmtNum(B1.alt);
+                $('booster-vel').innerText = fmtNum(B1.vel);
+                $('booster-vs').innerText = fmtDec(B1.vs, 1);
+                $('booster-dist').innerText = fmtNum(B1.hdist || B1.dist);
+                const fPct = B1.fuelpct || B1.fuelPct || 0;
+                $('booster-fuel-bar').style.width = fPct + '%';
+                $('booster-fuel-pct').innerText = Math.round(fPct) + '%';
+                const thr = B1.thr || B1.throttle || 0;
+                $('booster-thr-bar').style.width = thr + '%';
+                $('booster-thr-pct').innerText = Math.round(thr) + '%';
+            }
+
+            if (S2) {
+                $('ship-status').innerText = S2.status || 'OFFLINE';
+                $('ship-alt').innerText = fmtNum(S2.alt);
+                $('ship-vel').innerText = fmtNum(S2.spd || S2.vel);
+                $('ship-vs').innerText = fmtDec(S2.vs, 1);
+                $('ship-apo').innerText = fmtDec((S2.apo || 0) / 1000, 1);
+                $('ship-per').innerText = fmtDec((S2.per || S2.peri || 0) / 1000, 1);
+                $('ship-twr').innerText = fmtDec(S2.twr, 2);
+                const fPct = S2.fuel || S2.fuelpct || 0;
+                $('ship-fuel-bar').style.width = fPct + '%';
+                $('ship-fuel-pct').innerText = Math.round(fPct) + '%';
+                const thr = S2.throttle || S2.thr || 0;
+                $('ship-thr-bar').style.width = thr + '%';
+                $('ship-thr-pct').innerText = Math.round(thr) + '%';
+            }
+        }, (error) => {
+            $('conn-status').innerText = 'OFFLINE';
+            $('conn-status').style.color = 'red';
+        });
+
+        // --- CAMARA (Storage) ---
+        async function updateCamera() {
             try {
-                const resp = await fetch(DB_URL + '/telemetry.json');
-                if (!resp.ok) throw new Error('HTTP ' + resp.status);
-                const data = await resp.json();
-
-                document.getElementById('conn-status').innerText = 'ONLINE';
-                document.getElementById('conn-status').style.color = '#00ff41';
-
-                const B1 = data.booster;
-                const S2 = data.ship;
-
-                if (B1) {
-                    document.getElementById('booster-status').innerText = B1.status || 'OFFLINE';
-                    document.getElementById('booster-alt').innerText = fmtNum(B1.alt);
-                    document.getElementById('booster-vel').innerText = fmtNum(B1.vel);
-                    document.getElementById('booster-vs').innerText = fmtDec(B1.vs, 1);
-                    document.getElementById('booster-dist').innerText = fmtNum(B1.hdist || B1.dist);
-                    const fPct = B1.fuelpct || B1.fuelPct || 0;
-                    document.getElementById('booster-fuel-bar').style.width = fPct + '%';
-                    document.getElementById('booster-fuel-pct').innerText = Math.round(fPct) + '%';
-                    const thr = B1.thr || B1.throttle || 0;
-                    document.getElementById('booster-thr-bar').style.width = thr + '%';
-                    document.getElementById('booster-thr-pct').innerText = Math.round(thr) + '%';
-                }
-
-                if (S2) {
-                    document.getElementById('ship-status').innerText = S2.status || 'OFFLINE';
-                    document.getElementById('ship-alt').innerText = fmtNum(S2.alt);
-                    document.getElementById('ship-vel').innerText = fmtNum(S2.spd || S2.vel);
-                    document.getElementById('ship-vs').innerText = fmtDec(S2.vs, 1);
-                    document.getElementById('ship-apo').innerText = fmtDec((S2.apo || 0) / 1000, 1);
-                    document.getElementById('ship-per').innerText = fmtDec((S2.per || S2.peri || 0) / 1000, 1);
-                    document.getElementById('ship-twr').innerText = fmtDec(S2.twr, 2);
-                    const fPct = S2.fuel || S2.fuelpct || 0;
-                    document.getElementById('ship-fuel-bar').style.width = fPct + '%';
-                    document.getElementById('ship-fuel-pct').innerText = Math.round(fPct) + '%';
-                    const thr = S2.throttle || S2.thr || 0;
-                    document.getElementById('ship-thr-bar').style.width = thr + '%';
-                    document.getElementById('ship-thr-pct').innerText = Math.round(thr) + '%';
-                }
-
-                document.getElementById('fb-status').innerText = 'ULTIMA ACT: ' + new Date().toLocaleTimeString();
-            } catch (e) {
-                document.getElementById('conn-status').innerText = 'OFFLINE';
-                document.getElementById('conn-status').style.color = 'red';
+                const url = await getDownloadURL(sRef(storage, 'camera/frame.jpg'));
+                $('cam-feed').src = url + '?t=' + Date.now();
+                $('cam-offline').style.display = 'none';
+                $('cam-label').innerText = 'CAMARA: OK';
+            } catch {
+                $('cam-offline').style.display = 'flex';
+                $('cam-label').innerText = 'CAMARA: SIN SEÑAL';
             }
         }
 
-        async function pollCameraUrl() {
-            try {
-                const resp = await fetch(DB_URL + '/camera/last_frame_url.json');
-                if (!resp.ok) return;
-                const url = await resp.json();
-                if (url && url !== lastFrameUrl) {
-                    lastFrameUrl = url;
-                    const img = document.getElementById('cam-feed');
-                    img.src = url + '?t=' + Date.now();
-                    document.getElementById('cam-offline').style.display = 'none';
-                }
-            } catch (e) {}
-        }
-
-        let refreshCount = 0;
-        setInterval(() => {
-            pollFirebase();
-            pollCameraUrl();
-            refreshCount++;
-            document.getElementById('refresh-status').innerText = refreshCount + 'x';
-        }, 1000);
-
-        pollFirebase();
-        pollCameraUrl();
+        updateCamera();
+        setInterval(updateCamera, 5000);
     </script>
 </body>
 </html>
