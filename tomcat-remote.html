@@ -19,7 +19,7 @@
 
         body {
             margin: 0;
-            padding: 0;
+            padding: 0 0 80px 0;
             background-color: var(--bg-dark);
             background-image:
                 linear-gradient(var(--grid-color) 1px, transparent 1px),
@@ -438,6 +438,191 @@
                 opacity: 0;
             }
         }
+
+        /* ========================================
+           TELE_PYTHON HUD OVERLAY (sobre el feed)
+           ======================================== */
+        #tele-hud {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            pointer-events: none;
+            z-index: 5;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            padding: 0 0 28px 0;
+            font-family: 'Orbitron', sans-serif;
+        }
+
+        .tele-panel {
+            background: rgba(0, 0, 0, 0.72);
+            border: 1px solid;
+            backdrop-filter: blur(6px);
+            padding: 12px 18px;
+            min-width: 230px;
+            max-width: 280px;
+            flex-shrink: 0;
+        }
+
+        .tele-panel.booster {
+            border-color: var(--neon-amber);
+            box-shadow: 0 0 16px rgba(255,106,0,0.25), inset 0 0 24px rgba(255,106,0,0.04);
+            margin-left: 14px;
+        }
+
+        .tele-panel.ship {
+            border-color: var(--neon-blue);
+            box-shadow: 0 0 16px rgba(0,243,255,0.25), inset 0 0 24px rgba(0,243,255,0.04);
+            margin-right: 14px;
+        }
+
+        .tele-panel-title {
+            font-size: 0.6rem;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+            padding-bottom: 6px;
+            border-bottom: 1px solid;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .tele-panel.booster .tele-panel-title {
+            color: var(--neon-amber);
+            border-bottom-color: rgba(255,106,0,0.4);
+        }
+
+        .tele-panel.ship .tele-panel-title {
+            color: var(--neon-blue);
+            border-bottom-color: rgba(0,243,255,0.4);
+        }
+
+        .tele-status-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            animation: blinker 1.2s ease-in-out infinite;
+        }
+
+        .tele-panel.booster .tele-status-dot { background: var(--neon-amber); box-shadow: 0 0 6px var(--neon-amber); }
+        .tele-panel.ship    .tele-status-dot { background: var(--neon-blue);  box-shadow: 0 0 6px var(--neon-blue); }
+
+        .tele-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            margin: 5px 0;
+            gap: 8px;
+        }
+
+        .tele-key {
+            font-size: 0.55rem;
+            letter-spacing: 1.5px;
+            color: rgba(255,255,255,0.45);
+            text-transform: uppercase;
+            white-space: nowrap;
+        }
+
+        .tele-val {
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: #fff;
+            text-shadow: 0 0 6px rgba(255,255,255,0.3);
+            text-align: right;
+        }
+
+        .tele-panel.booster .tele-val { color: #ffd0a0; }
+        .tele-panel.ship    .tele-val { color: #a0eeff; }
+
+        .tele-bar-wrap {
+            margin-top: 8px;
+            height: 3px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        .tele-bar-fill {
+            height: 100%;
+            border-radius: 2px;
+            transition: width 0.4s ease;
+        }
+
+        .tele-panel.booster .tele-bar-fill { background: var(--neon-amber); box-shadow: 0 0 6px var(--neon-amber); }
+        .tele-panel.ship    .tele-bar-fill { background: var(--neon-blue);  box-shadow: 0 0 6px var(--neon-blue); }
+
+        /* Fullscreen styles for camera feed wrapper */
+        .camera-wrapper:-webkit-full-screen {
+            width: 100vw !important;
+            height: 100vh !important;
+            border: none !important;
+            box-shadow: none !important;
+            clip-path: none !important;
+        }
+        .camera-wrapper:fullscreen {
+            width: 100vw !important;
+            height: 100vh !important;
+            border: none !important;
+            box-shadow: none !important;
+            clip-path: none !important;
+        }
+
+        .camera-wrapper:fullscreen .camera-feed {
+            width: 100% !important;
+            height: 100% !important;
+            object-fit: contain !important;
+        }
+        .camera-wrapper:-webkit-full-screen .camera-feed {
+            width: 100% !important;
+            height: 100% !important;
+            object-fit: contain !important;
+        }
+
+        /* Fullscreen button styling */
+        .fs-toggle-btn {
+            position: absolute;
+            top: 14px;
+            right: 180px; /* Al lado del cam-label de la derecha */
+            z-index: 15;
+            background: rgba(0, 0, 0, 0.7);
+            border: 1px solid var(--neon-amber);
+            color: #fff;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.65rem;
+            letter-spacing: 1px;
+            padding: 4px 10px;
+            cursor: pointer;
+            pointer-events: auto; /* IMPORTANTE: Asegurar clicks */
+            transition: all 0.2s ease;
+        }
+
+        .fs-toggle-btn:hover {
+            background: var(--neon-amber);
+            color: #000;
+            box-shadow: 0 0 10px var(--neon-amber);
+        }
+
+        /* Aumentar márgenes inferiores del overlay al estar en pantalla completa */
+        .camera-wrapper:fullscreen #tele-hud {
+            padding: 0 20px 40px 20px !important;
+        }
+        .camera-wrapper:fullscreen .rec-indicator {
+            top: 24px !important;
+        }
+        .camera-wrapper:fullscreen .fs-toggle-btn {
+            top: 24px !important;
+        }
+        .camera-wrapper:fullscreen .cam-label.top-left {
+            top: 24px !important;
+            left: 24px !important;
+        }
+        .camera-wrapper:fullscreen .cam-label.top-right {
+            top: 24px !important;
+            right: 24px !important;
+        }
     </style>
 </head>
 <body>
@@ -451,6 +636,9 @@
         <div class="camera-wrapper">
             <img id="cam-feed" class="camera-feed" alt="Remote Camera Feed" />
             <div class="cam-offline" id="cam-offline">SIN SEÑAL</div>
+
+            <!-- Botón de pantalla completa -->
+            <button class="fs-toggle-btn" onclick="toggleFullscreen()">PANTALLA COMPLETA</button>
 
             <!-- HUD decorativo de cámara -->
             <div class="camera-hud">
@@ -470,6 +658,43 @@
                 <div class="cam-label bot-left" id="cam-label-spd">VS: --- m/s</div>
                 <div class="cam-label bot-right" id="cam-label-dist">DIST BARCA: --- m</div>
             </div>
+
+            <!-- ====== TELE_PYTHON HUD OVERLAY ====== -->
+            <div id="tele-hud">
+                <!-- Booster S1 -->
+                <div class="tele-panel booster">
+                    <div class="tele-panel-title">
+                        <span>TOMCAT S1 / BOOSTER</span>
+                        <span class="tele-status-dot" id="tele-b-dot"></span>
+                    </div>
+                    <div class="tele-row"><span class="tele-key">ALTITUD</span><span class="tele-val" id="tele-b-alt">---</span></div>
+                    <div class="tele-row"><span class="tele-key">VEL. SUP.</span><span class="tele-val" id="tele-b-vel">---</span></div>
+                    <div class="tele-row"><span class="tele-key">V. VERT.</span><span class="tele-val" id="tele-b-vs">---</span></div>
+                    <div class="tele-row"><span class="tele-key">DIST. BARCA</span><span class="tele-val" id="tele-b-dist">---</span></div>
+                    <div class="tele-row"><span class="tele-key">THROTTLE</span><span class="tele-val" id="tele-b-thr">--- %</span></div>
+                    <div class="tele-row"><span class="tele-key">COMBUSTIBLE</span><span class="tele-val" id="tele-b-fuel">--- %</span></div>
+                    <div class="tele-bar-wrap"><div class="tele-bar-fill" id="tele-b-fuel-bar" style="width:0%"></div></div>
+                    <div class="tele-row" style="margin-top:6px"><span class="tele-key">ESTADO</span><span class="tele-val" id="tele-b-status">OFFLINE</span></div>
+                </div>
+
+                <!-- Ship S2 -->
+                <div class="tele-panel ship">
+                    <div class="tele-panel-title">
+                        <span>TOMCAT S2 / SHIP</span>
+                        <span class="tele-status-dot" id="tele-s-dot"></span>
+                    </div>
+                    <div class="tele-row"><span class="tele-key">ALTITUD</span><span class="tele-val" id="tele-s-alt">---</span></div>
+                    <div class="tele-row"><span class="tele-key">VELOCIDAD</span><span class="tele-val" id="tele-s-vel">---</span></div>
+                    <div class="tele-row"><span class="tele-key">V. VERT.</span><span class="tele-val" id="tele-s-vs">---</span></div>
+                    <div class="tele-row"><span class="tele-key">APOAPSIS</span><span class="tele-val" id="tele-s-apo">---</span></div>
+                    <div class="tele-row"><span class="tele-key">PERIAPSIS</span><span class="tele-val" id="tele-s-per">---</span></div>
+                    <div class="tele-row"><span class="tele-key">TWR</span><span class="tele-val" id="tele-s-twr">---</span></div>
+                    <div class="tele-row"><span class="tele-key">COMBUSTIBLE</span><span class="tele-val" id="tele-s-fuel">--- %</span></div>
+                    <div class="tele-bar-wrap"><div class="tele-bar-fill" id="tele-s-fuel-bar" style="width:0%"></div></div>
+                    <div class="tele-row" style="margin-top:6px"><span class="tele-key">ESTADO</span><span class="tele-val" id="tele-s-status">OFFLINE</span></div>
+                </div>
+            </div>
+            <!-- ====== / TELE_PYTHON HUD OVERLAY ====== -->
         </div>
     </div>
 
@@ -612,33 +837,43 @@
             $('conn-status').innerText = 'ONLINE (NUBE)';
             $('conn-status').style.color = '#00ff41';
             $('conn-status').classList.add('blink');
-            $('fb-status').innerText = 'ÚLT. DATO: ' + new Date().toLocaleTimeString();
 
             const B1 = data.booster;
             const S2 = data.ship;
 
             if (B1) {
-                $('booster-status').innerText = B1.status || 'OFFLINE';
+                const engModeStr = B1.engmode ? ` (${B1.engmode}E)` : '';
+                $('booster-status').innerText = (B1.status || 'OFFLINE') + engModeStr;
                 $('booster-alt').innerText = fmtNum(B1.alt);
-                $('booster-vel').innerText = fmtNum(B1.vel);
-                $('booster-vs').innerText = fmtDec(B1.vs, 1);
+                $('booster-vel').innerText = fmtNum(B1.vel || B1.spd);
+                $('booster-vs').innerText  = fmtDec(B1.vs, 1);
                 $('booster-dist').innerText = fmtNum(B1.hdist || B1.dist);
-                
-                const fPct = B1.fuelpct || B1.fuelPct || 0;
-                $('booster-fuel-bar').style.width = fPct + '%';
-                $('booster-fuel-pct').innerText = Math.round(fPct) + '%';
-                
-                const thr = B1.thr || B1.throttle || B1.THR || 0;
-                $('booster-thr-bar').style.width = thr + '%';
-                $('booster-thr-pct').innerText = Math.round(thr) + '%';
-                
+
+                const bFPct = (B1.fuelpct !== undefined) ? B1.fuelpct : (B1.fuel || 0);
+                $('booster-fuel-bar').style.width = Math.min(100, Math.max(0, bFPct)) + '%';
+                $('booster-fuel-pct').innerText = Math.round(bFPct) + '%';
+
+                const bThr = B1.throttle || B1.thr || 0;
+                $('booster-thr-bar').style.width = bThr + '%';
+                $('booster-thr-pct').innerText = Math.round(bThr) + '%';
+
                 updateEngineStates(B1.engstates || B1.engStates || B1.ENGSTATES);
 
-                // HUD updates if S1 is the active telemetry sender
-                $('cam-label-alt').innerText = `ALT: ${fmtNum(B1.alt)} m`;
-                $('cam-label-spd').innerText = `VS: ${fmtDec(B1.vs, 1)} m/s`;
-                $('cam-label-dist').innerText = `DIST BARCA: ${fmtNum(B1.hdist || B1.dist)} m`;
+                // HUD camera labels
+                $('cam-label-alt').innerText    = `ALT: ${fmtNum(B1.alt)} m`;
+                $('cam-label-spd').innerText    = `VS: ${fmtDec(B1.vs, 1)} m/s`;
+                $('cam-label-dist').innerText   = `DIST BARCA: ${fmtNum(B1.hdist || B1.dist)} m`;
                 $('cam-label-status').innerText = `TOMCAT / ${String(B1.status || 'BOOSTER').toUpperCase()}`;
+
+                // TELE_PYTHON HUD overlay - Booster
+                $('tele-b-alt').innerText    = fmtNum(B1.alt) + ' m';
+                $('tele-b-vel').innerText    = fmtNum(B1.vel || B1.spd) + ' m/s';
+                $('tele-b-vs').innerText     = fmtDec(B1.vs, 1) + ' m/s';
+                $('tele-b-dist').innerText   = fmtNum(B1.hdist || B1.dist) + ' m';
+                $('tele-b-thr').innerText    = Math.round(bThr) + ' %';
+                $('tele-b-fuel').innerText   = Math.round(bFPct) + ' %';
+                $('tele-b-fuel-bar').style.width = bFPct + '%';
+                $('tele-b-status').innerText = String(B1.status || 'OFFLINE').toUpperCase();
             }
 
             if (S2) {
@@ -662,11 +897,22 @@
 
                 // HUD updates if S2 is active and booster is standby
                 if (!B1 || B1.status === 'STANDBY' || B1.status === 'OFFLINE') {
-                    $('cam-label-alt').innerText = `ALT: ${fmtNum(S2.alt)} m`;
-                    $('cam-label-spd').innerText = `VS: ${fmtDec(S2.vs, 1)} m/s`;
-                    $('cam-label-dist').innerText = `APO: ${fmtDec((S2.apo || 0)/1000, 1)} km`;
+                    $('cam-label-alt').innerText    = `ALT: ${fmtNum(S2.alt)} m`;
+                    $('cam-label-spd').innerText    = `VS: ${fmtDec(S2.vs, 1)} m/s`;
+                    $('cam-label-dist').innerText   = `APO: ${fmtDec((S2.apo || 0)/1000, 1)} km`;
                     $('cam-label-status').innerText = `TOMCAT / ${String(S2.status || 'SHIP').toUpperCase()}`;
                 }
+
+                // TELE_PYTHON HUD overlay - Ship
+                $('tele-s-alt').innerText  = fmtNum(S2.alt) + ' m';
+                $('tele-s-vel').innerText  = fmtNum(S2.spd || S2.vel) + ' m/s';
+                $('tele-s-vs').innerText   = fmtDec(S2.vs, 1) + ' m/s';
+                $('tele-s-apo').innerText  = fmtDec((S2.apo || 0) / 1000, 1) + ' km';
+                $('tele-s-per').innerText  = fmtDec((S2.per || S2.peri || 0) / 1000, 1) + ' km';
+                $('tele-s-twr').innerText  = fmtDec(S2.twr || 0, 2);
+                $('tele-s-fuel').innerText = Math.round(fPct) + ' %';
+                $('tele-s-fuel-bar').style.width = fPct + '%';
+                $('tele-s-status').innerText = String(S2.status || 'OFFLINE').toUpperCase();
             }
         }, (error) => {
             $('conn-status').innerText = 'OFFLINE';
@@ -693,6 +939,37 @@
             $('cam-label').innerText = 'CÁMARA: SIN SEÑAL';
             $('cam-label').style.color = 'var(--neon-red)';
         });
+
+        // --- PANTALLA COMPLETA INTERACTIVA ---
+        window.toggleFullscreen = function() {
+            const wrapper = document.querySelector('.camera-wrapper');
+            if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+                if (wrapper.requestFullscreen) {
+                    wrapper.requestFullscreen();
+                } else if (wrapper.webkitRequestFullscreen) {
+                    wrapper.webkitRequestFullscreen();
+                }
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                } else if (document.webkitExitFullscreen) {
+                    document.webkitExitFullscreen();
+                }
+            }
+        };
+
+        // Escuchar el cambio de pantalla completa para cambiar el texto del botón
+        document.addEventListener('fullscreenchange', handleFSChange);
+        document.addEventListener('webkitfullscreenchange', handleFSChange);
+
+        function handleFSChange() {
+            const btn = document.querySelector('.fs-toggle-btn');
+            if (document.fullscreenElement || document.webkitFullscreenElement) {
+                if (btn) btn.textContent = "SALIR PANTALLA COMPLETA";
+            } else {
+                if (btn) btn.textContent = "PANTALLA COMPLETA";
+            }
+        }
     </script>
 </body>
 </html>
