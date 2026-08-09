@@ -365,17 +365,17 @@
 
         /* --- ENGINE DISPLAY --- */
         .engine-display {
-            margin-top: 30px;
-            display: flex;
-            justify-content: center;
-            background: rgba(0, 0, 0, 0.4);
-            border-radius: 50%;
-            width: 220px;
-            height: 220px;
+            margin-top: 25px;
+            width: 230px;
+            height: 230px;
             margin-left: auto;
             margin-right: auto;
             position: relative;
-            border: 1px dashed rgba(255, 255, 255, 0.15);
+            background: #08111c;
+            border: 1px dashed rgba(0, 243, 255, 0.25);
+            border-radius: 50%;
+            box-sizing: border-box;
+            box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.8), 0 0 15px rgba(0, 243, 255, 0.08);
         }
 
         .engine-display.ship {
@@ -411,6 +411,55 @@
 
         .panel.booster .engine-node.active {
             color: var(--neon-amber);
+        }
+
+        /* --- STYLES PARA EL ENGINE PUCK REALISTA (FOTO) --- */
+        .booster-puck-svg {
+            width: 100%;
+            height: 100%;
+            overflow: visible;
+        }
+
+        .engine-oval-node {
+            transition: all 0.2s ease-out;
+            cursor: pointer;
+        }
+
+        .engine-oval-node ellipse, .engine-oval-node circle {
+            transition: all 0.25s ease-out;
+        }
+
+        .engine-oval-node.active ellipse {
+            fill: #ffb700 !important;
+            stroke: #ffffff !important;
+            stroke-width: 1.8px !important;
+            filter: drop-shadow(0 0 6px #ffb700) drop-shadow(0 0 12px #ff6600);
+        }
+
+        .engine-oval-node.active circle {
+            fill: #ffb700 !important;
+            stroke: #ffffff !important;
+            stroke-width: 2px !important;
+            filter: drop-shadow(0 0 8px #ffb700) drop-shadow(0 0 16px #ff6600);
+        }
+
+        .panel.ship .engine-oval-node.active ellipse {
+            fill: #00d2ff !important;
+            stroke: #ffffff !important;
+            stroke-width: 1.8px !important;
+            filter: drop-shadow(0 0 6px #00d2ff) drop-shadow(0 0 14px #00d2ff);
+        }
+
+        .panel.ship .engine-oval-node.active circle {
+            fill: #00d2ff !important;
+            stroke: #ffffff !important;
+            stroke-width: 2px !important;
+            filter: drop-shadow(0 0 8px #00d2ff) drop-shadow(0 0 16px #00d2ff);
+        }
+
+        .engine-oval-node.active text {
+            fill: #000000 !important;
+            font-weight: 900;
         }
 
         /* --- FOOTER --- */
@@ -793,15 +842,15 @@
             parent.appendChild(el);
         }
 
-        // Booster: 1 central, 6 radiales (Todos tamaño 38)
+        // Booster: 1 central, 6 radiales (Perfectamente centrados en 230x230)
         function initBoosterEngines() {
             const c = $('booster-engines');
             c.innerHTML = '';
-            const cx = 110, cy = 110; // Centro de 220x220
+            const cx = 115, cy = 115; // Centro exacto de 230x230
             createEngine(c, '1', cx, cy, 38);
             for (let i = 0; i < 6; i++) {
                 const a = (i * 60 - 90) * Math.PI / 180;
-                createEngine(c, String(i + 2), cx + 70 * Math.cos(a), cy + 70 * Math.sin(a), 38);
+                createEngine(c, String(i + 2), cx + 65 * Math.cos(a), cy + 65 * Math.sin(a), 38);
             }
         }
 
@@ -814,8 +863,65 @@
             const cx = 70, cy = 70; // Centro de 140x140
 
             if (variant === 'SINGLE') {
-                // 1 motor central grande (S0)
-                createEngine(c, 'S0', cx, cy, 62);
+                // Variante de 1 motor [S0]: 28 toberas ovaladas (cada una con tag S0 para iluminarse en azul)
+                const numOuter = 28;
+                let ovalsSvg = '';
+                for (let i = 0; i < numOuter; i++) {
+                    const angleDeg = i * (360 / numOuter);
+                    const a = (angleDeg - 90) * Math.PI / 180;
+                    const rx = 70 + 47 * Math.cos(a);
+                    const ry = 70 + 47 * Math.sin(a);
+                    ovalsSvg += `
+                        <g transform="translate(${rx.toFixed(1)}, ${ry.toFixed(1)}) rotate(${angleDeg.toFixed(1)})" class="engine-oval-node" data-tag="S0">
+                            <ellipse cx="0" cy="0" rx="3.0" ry="5.8" fill="#181c22" stroke="#3d4452" stroke-width="1.0"/>
+                        </g>
+                    `;
+                }
+
+                // 16 líneas radiales del plato
+                let radialLines = '';
+                for (let i = 0; i < 16; i++) {
+                    const a = (i * 22.5) * Math.PI / 180;
+                    const x1 = (70 + 8 * Math.cos(a)).toFixed(1);
+                    const y1 = (70 + 8 * Math.sin(a)).toFixed(1);
+                    const x2 = (70 + 59 * Math.cos(a)).toFixed(1);
+                    const y2 = (70 + 59 * Math.sin(a)).toFixed(1);
+                    radialLines += `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}"/>`;
+                }
+
+                c.innerHTML = `
+                    <svg viewBox="0 0 140 140" class="booster-puck-svg">
+                        <!-- 4 Aletas Aerodinámicas (Fins) -->
+                        <g fill="#242830" stroke="#4a5263" stroke-width="0.8">
+                            <rect x="66" y="0" width="8" height="11" rx="1.5"/>
+                            <rect x="66" y="129" width="8" height="11" rx="1.5"/>
+                            <rect x="0" y="66" width="11" height="8" rx="1.5"/>
+                            <rect x="129" y="66" width="11" height="8" rx="1.5"/>
+                        </g>
+
+                        <!-- Escudo Térmico Central Metálico Oscuro -->
+                        <circle cx="70" cy="70" r="60" fill="#121418" stroke="#333842" stroke-width="1.8"/>
+                        <circle cx="70" cy="70" r="52" fill="none" stroke="rgba(255,255,255,0.08)" stroke-dasharray="2.5,2.5"/>
+                        <circle cx="70" cy="70" r="36" fill="none" stroke="rgba(255,255,255,0.06)"/>
+                        <circle cx="70" cy="70" r="20" fill="none" stroke="rgba(255,255,255,0.06)"/>
+
+                        <!-- Líneas Radiales del Disco Oscuras -->
+                        <g stroke="rgba(255,255,255,0.06)" stroke-width="0.8">
+                            ${radialLines}
+                        </g>
+
+                        <!-- Anillo Exterior de 28 Toberas Ovaladas -->
+                        <g class="puck-ovals-group">
+                            ${ovalsSvg}
+                        </g>
+
+                        <!-- Centro con texto S0 -->
+                        <g class="engine-oval-node" data-tag="S0">
+                            <circle cx="70" cy="70" r="7" fill="#1c2026" stroke="#00d2ff" stroke-width="1.2"/>
+                            <text x="70" y="72.5" text-anchor="middle" fill="#00d2ff" font-size="7" font-family="Orbitron" font-weight="bold">S0</text>
+                        </g>
+                    </svg>
+                `;
             } else {
                 // 2 motores lado a lado (S1 y S2)
                 createEngine(c, 'S1', cx - 28, cy, 52);
@@ -840,11 +946,11 @@
         function updateEngineStates(engstates) {
             if (!engstates) return;
             for (const tag in engstates) {
-                const el = document.querySelector(`[data-tag="${tag}"]`);
-                if (el) {
+                const els = document.querySelectorAll(`[data-tag="${tag}"]`);
+                els.forEach(el => {
                     if (Number(engstates[tag]) === 1) el.classList.add('active');
                     else el.classList.remove('active');
-                }
+                });
             }
         }
 
