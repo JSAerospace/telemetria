@@ -805,14 +805,37 @@
             }
         }
 
-        // Ship: 2 motores independientes grandes (S1 y S2)
-        function initShipEngines() {
+        // Ship: Detección automática de variante (S0 = 1 motor / S1+S2 = 2 motores)
+        let currentShipVariant = null; // null = aún no detectado
+
+        function initShipEngines(variant) {
             const c = $('ship-engines');
             c.innerHTML = '';
             const cx = 70, cy = 70; // Centro de 140x140
-            createEngine(c, 'S1', cx - 28, cy, 52);
-            createEngine(c, 'S2', cx + 28, cy, 52);
+
+            if (variant === 'SINGLE') {
+                // 1 motor central grande (S0)
+                createEngine(c, 'S0', cx, cy, 62);
+            } else {
+                // 2 motores lado a lado (S1 y S2)
+                createEngine(c, 'S1', cx - 28, cy, 52);
+                createEngine(c, 'S2', cx + 28, cy, 52);
+            }
         }
+
+        function detectShipVariant(engstates) {
+            if (!engstates) return null;
+            if ('S0' in engstates || engstates['S0'] !== undefined) return 'SINGLE';
+            if ('S1' in engstates || 'S2' in engstates) return 'DUAL';
+            // Fallback: si tiene alguna clave que empieze por S0
+            for (const k in engstates) {
+                if (k.toUpperCase() === 'S0') return 'SINGLE';
+            }
+            return 'DUAL';
+        }
+
+        initBoosterEngines();
+        initShipEngines('DUAL'); // Default hasta recibir telemetría
 
         function updateEngineStates(engstates) {
             if (!engstates) return;
@@ -824,9 +847,6 @@
                 }
             }
         }
-
-        initBoosterEngines();
-        initShipEngines();
 
         // --- SUSCRIPCIÓN A TELEMETRÍA (Firebase) ---
         const telemetryRef = ref(database, 'telemetry');
@@ -893,7 +913,16 @@
                 $('ship-thr-bar').style.width = thr + '%';
                 $('ship-thr-pct').innerText = Math.round(thr) + '%';
                 
-                updateEngineStates(S2.engstates || S2.engStates || S2.ENGSTATES);
+                const rawEngStates = S2.engstates || S2.engStates || S2.ENGSTATES;
+
+                // Detección automática de variante — re-renderiza si cambia
+                const detectedVariant = detectShipVariant(rawEngStates);
+                if (detectedVariant && detectedVariant !== currentShipVariant) {
+                    currentShipVariant = detectedVariant;
+                    initShipEngines(currentShipVariant);
+                }
+
+                updateEngineStates(rawEngStates);
 
                 // HUD updates if S2 is active and booster is standby
                 if (!B1 || B1.status === 'STANDBY' || B1.status === 'OFFLINE') {
