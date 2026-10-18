@@ -1,0 +1,1601 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>J.S. Aerospace | Inicio</title>
+    <link rel="icon" type="image/png" href="LOGO_JTT.png">
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&family=Poppins:wght@400;600&family=Rajdhani:wght@300;400;500;600;700&family=Space+Grotesk:wght@500;700;800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        /* Reset overflow from style.css to enable full-page vertical scrolling like Ezsunspace */
+        html,
+        body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            min-height: 100%;
+            height: auto !important;
+            overflow-x: hidden !important;
+            overflow-y: auto !important;
+            scroll-behavior: smooth;
+            background-color: #050510;
+            font-family: 'Poppins', 'Rajdhani', sans-serif;
+            color: #fff;
+        }
+
+        /* Side Navigation Indicator (Ezsunspace style) */
+        .side-nav {
+            position: fixed;
+            right: 0;
+            top: 0;
+            height: 100vh;
+            width: 130px;
+            background: linear-gradient(to left, rgba(0, 0, 0, 0.45) 0%, rgba(0, 0, 0, 0) 100%);
+            z-index: 1001;
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+            align-items: flex-end;
+            justify-content: center;
+            padding-right: 40px;
+            pointer-events: none;
+        }
+
+        .side-nav-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            text-decoration: none;
+            cursor: pointer;
+            pointer-events: auto;
+        }
+
+        .side-nav-label {
+            color: #fff;
+            font-family: 'Space Grotesk', 'Orbitron', sans-serif;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            opacity: 0;
+            transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+            transform: translateX(10px);
+            pointer-events: none;
+            text-shadow: 0 1px 4px rgba(0, 0, 0, 0.9);
+        }
+
+        .side-nav-dot {
+            width: 2px;
+            height: 20px;
+            background: rgba(255, 255, 255, 0.3);
+            transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+        }
+
+        .side-nav-item:hover .side-nav-label,
+        .side-nav-item.active .side-nav-label {
+            opacity: 1;
+            transform: translateX(0);
+            color: var(--primary-color, #00f3ff);
+        }
+
+        .side-nav-item:hover .side-nav-dot,
+        .side-nav-item.active .side-nav-dot {
+            background: var(--primary-color, #00f3ff);
+            box-shadow: 0 0 12px var(--primary-color, #00f3ff);
+            width: 3px;
+            height: 26px;
+        }
+
+        /* Hero Fullscreen Sections */
+        .hero-section {
+            position: relative;
+            height: 100vh;
+            min-height: 650px;
+            width: 100%;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            padding-left: 10vw;
+            padding-right: 10vw;
+            box-sizing: border-box;
+        }
+
+        .hero-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg, rgba(0, 0, 0, 0.85) 0%, rgba(0, 0, 0, 0.5) 50%, rgba(0, 0, 0, 0.2) 100%);
+            z-index: 1;
+        }
+
+        .section-tomcat {
+            background-image: url('imagenes/Tomcat%204.png');
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-bg-rotate {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url('imagenes/Tomcat%207.png');
+            background-size: cover;
+            background-position: center;
+            opacity: 0;
+            animation: crossfade 16s infinite alternate ease-in-out;
+            z-index: 0;
+        }
+
+        @keyframes crossfade {
+            0%, 20% { opacity: 0; }
+            80%, 100% { opacity: 1; }
+        }
+
+        .section-geonet {
+            background-image: url('prewsats.png');
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 2;
+            max-width: 650px;
+            text-align: left;
+            animation: fadeInUp 1s ease-out;
+        }
+
+        .hero-subtitle {
+            font-family: 'Space Grotesk', 'Orbitron', sans-serif;
+            font-size: 1.15rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            margin-bottom: 0.5rem;
+            color: var(--primary-color, #00f3ff);
+        }
+
+        .hero-title {
+            font-family: 'Space Grotesk', 'Orbitron', sans-serif;
+            font-size: clamp(2.6rem, 5.5vw, 4.6rem);
+            font-weight: 800;
+            line-height: 1.1;
+            text-transform: uppercase;
+            margin: 0 0 1.5rem 0;
+            color: #fff;
+            text-shadow: 0 4px 20px rgba(0, 0, 0, 0.7);
+        }
+
+        .hero-desc {
+            font-family: 'Poppins', sans-serif;
+            font-size: 1.12rem;
+            line-height: 1.65;
+            margin-bottom: 2.2rem;
+            opacity: 0.9;
+            color: rgba(255, 255, 255, 0.85);
+            max-width: 90%;
+        }
+
+        .hero-btn {
+            display: inline-block;
+            padding: 14px 42px;
+            border: 2px solid #fff;
+            color: #fff;
+            text-decoration: none;
+            text-transform: uppercase;
+            font-family: 'Space Grotesk', 'Orbitron', sans-serif;
+            font-weight: 700;
+            letter-spacing: 2px;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
+        }
+
+        .hero-btn::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 0;
+            height: 100%;
+            background: #fff;
+            transition: width 0.3s ease;
+            z-index: -1;
+        }
+
+        .hero-btn:hover {
+            color: #000;
+        }
+
+        .hero-btn:hover::after {
+            width: 100%;
+        }
+
+        /* Next Mission Ticker (Ezsunspace style) */
+        .next-mission-ticker {
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            background: rgba(255, 255, 255, 0.06);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            padding: 8px 18px;
+            border-radius: 40px;
+            margin-bottom: 24px;
+            animation: fadeInDown 0.8s ease-out;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+
+        .next-mission-ticker:hover {
+            background: rgba(255, 255, 255, 0.12);
+            border-color: rgba(0, 243, 255, 0.5);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px rgba(0, 243, 255, 0.2);
+        }
+
+        .ticker-label {
+            font-family: 'Space Grotesk', 'Orbitron', sans-serif;
+            font-size: 10px;
+            font-weight: 700;
+            color: var(--primary-color, #00f3ff);
+            text-transform: uppercase;
+            letter-spacing: 0.2em;
+        }
+
+        .ticker-mission-name {
+            font-family: 'Poppins', sans-serif;
+            font-size: 12px;
+            font-weight: 600;
+            color: #fff;
+            border-right: 1px solid rgba(255, 255, 255, 0.2);
+            padding-right: 12px;
+        }
+
+        .ticker-countdown {
+            font-family: 'Space Grotesk', monospace;
+            font-size: 13px;
+            font-weight: 600;
+            color: #fff;
+            letter-spacing: 0.05em;
+        }
+
+        /* Footer (Ezsunspace style) */
+        footer {
+            position: relative;
+            background: #000;
+            padding: 45px 20px;
+            z-index: 10;
+            text-align: center;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .footer-socials {
+            display: flex;
+            justify-content: center;
+            gap: 24px;
+            margin-bottom: 18px;
+        }
+
+        .footer-socials a {
+            color: #fff;
+            opacity: 0.7;
+            font-size: 1.25rem;
+            transition: opacity 0.3s ease, transform 0.3s ease, color 0.3s ease;
+            text-decoration: none;
+        }
+
+        .footer-socials a:hover {
+            opacity: 1;
+            color: var(--primary-color, #00f3ff);
+            transform: translateY(-3px);
+        }
+
+        .footer-copy {
+            opacity: 0.6;
+            font-size: 0.85rem;
+            letter-spacing: 0.5px;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .hero-section {
+                padding-left: 20px;
+                padding-right: 20px;
+            }
+
+            .side-nav {
+                width: 50px;
+                padding-right: 16px;
+            }
+
+            .side-nav-label {
+                display: none;
+            }
+
+            .hero-desc {
+                max-width: 100%;
+                font-size: 1rem;
+            }
+        }
+
+        /* ===== J.S. Aerospace Media & Mission Broadcast Section ===== */
+        .section-yt {
+            position: relative;
+            width: 100%;
+            background:
+                radial-gradient(80% 50% at 85% 10%, rgba(0, 243, 255, 0.08), transparent 60%),
+                radial-gradient(70% 50% at 10% 90%, rgba(255, 51, 51, 0.06), transparent 60%),
+                #050510;
+            padding: 110px 7vw;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            height: auto !important;
+            min-height: 100vh;
+            box-sizing: border-box;
+            border-top: 1px solid rgba(0, 243, 255, 0.15);
+        }
+
+        .yt-bg-glow {
+            position: absolute;
+            top: -20%;
+            right: -5%;
+            width: 650px;
+            height: 650px;
+            background: radial-gradient(circle, rgba(0, 243, 255, 0.12) 0%, transparent 70%);
+            pointer-events: none;
+            animation: ytGlowDrift 14s ease-in-out infinite alternate;
+        }
+
+        @keyframes ytGlowDrift {
+            from { transform: translate(0, 0) scale(1); }
+            to   { transform: translate(-50px, 40px) scale(1.15); }
+        }
+
+        .yt-container {
+            position: relative;
+            z-index: 2;
+            width: 100%;
+            max-width: 1320px;
+            display: flex;
+            flex-direction: column;
+            gap: 40px;
+        }
+
+        .yt-header {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 14px;
+        }
+
+        .yt-header-tags {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .yt-brand-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(0, 243, 255, 0.08);
+            border: 1px solid rgba(0, 243, 255, 0.35);
+            padding: 7px 18px;
+            border-radius: 6px;
+            font-family: 'Orbitron', 'Space Grotesk', sans-serif;
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--primary-color, #00f3ff);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 0 20px rgba(0, 243, 255, 0.15);
+        }
+
+        .yt-brand-icon {
+            width: 15px;
+            height: 15px;
+            color: #ff3333;
+        }
+
+        .yt-meta {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 7px 16px;
+            border-radius: 6px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            background: rgba(255, 255, 255, 0.03);
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            color: rgba(255, 255, 255, 0.55);
+        }
+
+        .yt-meta-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #00ff6a;
+            box-shadow: 0 0 10px #00ff6a;
+            animation: ytMetaPulse 2s ease-in-out infinite;
+        }
+
+        @keyframes ytMetaPulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.4; transform: scale(0.85); }
+        }
+
+        .yt-title {
+            font-family: 'Orbitron', 'Space Grotesk', sans-serif;
+            font-size: clamp(2rem, 3.8vw, 3.4rem);
+            font-weight: 800;
+            color: #fff;
+            line-height: 1.15;
+            margin: 0;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .yt-title-accent {
+            background: linear-gradient(120deg, #00f3ff 0%, #00b4d8 60%, #ff3333 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            color: transparent;
+        }
+
+        .yt-title::after {
+            content: '';
+            display: block;
+            width: 80px;
+            height: 3px;
+            margin-top: 14px;
+            border-radius: 2px;
+            background: linear-gradient(90deg, #00f3ff, rgba(255, 51, 51, 0.8), transparent);
+            box-shadow: 0 0 16px rgba(0, 243, 255, 0.6);
+        }
+
+        .yt-desc {
+            font-family: 'Poppins', sans-serif;
+            font-size: 0.98rem;
+            color: rgba(255, 255, 255, 0.7);
+            line-height: 1.65;
+            max-width: 580px;
+            margin: 0;
+        }
+
+        .yt-header-actions {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            flex-wrap: wrap;
+            margin-top: 10px;
+        }
+
+        .yt-chan-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 28px;
+            background: linear-gradient(135deg, rgba(255, 51, 51, 0.9), rgba(180, 0, 0, 0.9));
+            color: #fff;
+            text-decoration: none;
+            text-transform: uppercase;
+            font-weight: 700;
+            font-size: 11px;
+            letter-spacing: 1.5px;
+            border-radius: 6px;
+            border: 1px solid rgba(255, 51, 51, 0.5);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 20px rgba(255, 51, 51, 0.3);
+            font-family: 'Orbitron', sans-serif;
+        }
+
+        .yt-chan-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(255, 51, 51, 0.5);
+            background: linear-gradient(135deg, #ff4444, #cc0000);
+        }
+
+        .yt-chan-btn-ghost {
+            background: rgba(0, 243, 255, 0.05);
+            border: 1px solid rgba(0, 243, 255, 0.25);
+            color: #fff;
+            box-shadow: none;
+        }
+
+        .yt-chan-btn-ghost:hover {
+            background: rgba(0, 243, 255, 0.15);
+            border-color: var(--primary-color, #00f3ff);
+            color: var(--primary-color, #00f3ff);
+            box-shadow: 0 0 20px rgba(0, 243, 255, 0.25);
+        }
+
+        .yt-layout {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) 380px;
+            gap: 28px;
+            align-items: start;
+        }
+
+        .yt-loading-full {
+            grid-column: 1 / -1;
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 14px;
+        }
+
+        .yt-player-card {
+            position: relative;
+            background: #090914;
+            border: 1px solid rgba(0, 243, 255, 0.3);
+            border-radius: 14px;
+            overflow: hidden;
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.7), 0 0 40px rgba(0, 243, 255, 0.08);
+            backdrop-filter: blur(20px);
+        }
+
+        .yt-player-frame {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 16 / 9;
+            background: #000;
+        }
+
+        .yt-player-frame iframe {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            border: 0;
+            display: block;
+        }
+
+        .yt-player-scanline {
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--primary-color, #00f3ff), transparent);
+            opacity: 0.8;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .yt-player-bar {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            padding: 20px 24px 22px;
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.02) 0%, rgba(0, 0, 0, 0.5) 100%);
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .yt-player-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            align-self: flex-start;
+            padding: 4px 12px;
+            border-radius: 4px;
+            background: rgba(0, 243, 255, 0.1);
+            border: 1px solid rgba(0, 243, 255, 0.4);
+            font-family: 'Orbitron', sans-serif;
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            color: var(--primary-color, #00f3ff);
+            text-transform: uppercase;
+        }
+
+        .yt-player-badge-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--primary-color, #00f3ff);
+            box-shadow: 0 0 8px var(--primary-color, #00f3ff);
+            animation: ytMetaPulse 1.6s ease-in-out infinite;
+        }
+
+        .yt-player-title {
+            font-family: 'Space Grotesk', 'Orbitron', sans-serif;
+            font-size: clamp(1.1rem, 1.8vw, 1.35rem);
+            font-weight: 700;
+            color: #fff;
+            line-height: 1.35;
+            margin: 0;
+            letter-spacing: 0.5px;
+        }
+
+        .yt-player-meta {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.45);
+            letter-spacing: 0.5px;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .yt-side {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .yt-side-head {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--primary-color, #00f3ff);
+            padding-bottom: 2px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .yt-side-head::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: rgba(0, 243, 255, 0.2);
+        }
+
+        .yt-side-card {
+            display: grid;
+            grid-template-columns: 130px minmax(0, 1fr);
+            gap: 12px;
+            align-items: center;
+            position: relative;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-left: 3px solid rgba(0, 243, 255, 0.4);
+            border-radius: 8px;
+            text-decoration: none;
+            overflow: hidden;
+            transition: all 0.25s ease;
+            cursor: pointer;
+        }
+
+        .yt-side-card:hover {
+            transform: translateX(4px);
+            background: rgba(0, 243, 255, 0.05);
+            border-color: rgba(0, 243, 255, 0.4);
+            border-left-color: var(--primary-color, #00f3ff);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5), 0 0 20px rgba(0, 243, 255, 0.1);
+        }
+
+        .yt-side-thumb {
+            position: relative;
+            aspect-ratio: 16 / 9;
+            border-radius: 6px;
+            overflow: hidden;
+            background: #000;
+        }
+
+        .yt-side-thumb img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+            transition: transform 0.4s ease;
+        }
+
+        .yt-side-card:hover .yt-side-thumb img {
+            transform: scale(1.06);
+        }
+
+        .yt-side-play {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            background: rgba(0, 0, 0, 0.4);
+            opacity: 0;
+            transition: opacity 0.25s ease;
+            pointer-events: none;
+        }
+
+        .yt-side-play svg {
+            width: 30px;
+            height: 30px;
+            padding: 7px;
+            background: var(--primary-color, #00f3ff);
+            color: #000;
+            border-radius: 50%;
+            box-shadow: 0 0 16px rgba(0, 243, 255, 0.8);
+            transform: scale(0.8);
+            transition: transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .yt-side-card:hover .yt-side-play {
+            opacity: 1;
+        }
+
+        .yt-side-card:hover .yt-side-play svg {
+            transform: scale(1);
+        }
+
+        .yt-side-info {
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .yt-side-date {
+            font-family: 'Orbitron', 'Space Grotesk', sans-serif;
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            color: var(--primary-color, #00f3ff);
+            opacity: 0.8;
+        }
+
+        .yt-side-info h3 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 13px;
+            font-weight: 700;
+            color: #fff;
+            margin: 0;
+            line-height: 1.35;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            letter-spacing: 0.2px;
+        }
+
+        .yt-side-more {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 12px 18px;
+            border-radius: 6px;
+            border: 1px solid rgba(0, 243, 255, 0.2);
+            background: rgba(0, 243, 255, 0.04);
+            color: #fff;
+            text-decoration: none;
+            text-transform: uppercase;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            transition: all 0.25s ease;
+            margin-top: 4px;
+        }
+
+        .yt-side-more:hover {
+            background: rgba(0, 243, 255, 0.12);
+            border-color: var(--primary-color, #00f3ff);
+            color: var(--primary-color, #00f3ff);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 18px rgba(0, 243, 255, 0.15);
+        }
+
+        .yt-side-more svg {
+            flex-shrink: 0;
+            transition: transform 0.25s ease;
+        }
+
+        .yt-side-more:hover svg {
+            transform: translateX(4px);
+        }
+
+        @media (max-width: 1000px) {
+            .yt-layout {
+                grid-template-columns: 1fr;
+            }
+            .yt-side {
+                display: grid;
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .section-yt {
+                padding: 60px 5vw;
+            }
+            .yt-side-card {
+                grid-template-columns: 110px minmax(0, 1fr);
+                gap: 10px;
+                padding: 8px;
+            }
+            .yt-player-bar {
+                padding: 16px 18px 18px;
+            }
+            .yt-header-actions {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .yt-chan-btn {
+                width: 100%;
+                justify-content: center;
+                padding: 14px 20px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Navigation (Original GeoNet Navbar preserved) -->
+    <nav class="navbar">
+        <a href="index.html" class="logo">
+            <img src="LOGO_JTT.png" alt="Logo J.S. Aerospace" style="height: 32px; width: auto; object-fit: contain;">
+            <div class="logo-text">J.S.<span class="highlight">AEROSPACE</span></div>
+        </a>
+        <ul class="nav-links">
+            <li><a href="#tomcat" class="active">Inicio</a></li>
+            <li><a href="misiones.html">Misiones</a></li>
+            <li><a href="cohetes.html">Cohetes</a></li>
+            <li><a href="calendario.html">CALENDARIO</a></li>
+            <li><a href="geonet.html">GEONET</a></li>
+            <li>
+                <button class="auth-btn" id="contactBtn">
+                    <i class="fas fa-comment"></i>
+                    <span>Contacto</span>
+                </button>
+            </li>
+            <li>
+                <button class="auth-btn" id="authBtn">
+                    <i class="fas fa-user"></i>
+                    <span id="authBtnText">Iniciar Sesión</span>
+                </button>
+            </li>
+        </ul>
+    </nav>
+
+    <!-- Side Navigation Indicator (Ezsunspace style) -->
+    <nav class="side-nav" aria-label="Navegación de secciones">
+        <a href="#tomcat" class="side-nav-item active" data-section="tomcat">
+            <span class="side-nav-label">Tomcat</span>
+            <span class="side-nav-dot"></span>
+        </a>
+        <a href="#geonet" class="side-nav-item" data-section="geonet">
+            <span class="side-nav-label">GeoNet</span>
+            <span class="side-nav-dot"></span>
+        </a>
+        <a href="#youtube" class="side-nav-item" data-section="youtube">
+            <span class="side-nav-label">YouTube</span>
+            <span class="side-nav-dot"></span>
+        </a>
+    </nav>
+
+    <!-- Main Content: Full-page Hero Sections (Ezsunspace style) -->
+    <main>
+        <!-- Section 1: Tomcat -->
+        <section id="tomcat" class="hero-section section-tomcat">
+            <div class="hero-bg-rotate"></div>
+            <div class="hero-content">
+                <!-- Next Mission Ticker -->
+                <a href="calendario.html" id="homepage-next-launch-ticker" class="next-mission-ticker">
+                    <span class="ticker-label">PRÓXIMA MISIÓN</span>
+                    <span id="homepage-next-launch-mission" class="ticker-mission-name">TOMCAT IFT</span>
+                    <span id="homepage-next-launch-countdown" class="ticker-countdown">T- 00:00:00</span>
+                </a>
+
+                <div class="hero-subtitle">TOMCAT / COHETE INSIGNIA</div>
+                <h2 class="hero-title">REVOLUCIONANDO EL VUELO</h2>
+                <p class="hero-desc">El carguero pesado y sistema reutilizable definitivo de J.S. Aerospace. Diseñado para captura en torre Mechazilla, alta cadencia orbital y exploración interplanetaria.</p>
+                <a href="cohetes.html" class="hero-btn">DESCUBRIR TOMCAT</a>
+
+                <!-- Mini gallery preview -->
+                <div class="hero-gallery-strip" style="display: flex; gap: 10px; margin-top: 28px; align-items: center; flex-wrap: wrap;">
+                    <a href="cohetes.html" title="Tomcat" style="display: block; width: 72px; height: 44px; border-radius: 4px; overflow: hidden; border: 1px solid rgba(255,255,255,0.3); transition: transform 0.2s, border-color 0.2s;" onmouseover="this.style.transform='scale(1.08)'; this.style.borderColor='var(--primary-color)'" onmouseout="this.style.transform='none'; this.style.borderColor='rgba(255,255,255,0.3)'">
+                        <img src="imagenes/Tomcat.png" alt="Tomcat" style="width: 100%; height: 100%; object-fit: cover;">
+                    </a>
+                    <a href="cohetes.html" title="Tomcat Booster" style="display: block; width: 72px; height: 44px; border-radius: 4px; overflow: hidden; border: 1px solid rgba(255,255,255,0.3); transition: transform 0.2s, border-color 0.2s;" onmouseover="this.style.transform='scale(1.08)'; this.style.borderColor='var(--primary-color)'" onmouseout="this.style.transform='none'; this.style.borderColor='rgba(255,255,255,0.3)'">
+                        <img src="imagenes/Tomcat 2.png" alt="Tomcat Booster" style="width: 100%; height: 100%; object-fit: cover;">
+                    </a>
+                    <a href="cohetes.html" title="Tomcat Ship" style="display: block; width: 72px; height: 44px; border-radius: 4px; overflow: hidden; border: 1px solid rgba(255,255,255,0.3); transition: transform 0.2s, border-color 0.2s;" onmouseover="this.style.transform='scale(1.08)'; this.style.borderColor='var(--primary-color)'" onmouseout="this.style.transform='none'; this.style.borderColor='rgba(255,255,255,0.3)'">
+                        <img src="imagenes/Tomcat 3.png" alt="Tomcat Ship" style="width: 100%; height: 100%; object-fit: cover;">
+                    </a>
+                    <a href="cohetes.html" title="Tomcat Pad" style="display: block; width: 72px; height: 44px; border-radius: 4px; overflow: hidden; border: 1px solid rgba(255,255,255,0.3); transition: transform 0.2s, border-color 0.2s;" onmouseover="this.style.transform='scale(1.08)'; this.style.borderColor='var(--primary-color)'" onmouseout="this.style.transform='none'; this.style.borderColor='rgba(255,255,255,0.3)'">
+                        <img src="imagenes/Tomcat 5.png" alt="Tomcat Pad" style="width: 100%; height: 100%; object-fit: cover;">
+                    </a>
+                    <a href="cohetes.html" style="color: rgba(255,255,255,0.85); font-family: 'Space Grotesk', sans-serif; font-size: 0.8rem; text-decoration: none; padding-left: 6px; letter-spacing: 1px; font-weight: 600;">+ MÁS FOTOS &rarr;</a>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 2: GeoNet -->
+        <section id="geonet" class="hero-section section-geonet">
+            <div class="hero-content">
+                <div class="hero-subtitle">CONSTELACIÓN GEONET</div>
+                <h2 class="hero-title">CONECTIVIDAD INTERPLANETARIA</h2>
+                <p class="hero-desc">La red satelital de datos y telemetría orbital definitiva. Enlace continuo de alta velocidad y monitoreo en tiempo real en todo el sistema planetario.</p>
+                <a href="geonet.html" class="hero-btn">ACCEDER A GEONET</a>
+            </div>
+        </section>
+
+        <!-- Section 3: YouTube -->
+        <section id="youtube" class="section-yt">
+            <div class="yt-bg-glow"></div>
+            <div class="yt-container">
+                <!-- Header -->
+                <div class="yt-header">
+                    <div class="yt-header-tags">
+                        <div class="yt-brand-tag">
+                            <svg viewBox="0 0 24 24" fill="currentColor" class="yt-brand-icon"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+                            YouTube
+                        </div>
+                        <span class="yt-meta"><span class="yt-meta-dot"></span>Últimas misiones publicadas</span>
+                    </div>
+                    <h2 class="yt-title">EXPLORA NUESTRAS <span class="yt-title-accent">MISIONES</span></h2>
+                    <p class="yt-desc">Revive cada lanzamiento, prueba de motor y aterrizaje autónomo en nuestro canal oficial.</p>
+                    <div class="yt-header-actions">
+                        <a href="https://www.youtube.com/@J.S.Aerospace" target="_blank" rel="noopener noreferrer" class="yt-chan-btn">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+                            SUSCRIBIRSE
+                        </a>
+                        <a href="https://www.youtube.com/@J.S.Aerospace/videos" target="_blank" rel="noopener noreferrer" class="yt-chan-btn yt-chan-btn-ghost">
+                            VER TODOS LOS VÍDEOS
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Video Grid: Reproductor Embebido + Lateral -->
+                <div id="yt-video-grid" class="yt-layout">
+                    <div class="yt-loading yt-loading-full">Cargando vídeos...</div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer (Ezsunspace style) -->
+    <footer>
+        <div class="footer-socials">
+            <a href="https://www.youtube.com/@J.S.Aerospace" target="_blank" rel="noopener noreferrer" aria-label="YouTube">
+                <i class="fab fa-youtube"></i>
+            </a>
+            <a href="https://x.com/EsZunSpace" target="_blank" rel="noopener noreferrer" aria-label="X (Twitter)">
+                <i class="fab fa-x-twitter"></i>
+            </a>
+            <a href="https://github.com/JSAerospace" target="_blank" rel="noopener noreferrer" aria-label="GitHub">
+                <i class="fab fa-github"></i>
+            </a>
+        </div>
+        <div class="footer-copy">
+            © <span id="year">2026</span> J.S. Aerospace – Todos los derechos reservados
+        </div>
+    </footer>
+
+    <!-- Login Modal -->
+    <div class="modal-overlay" id="loginModal">
+        <div class="login-modal">
+            <button class="close-modal" id="closeModal">&times;</button>
+            <div class="modal-header">
+                <h2 id="modalTitle">Iniciar Sesión</h2>
+                <p id="modalSubtitle">Accede a tu cuenta de J.S.Aerospace</p>
+            </div>
+
+            <div class="auth-message" id="authMessage"></div>
+
+            <form id="authForm">
+                <div class="form-group" id="nameGroup" style="display: none;">
+                    <label for="userName">Nombre</label>
+                    <input type="text" id="userName" placeholder="Tu nombre">
+                </div>
+                <div class="form-group">
+                    <label for="userEmail">Email</label>
+                    <input type="email" id="userEmail" placeholder="tu@email.com" required>
+                </div>
+                <div class="form-group">
+                    <label for="userPassword">Contraseña</label>
+                    <input type="password" id="userPassword" placeholder="••••••••" required>
+                </div>
+                <button type="submit" class="login-btn" id="submitBtn">Entrar</button>
+            </form>
+
+            <div class="divider"><span>o continuar con</span></div>
+
+            <div class="social-login">
+                <button class="social-btn google" id="googleLogin">
+                    <i class="fab fa-google"></i>
+                    <span>Google</span>
+                </button>
+            </div>
+
+            <div class="toggle-auth">
+                <span id="toggleText">¿No tienes cuenta?</span>
+                <a href="#" id="toggleLink">Regístrate</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Profile Modal -->
+    <div class="modal-overlay" id="profileModal">
+        <div class="login-modal">
+            <button class="close-modal" id="closeProfileModal">&times;</button>
+            <div class="modal-header">
+                <h2>Tu Perfil</h2>
+                <p>Gestiona tu cuenta</p>
+            </div>
+
+            <div class="auth-message" id="profileMessage"></div>
+
+            <div class="profile-section">
+                <h3><i class="fas fa-user-edit"></i> Datos Personales</h3>
+                <div class="form-group">
+                    <label for="profileName">Nombre Visible</label>
+                    <input type="text" id="profileName" placeholder="Tu nombre">
+                </div>
+                <button class="login-btn btn-update" id="updateNameBtn">Actualizar Nombre</button>
+            </div>
+
+            <div class="profile-section">
+                <h3><i class="fas fa-lock"></i> Seguridad</h3>
+                <div class="form-group">
+                    <label for="newPassword">Nueva Contraseña</label>
+                    <input type="password" id="newPassword" placeholder="••••••••">
+                </div>
+                <button class="login-btn btn-update" id="updatePassBtn">Cambiar Contraseña</button>
+            </div>
+
+            <div class="profile-section">
+                <button class="btn-logout" id="logoutBtn">
+                    <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Contact Modal -->
+    <div class="modal-overlay" id="contactModal">
+        <div class="login-modal" id="contactModalContent" style="display: flex; flex-direction: column; height: 80vh; max-height: 600px; padding: 20px;">
+            <button class="close-modal" id="closeContactModal">&times;</button>
+            <div class="contact-header" style="display: flex; align-items: center; border-bottom: 1px solid rgba(255, 255, 255, 0.1); padding-bottom: 15px; margin-bottom: 15px;">
+                <div style="background: var(--neon-red, #ff3333); color: #000; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-family: var(--font-heading, 'Orbitron'); margin-right: 15px;">AG</div>
+                <div>
+                    <h2 style="font-family: var(--font-heading, 'Orbitron'); color: #fff; font-size: 1.2rem; margin: 0;">Agus</h2>
+                    <p style="color: var(--neon-red, #ff3333); font-size: 0.85rem; margin: 0;">CEO de J.S. Aerospace</p>
+                </div>
+                <button id="chat-back-btn" style="display: none; margin-left: auto; background: none; border: 1px solid rgba(255,255,255,0.2); color: #fff; cursor: pointer; padding: 5px 10px; border-radius: 5px;">Volver</button>
+            </div>
+            <div id="contact-conversations" style="display: none; flex: 1; overflow-y: auto;">
+                <h3 style="color: rgba(255,255,255,0.7); font-size: 0.9rem; margin-bottom: 10px;">Conversaciones</h3>
+                <div id="conversations-list"></div>
+            </div>
+            <div id="contact-login-required" style="text-align: center; flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center;">
+                <i class="fas fa-lock" style="font-size: 3rem; color: rgba(255,51,51,0.5); margin-bottom: 15px;"></i>
+                <h3 style="color: #fff; margin-bottom: 10px;">Inicia sesión para chatear</h3>
+                <button class="login-btn" id="contactLoginBtn" style="padding: 10px 20px;">Iniciar Sesión</button>
+            </div>
+            <div id="contact-chat-area" style="display: none; flex: 1; flex-direction: column; min-height: 0;">
+                <div id="chat-messages" style="flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; padding-right: 5px; margin-bottom: 15px;"></div>
+                <form id="chat-form" style="display: flex; gap: 10px; margin-top: auto;">
+                    <input type="text" id="chat-input" placeholder="Escribe tu mensaje..." style="flex: 1; padding: 12px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 5px; color: #fff; outline: none;" autocomplete="off">
+                    <button type="submit" style="background: var(--neon-red, #ff3333); border: none; border-radius: 5px; width: 45px; color: #000; cursor: pointer; display: flex; align-items: center; justify-content: center;"><i class="fas fa-paper-plane"></i></button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scroll Spy Script for Side Navigation -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const sections = document.querySelectorAll('.hero-section, .section-yt');
+            const navItems = document.querySelectorAll('.side-nav-item');
+
+            const observerOptions = {
+                root: null,
+                rootMargin: '0px',
+                threshold: 0.3
+            };
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const id = entry.target.getAttribute('id');
+                        navItems.forEach(item => {
+                            item.classList.toggle('active', item.getAttribute('data-section') === id);
+                        });
+                    }
+                });
+            }, observerOptions);
+
+            sections.forEach(section => observer.observe(section));
+
+            const yearEl = document.getElementById('year');
+            if (yearEl) yearEl.textContent = new Date().getFullYear();
+        });
+    </script>
+
+    <!-- YouTube Feed & Embed Script -->
+    <script>
+        window.JSA_YT_VIDEOS = [
+            { id: 'UgsMid8oA4Q', title: 'Tomcat Booster Landing', date: '2026-06-25', tag: 'Aterrizaje en Mechazilla', featured: true },
+            { id: 'yyc-lq0b2AE', title: 'Tomcat', date: '2026-06-20', tag: 'Vuelo y telemetría' },
+            { id: 'Q2N2f7B8ECs', title: 'Intro J.S. Aerospace', date: '2026-06-15', tag: 'Presentación Oficial' },
+            { id: '7SImZogLIf8', title: 'Astro-3 Booster Landing', date: '2026-06-10', tag: 'Aterrizaje del Booster' }
+        ];
+
+        (function () {
+            'use strict';
+
+            function formatDate(iso) {
+                const months = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
+                const d = new Date(iso + 'T00:00:00');
+                return months[d.getMonth()] + ' ' + d.getFullYear();
+            }
+
+            function thumb(id, quality) {
+                return 'https://i.ytimg.com/vi/' + id + '/' + quality + '.jpg';
+            }
+
+            function escapeHtml(text) {
+                return String(text)
+                    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+                    .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+            }
+
+            let activeVideoId = 'UgsMid8oA4Q';
+
+            function renderPlayer(video) {
+                const player = document.querySelector('.yt-player-card');
+                if (!player) return;
+
+                player.innerHTML =
+                    '<div class="yt-player-frame">' +
+                        '<iframe src="https://www.youtube.com/embed/' + video.id + '?autoplay=1&rel=0" ' +
+                            'title="' + escapeHtml(video.title) + '" frameborder="0" ' +
+                            'allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" ' +
+                            'allowfullscreen></iframe>' +
+                        '<div class="yt-player-scanline"></div>' +
+                    '</div>' +
+                    '<div class="yt-player-bar">' +
+                        '<span class="yt-player-badge">' +
+                            '<span class="yt-player-badge-dot"></span>REPRODUCIENDO</span>' +
+                        '<div class="yt-player-title">' + escapeHtml(video.title) + '</div>' +
+                        '<div class="yt-player-meta">' + formatDate(video.date) + ' · ' + (video.tag || 'J.S. Aerospace') + '</div>' +
+                    '</div>';
+            }
+
+            function buildGrid() {
+                const grid = document.getElementById('yt-video-grid');
+                if (!grid) return;
+
+                const videos = window.JSA_YT_VIDEOS || [];
+                if (!videos.length) {
+                    grid.innerHTML = '<div class="yt-loading yt-loading-full">No hay vídeos disponibles.</div>';
+                    return;
+                }
+
+                const featured = videos.find((v) => v.id === activeVideoId) || videos[0];
+                const rest = videos.filter((v) => v.id !== featured.id);
+
+                /* Reproductor destacado */
+                const player = document.createElement('div');
+                player.className = 'yt-player-card';
+
+                player.innerHTML =
+                    '<div class="yt-player-frame">' +
+                        '<iframe src="https://www.youtube.com/embed/' + featured.id + '?rel=0" ' +
+                            'title="' + escapeHtml(featured.title) + '" frameborder="0" ' +
+                            'allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" ' +
+                            'allowfullscreen></iframe>' +
+                        '<div class="yt-player-scanline"></div>' +
+                    '</div>' +
+                    '<div class="yt-player-bar">' +
+                        '<span class="yt-player-badge">' +
+                            '<span class="yt-player-badge-dot"></span>DESTACADO</span>' +
+                        '<div class="yt-player-title">' + escapeHtml(featured.title) + '</div>' +
+                        '<div class="yt-player-meta">' + formatDate(featured.date) + ' · ' + (featured.tag || 'Misión') + '</div>' +
+                    '</div>';
+
+                /* Lista lateral */
+                const side = document.createElement('aside');
+                side.className = 'yt-side';
+
+                const sideHead = document.createElement('span');
+                sideHead.className = 'yt-side-head';
+                sideHead.textContent = 'MÁS VÍDEOS DEL CANAL';
+                side.appendChild(sideHead);
+
+                rest.forEach(function (video) {
+                    const card = document.createElement('a');
+                    card.className = 'yt-side-card';
+                    card.href = 'https://www.youtube.com/watch?v=' + video.id;
+                    card.target = '_blank';
+                    card.rel = 'noopener noreferrer';
+                    card.setAttribute('aria-label', 'Ver: ' + video.title);
+
+                    card.innerHTML =
+                        '<div class="yt-side-thumb">' +
+                            '<img src="' + thumb(video.id, 'hqdefault') + '" alt="" loading="lazy" ' +
+                                'onerror="this.onerror=null;this.src=\'' + thumb(video.id, 'hqdefault') + '\'">' +
+                            '<div class="yt-side-play"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></div>' +
+                        '</div>' +
+                        '<div class="yt-side-info">' +
+                            '<span class="yt-side-date">' + formatDate(video.date) + '</span>' +
+                            '<h3>' + escapeHtml(video.title) + '</h3>' +
+                        '</div>';
+
+                    // Al hacer click, reproducir en el reproductor principal sin salir
+                    card.onclick = function (e) {
+                        e.preventDefault();
+                        activeVideoId = video.id;
+                        buildGrid();
+                        player.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                    };
+
+                    side.appendChild(card);
+
+                    card.addEventListener('mousemove', function (e) {
+                        const rect = card.getBoundingClientRect();
+                        card.style.setProperty('--mx', (e.clientX - rect.left) + 'px');
+                        card.style.setProperty('--my', (e.clientY - rect.top) + 'px');
+                    });
+                });
+
+                const sideFoot = document.createElement('a');
+                sideFoot.className = 'yt-side-more';
+                sideFoot.href = 'https://www.youtube.com/@J.S.Aerospace/videos';
+                sideFoot.target = '_blank';
+                sideFoot.rel = 'noopener noreferrer';
+                sideFoot.innerHTML = 'VER TODOS LOS VÍDEOS <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M13 6l6 6-6 6"/></svg>';
+                side.appendChild(sideFoot);
+
+                grid.innerHTML = '';
+                grid.appendChild(player);
+                grid.appendChild(side);
+            }
+
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', buildGrid);
+            } else {
+                buildGrid();
+            }
+        })();
+    </script>
+
+    <!-- Firebase SDK & App Logic -->
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut, updateProfile, updatePassword } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+        import { getDatabase, ref, set, get, update, push, onValue, onChildAdded } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyC6eDNK7CLl_aXEYkwFV97k-2A1axzRAKg",
+            authDomain: "j-saerospace.firebaseapp.com",
+            projectId: "j-saerospace",
+            storageBucket: "j-saerospace.firebasestorage.app",
+            messagingSenderId: "496032189875",
+            appId: "1:496032189875:web:69c591002b8131ed1c0fc6",
+            measurementId: "G-YXWPQWVGDZ",
+            databaseURL: "https://j-saerospace-default-rtdb.firebaseio.com"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const database = getDatabase(app);
+        const googleProvider = new GoogleAuthProvider();
+
+        // DOM Elements
+        const authBtn = document.getElementById('authBtn');
+        const authBtnText = document.getElementById('authBtnText');
+        const loginModal = document.getElementById('loginModal');
+        const closeModal = document.getElementById('closeModal');
+        const profileModal = document.getElementById('profileModal');
+        const closeProfileModal = document.getElementById('closeProfileModal');
+        const authForm = document.getElementById('authForm');
+        const authMessage = document.getElementById('authMessage');
+        const googleLoginBtn = document.getElementById('googleLogin');
+        const toggleLink = document.getElementById('toggleLink');
+        const toggleText = document.getElementById('toggleText');
+        const modalTitle = document.getElementById('modalTitle');
+        const modalSubtitle = document.getElementById('modalSubtitle');
+        const submitBtn = document.getElementById('submitBtn');
+        const nameGroup = document.getElementById('nameGroup');
+
+        let isLoginMode = true;
+        let currentUser = null;
+        let isAdmin = false;
+
+        // AUTH LOGIC
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                currentUser = user;
+                isAdmin = (user.email === 'olanoagus@gmail.com');
+                authBtn.classList.add('logged-in');
+                authBtn.innerHTML = `
+                    <img src="${user.photoURL || 'https://via.placeholder.com/32'}" class="user-avatar" alt="Avatar" style="width:26px; height:26px; border-radius:50%; margin-right:8px; vertical-align:middle;">
+                    <span>${user.displayName || user.email.split('@')[0]}</span>
+                `;
+                saveUserToDatabase(user);
+            } else {
+                currentUser = null;
+                isAdmin = false;
+                authBtn.classList.remove('logged-in');
+                authBtn.innerHTML = `
+                    <i class="fas fa-user"></i>
+                    <span id="authBtnText">Iniciar Sesión</span>
+                `;
+            }
+            updateChatView();
+        });
+
+        async function saveUserToDatabase(user) {
+            const userRef = ref(database, 'users/' + user.uid);
+            await update(userRef, {
+                lastLogin: new Date().toISOString(),
+                displayName: user.displayName || null,
+                photoURL: user.photoURL || null
+            });
+        }
+
+        authBtn.addEventListener('click', () => {
+            if (currentUser) profileModal.classList.add('active');
+            else loginModal.classList.add('active');
+        });
+
+        closeModal.addEventListener('click', () => loginModal.classList.remove('active'));
+        closeProfileModal.addEventListener('click', () => profileModal.classList.remove('active'));
+
+        toggleLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            isLoginMode = !isLoginMode;
+            modalTitle.textContent = isLoginMode ? 'Iniciar Sesión' : 'Registrarse';
+            modalSubtitle.textContent = isLoginMode ? 'Accede a tu cuenta de J.S.Aerospace' : 'Únete a la nueva era espacial';
+            submitBtn.textContent = isLoginMode ? 'Entrar' : 'Crear Cuenta';
+            toggleText.textContent = isLoginMode ? '¿No tienes cuenta?' : '¿Ya tienes cuenta?';
+            toggleLink.textContent = isLoginMode ? 'Regístrate' : 'Inicia Sesión';
+            nameGroup.style.display = isLoginMode ? 'none' : 'block';
+        });
+
+        authForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('userEmail').value;
+            const password = document.getElementById('userPassword').value;
+            const name = document.getElementById('userName').value;
+
+            try {
+                if (isLoginMode) {
+                    await signInWithEmailAndPassword(auth, email, password);
+                } else {
+                    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                    await updateProfile(userCredential.user, { displayName: name });
+                }
+                loginModal.classList.remove('active');
+            } catch (error) {
+                authMessage.textContent = error.message;
+                authMessage.className = 'auth-message error';
+            }
+        });
+
+        googleLoginBtn.addEventListener('click', async () => {
+            try {
+                await signInWithPopup(auth, googleProvider);
+                loginModal.classList.remove('active');
+            } catch (error) {
+                authMessage.textContent = error.message;
+                authMessage.className = 'auth-message error';
+            }
+        });
+
+        document.getElementById('logoutBtn').addEventListener('click', () => {
+            signOut(auth);
+            profileModal.classList.remove('active');
+            contactModal.classList.remove('active');
+        });
+
+        // --- CHAT LOGIC ---
+        const contactBtn = document.getElementById('contactBtn');
+        const contactModal = document.getElementById('contactModal');
+        const closeContactModal = document.getElementById('closeContactModal');
+        const contactLoginRequired = document.getElementById('contact-login-required');
+        const contactChatArea = document.getElementById('contact-chat-area');
+        const contactConversations = document.getElementById('contact-conversations');
+        const contactLoginBtn = document.getElementById('contactLoginBtn');
+        const chatForm = document.getElementById('chat-form');
+        const chatInput = document.getElementById('chat-input');
+        const chatMessages = document.getElementById('chat-messages');
+        const conversationsList = document.getElementById('conversations-list');
+        const chatBackBtn = document.getElementById('chat-back-btn');
+
+        let chatListeners = [], activeChatUid = null;
+
+        contactBtn.addEventListener('click', () => { contactModal.classList.add('active'); updateChatView(); });
+        closeContactModal.addEventListener('click', () => contactModal.classList.remove('active'));
+        contactLoginBtn.addEventListener('click', () => { contactModal.classList.remove('active'); loginModal.classList.add('active'); });
+        chatBackBtn.onclick = () => { activeChatUid = null; updateChatView(); };
+
+        function clearChatListeners() { chatListeners.forEach(un => un()); chatListeners = []; }
+
+        function updateChatView() {
+            if (!currentUser) {
+                contactLoginRequired.style.display = 'flex';
+                contactChatArea.style.display = 'none';
+                contactConversations.style.display = 'none';
+                return;
+            }
+            contactLoginRequired.style.display = 'none';
+            const isAgus = isAdmin;
+            if (isAgus) {
+                if (!activeChatUid) {
+                    contactConversations.style.display = 'block';
+                    contactChatArea.style.display = 'none';
+                    chatBackBtn.style.display = 'none';
+                    loadConversations();
+                } else {
+                    contactConversations.style.display = 'none';
+                    contactChatArea.style.display = 'flex';
+                    chatBackBtn.style.display = 'block';
+                    loadChatMessages(activeChatUid);
+                }
+            } else {
+                contactConversations.style.display = 'none';
+                contactChatArea.style.display = 'flex';
+                chatBackBtn.style.display = 'none';
+                activeChatUid = currentUser.uid;
+                loadChatMessages(currentUser.uid);
+            }
+        }
+
+        function loadConversations() {
+            clearChatListeners();
+            chatListeners.push(onValue(ref(database, 'chats'), (snap) => {
+                conversationsList.innerHTML = '';
+                if (!snap.exists()) { conversationsList.innerHTML = '<p>No hay mensajes.</p>'; return; }
+                snap.forEach(child => {
+                    const uid = child.key, last = Object.values(child.val()).pop();
+                    const el = document.createElement('div');
+                    el.style.cssText = 'padding:10px; border-bottom:1px solid rgba(255,255,255,0.1); cursor:pointer;';
+                    el.innerHTML = `<strong>${uid.substring(0,8)}</strong><br><small>${last.text}</small>`;
+                    el.onclick = () => { activeChatUid = uid; updateChatView(); };
+                    conversationsList.appendChild(el);
+                });
+            }));
+        }
+
+        function loadChatMessages(uid) {
+            clearChatListeners();
+            chatMessages.innerHTML = '';
+            chatListeners.push(onChildAdded(ref(database, 'chats/' + uid), (snap) => {
+                const msg = snap.val();
+                const isMine = (msg.senderUid === currentUser.uid);
+                const msgEl = document.createElement('div');
+                msgEl.className = `chat-msg ${isMine ? 'mine' : 'theirs'}`;
+                msgEl.style.cssText = `max-width:80%; padding:10px; border-radius:10px; margin-bottom:5px; align-self:${isMine?'flex-end':'flex-start'}; background:${isMine?'var(--neon-red, #ff3333)':'rgba(255,255,255,0.1)'}; color:${isMine?'#000':'#fff'};`;
+                msgEl.textContent = msg.text;
+                chatMessages?.appendChild(msgEl);
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            }));
+        }
+
+        chatForm.onsubmit = async (e) => {
+            e.preventDefault();
+            const text = chatInput.value.trim();
+            if (!text || !currentUser) return;
+            const threadUid = (currentUser.displayName === 'Agus' && activeChatUid) ? activeChatUid : currentUser.uid;
+            await push(ref(database, 'chats/' + threadUid), { text, senderUid: currentUser.uid, timestamp: Date.now() });
+            chatInput.value = '';
+        };
+
+        // Profile Updates
+        document.getElementById('updateNameBtn').addEventListener('click', async () => {
+            const newName = document.getElementById('profileName').value;
+            if (!newName) return;
+            try {
+                await updateProfile(auth.currentUser, { displayName: newName });
+                saveUserToDatabase(auth.currentUser);
+                alert('Nombre actualizado');
+            } catch (error) {
+                alert(error.message);
+            }
+        });
+
+        // --- TICKER COUNTDOWN & FIREBASE MISSIONS ---
+        const tickerMission = document.getElementById('homepage-next-launch-mission');
+        const tickerCountdown = document.getElementById('homepage-next-launch-countdown');
+
+        let targetLaunchDate = new Date(Date.now() + 4 * 24 * 3600 * 1000 + 12 * 3600 * 1000); // fallback: ~4 days
+
+        onValue(ref(database, 'missions'), (snapshot) => {
+            if (snapshot.exists()) {
+                const missions = snapshot.val();
+                let closestDate = null;
+                let closestMission = null;
+                const now = new Date();
+
+                Object.values(missions).forEach(m => {
+                    if (m.date) {
+                        const mDate = new Date(m.date);
+                        if (mDate > now && (!closestDate || mDate < closestDate)) {
+                            closestDate = mDate;
+                            closestMission = m;
+                        }
+                    }
+                });
+
+                if (closestMission && closestDate) {
+                    targetLaunchDate = closestDate;
+                    if (tickerMission) tickerMission.textContent = (closestMission.title || closestMission.name || 'TRANSPORTER-1').toUpperCase();
+                }
+            }
+        });
+
+        function updateCountdown() {
+            const now = new Date().getTime();
+            const distance = targetLaunchDate.getTime() - now;
+
+            if (distance < 0) {
+                if (tickerCountdown) tickerCountdown.textContent = 'T- 00:00:00 (Lanzado)';
+                return;
+            }
+
+            const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+            const pad = (n) => String(n).padStart(2, '0');
+
+            if (days > 0) {
+                tickerCountdown.textContent = `T- ${days}d ${pad(hours)}:${pad(minutes)}:${pad(seconds)}`;
+            } else {
+                tickerCountdown.textContent = `T- ${pad(hours)}:${pad(minutes)}:${pad(seconds)}`;
+            }
+        }
+
+        setInterval(updateCountdown, 1000);
+        updateCountdown();
+    </script>
+
+</body>
+
+</html>
